@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  Route,
-  createBrowserRouter,
-  createRoutesFromElements,
-} from "react-router-dom";
+import { Route, createBrowserRouter, createRoutesFromElements } from "react-router-dom";
 import Base from "./components/global/Base";
 import Home from "./components/Home";
 import Saved from "./components/Saved";
@@ -23,7 +19,7 @@ const App = createBrowserRouter(
         <>
             <Route path="/" element={<Base />} errorElement={<ErrorPage />}>
                 <Route path="/" element={<LoginRequiredRoute />}>
-                    <Route index element={<Home />} />
+                    <Route path="" element={<Home />} />
                     <Route path="likes/" element={<Liked />} />
                     <Route path="saved/" element={<Saved />} />
                     <Route path="explore/" element={<Explore />} />

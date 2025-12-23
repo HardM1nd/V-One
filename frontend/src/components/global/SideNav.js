@@ -28,9 +28,6 @@ const SideNav = (props) => {
                     !open && "scale-0"
                 }`}
             >
-                <span className="text-4xl xm:2xl">
-                    <iconify-icon icon="game-icons:hummingbird">V-one logo</iconify-icon>
-                </span>
                 <h1 className="font-bold italic">V-one</h1>
             </header>
             <nav className="flex flex-col py-2 flex-grow overflow-y-scroll overflow-x-hidden">

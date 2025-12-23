@@ -21,9 +21,6 @@ const Header = (props) => {
                     className={`flex gap-1 text-2xl text-purple-400 items-center`}
                     aria-hidden={true}
                 >
-                    <span className="text-4xl">
-                        <iconify-icon icon="game-icons:hummingbird">birdie logo</iconify-icon>
-                    </span>
                     <h1 className="font-bold italic inline-block capitalize">
                         {isError ? "v-one" : cur}
                     </h1>

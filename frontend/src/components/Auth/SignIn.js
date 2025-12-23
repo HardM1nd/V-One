@@ -45,9 +45,6 @@ export default function SignIn() {
         <main className="w-screen h-screen flex items-center justify-center">
             <div className="w-[90vw] bg-purple-50 max-w-lg p-6 h-max-content rounded-lgz border-l-4">
                 <h1 className="text-2xl text-purple-500 flex justify-center gap-1 items-center m-2">
-                    <span className="text-3xl">
-                        <iconify-icon icon="game-icons:hummingbird"></iconify-icon>
-                    </span>
                     Login To V-One
                 </h1>
                 <form onSubmit={(e) => handleSubmit(e)} className="w-full flex flex-col gap-3">
