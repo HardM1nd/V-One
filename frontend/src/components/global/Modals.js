@@ -275,7 +275,7 @@ const EditPostModal = ({ id, open, onClose }) => {
                                         : "text-green-600 dark:text-green-300 "
                                 }`}
                             >
-                                Size: {file.sizeKb} kb / {maxFileSizeKb} kb (
+                                Size: {file.sizeKb} mb / {maxFileSizeKb} mb (
                                 {file.sizeKb <= maxFileSizeKb ? "Ok" : "Too Large"})
                             </div>
                         )}

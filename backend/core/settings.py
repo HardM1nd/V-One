@@ -164,7 +164,7 @@ AUTH_USER_MODEL = "accounts.User"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
-MAX_IMAGE_SIZE = 100 * 1024  # 100kb
+MAX_IMAGE_SIZE = 100 * 1024 * 1024  # 100kb
 
 
 SIMPLE_JWT = {

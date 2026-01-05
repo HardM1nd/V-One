@@ -107,7 +107,7 @@ export const PageContextProvider = ({ children }) => {
         getNextItems: getNextItems,
         getNextUrl: () => data.next,
         followUser: followUser,
-        maxFileSizeKb: 200, // Max image size in kilobyte
+        maxFileSizeKb: 51200, // Max image size in kilobyte
     };
 
     return <pageContext.Provider value={context}>{children}</pageContext.Provider>;
