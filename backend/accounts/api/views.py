@@ -1,21 +1,26 @@
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.generics import CreateAPIView, UpdateAPIView, ListAPIView
-from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import MyTokenObtainPairSerializer, UserSerializer, SignupSerializer
 from accounts.models import User
-from rest_framework.generics import RetrieveAPIView
 from django.shortcuts import get_object_or_404
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.generics import (
+    CreateAPIView,
+    ListAPIView,
+    RetrieveAPIView,
+    UpdateAPIView,
+)
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+from .serializers import MyTokenObtainPairSerializer, SignupSerializer, UserSerializer
 
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
 
     return {
-        'refresh': str(refresh),
-        'access': str(refresh.access_token),
+        "refresh": str(refresh),
+        "access": str(refresh.access_token),
     }
 
 
@@ -59,11 +64,10 @@ class UserDetailAPIView(RetrieveAPIView):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         data = serializer.data
-        id = self.kwargs.get('id', None)
+        id = self.kwargs.get("id", None)
         if id:
             user = self.request.user
-            data["is_following"] = user.following.filter(
-                id=id).exists()
+            data["is_following"] = user.following.filter(id=id).exists()
         return Response(data)
 
 
@@ -92,9 +96,9 @@ class FollowUnfollowUserAPIView(APIView):
         other_user = get_object_or_404(User, pk=pk)
         followed = False
         if user == other_user:
-            return Response({
-                'message': "Cannot follow yourself"
-            }, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"message": "Cannot follow yourself"}, status=status.HTTP_403_FORBIDDEN
+            )
         user_following = user.following
         other_user_followers = other_user.followers
         if user_following.filter(id=other_user.id).exists():
@@ -105,8 +109,8 @@ class FollowUnfollowUserAPIView(APIView):
             user_following.add(other_user)
             other_user_followers.add(user)
         data = SignupSerializer(user).data
-        data['followed'] = followed
-        data['followers'] = user_following.count()
+        data["followed"] = followed
+        data["followers"] = user_following.count()
         return Response(data)
 
 

@@ -5,7 +5,19 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    "django>=5.2.9",
-    "djangorestframework>=3.16.1",
-    "drf-yasg>=1.21.11",
+    "asgiref==3.9.1",
+    "autopep8==1.7.0",
+    "django==6.0.1",
+    "django-cleanup==9.0.0",
+    "django-cors-headers==3.14.0",
+    "djangorestframework==3.14.0",
+    "djangorestframework-simplejwt==5.2.1",
+    "pillow==12.1.0",
+    "psycopg2==2.9.11",
+    "pycodestyle==2.9.1",
+    "pyjwt==2.5.0",
+    "pytz==2022.4",
+    "sqlparse==0.5.0",
+    "toml==0.10.2",
+    "tzdata==2022.2",
 ]

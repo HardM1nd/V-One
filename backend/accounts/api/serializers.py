@@ -1,16 +1,17 @@
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework import serializers
-from django.contrib.auth import update_session_auth_hash
-from accounts.models import User
-from django.contrib.humanize.templatetags.humanize import naturalday
 from typing import Any
+
+from accounts.models import User
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.humanize.templatetags.humanize import naturalday
+from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token['user_name'] = user.username
+        token["user_name"] = user.username
         try:
             token["profile_pic"] = user.profile_pic.url
         except:
@@ -27,23 +28,23 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id',
-            'username',
-            'date_joined',
-            'email',
-            'profile_pic',
-            'following',
-            'followers',
-            'cover_pic',
-            'password'
+            "id",
+            "username",
+            "date_joined",
+            "email",
+            "profile_pic",
+            "following",
+            "followers",
+            "cover_pic",
+            "password",
         ]
         extra_kwargs = {
-            'date_joined': {
-                'read_only': True,
+            "date_joined": {
+                "read_only": True,
             },
             "password": {
                 "write_only": True,
-            }
+            },
         }
 
     def get_followers(self, user):
@@ -57,14 +58,14 @@ class UserSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
-            if attr == 'password':
+            if attr == "password":
                 instance.set_password(value)
             else:
                 setattr(instance, attr, value)
 
         instance.save()
 
-        update_session_auth_hash(self.context.get('request'), instance)
+        update_session_auth_hash(self.context.get("request"), instance)
 
         return instance
 
@@ -74,17 +75,17 @@ class SignupSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             "username",
-            'email',
-            'password',
+            "email",
+            "password",
         )
         extra_kwargs = {
-            'password': {
-                'write_only': True,
+            "password": {
+                "write_only": True,
             }
         }
 
     def create(self, validated_data):
-        password = validated_data.pop('password', None)
+        password = validated_data.pop("password", None)
         instance = self.Meta.model(**validated_data)
         if password is not None:
             instance.set_password(password)
@@ -93,7 +94,7 @@ class SignupSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
-            if attr == 'password':
+            if attr == "password":
                 instance.set_password(value)
             else:
                 setattr(instance, attr, value)
