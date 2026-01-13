@@ -13,6 +13,9 @@ import Liked from "./components/Liked";
 import PostDetail from "./components/global/PostDetail";
 import OtherUserDetail from "./components/OtherUserDetail";
 import SignUp from "./components/Auth/Signup";
+import Pilots from "./components/Pilots";
+import Routes from "./components/Routes";
+import RouteDetail from "./components/Routes/RouteDetail";
 
 const App = createBrowserRouter(
     createRoutesFromElements(
@@ -23,6 +26,9 @@ const App = createBrowserRouter(
                     <Route path="likes/" element={<Liked />} />
                     <Route path="saved/" element={<Saved />} />
                     <Route path="explore/" element={<Explore />} />
+                    <Route path="pilots/" element={<Pilots />} />
+                    <Route path="routes/" element={<Routes />} />
+                    <Route path="route/:routeId" element={<RouteDetail />} />
                     <Route path="profile/" element={<Profile />} />
                     <Route path="logout/" element={<Logout />} />
                     <Route path="post/:postId" element={<PostDetail />} />

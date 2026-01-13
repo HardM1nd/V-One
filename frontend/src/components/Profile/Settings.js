@@ -14,7 +14,16 @@ function validateUsername(username) {
 const Settings = () => {
     const { profileData, updateInfo, isDemoUser } = useUserContext();
     const { maxFileSizeKb } = usePageContext();
-    const { profile_pic, username, cover_pic } = profileData;
+    const { 
+        profile_pic, 
+        username, 
+        cover_pic, 
+        pilot_type = 'virtual',
+        flight_hours = 0,
+        aircraft_types = '',
+        license_number = '',
+        bio = ''
+    } = profileData;
     const defaultFileValues = {
         profile_pic: { name: "", file: null, sizeKb: 0 },
         cover_pic: { name: "", file: null, sizeKb: 0 },
@@ -22,6 +31,11 @@ const Settings = () => {
     const [editUsername, setEditUsername] = useState(false);
     const [formValues, setFormValues] = useState({
         username: username,
+        pilot_type: pilot_type,
+        flight_hours: flight_hours,
+        aircraft_types: aircraft_types,
+        license_number: license_number,
+        bio: bio,
         ...defaultFileValues,
     });
     const [updatePassword, setupdatePassword] = useState(false);
@@ -276,6 +290,99 @@ const Settings = () => {
                         >
                             Change
                         </button>
+                    </div>
+                </div>
+                <div className="flex gap-1 flex-col justify-center relative">
+                    <label
+                        htmlFor="pilotType"
+                        className="dark:text-gray-200 font-medium tracking-wide"
+                    >
+                        Тип пилота
+                    </label>
+                    <select
+                        name="pilot_type"
+                        id="pilotType"
+                        value={formValues.pilot_type}
+                        onChange={handleChange}
+                        className="border-none p-2 text-gray-900 bg-gray-300 w-full rounded-lg focus:outline-none text-sm dark:bg-gray-900 dark:text-gray-300"
+                    >
+                        <option value="virtual">Виртуальный пилот</option>
+                        <option value="real">Реальный пилот</option>
+                        <option value="both">Виртуальный и реальный</option>
+                    </select>
+                </div>
+                <div className="flex gap-1 flex-col justify-center relative">
+                    <label
+                        htmlFor="flightHours"
+                        className="dark:text-gray-200 font-medium tracking-wide"
+                    >
+                        Часы налета
+                    </label>
+                    <input
+                        type="number"
+                        name="flight_hours"
+                        id="flightHours"
+                        step="0.1"
+                        min="0"
+                        placeholder="0.0"
+                        value={formValues.flight_hours}
+                        onChange={handleChange}
+                        className="border-none p-2 text-gray-900 bg-gray-300 w-full rounded-lg focus:outline-none text-sm dark:bg-gray-900 dark:text-gray-300"
+                    />
+                </div>
+                <div className="flex gap-1 flex-col justify-center relative">
+                    <label
+                        htmlFor="aircraftTypes"
+                        className="dark:text-gray-200 font-medium tracking-wide"
+                    >
+                        Типы самолетов (через запятую)
+                    </label>
+                    <input
+                        type="text"
+                        name="aircraft_types"
+                        id="aircraftTypes"
+                        placeholder="Cessna 172, Boeing 737"
+                        value={formValues.aircraft_types}
+                        onChange={handleChange}
+                        className="border-none p-2 text-gray-900 bg-gray-300 w-full rounded-lg focus:outline-none text-sm dark:bg-gray-900 dark:text-gray-300"
+                    />
+                </div>
+                <div className="flex gap-1 flex-col justify-center relative">
+                    <label
+                        htmlFor="licenseNumber"
+                        className="dark:text-gray-200 font-medium tracking-wide"
+                    >
+                        Номер лицензии
+                    </label>
+                    <input
+                        type="text"
+                        name="license_number"
+                        id="licenseNumber"
+                        placeholder="PPL-12345"
+                        value={formValues.license_number}
+                        onChange={handleChange}
+                        className="border-none p-2 text-gray-900 bg-gray-300 w-full rounded-lg focus:outline-none text-sm dark:bg-gray-900 dark:text-gray-300"
+                    />
+                </div>
+                <div className="flex gap-1 flex-col justify-center relative">
+                    <label
+                        htmlFor="bio"
+                        className="dark:text-gray-200 font-medium tracking-wide"
+                    >
+                        Биография
+                    </label>
+                    <textarea
+                        name="bio"
+                        id="bio"
+                        rows="4"
+                        maxLength="500"
+                        placeholder="Расскажите о себе..."
+                        value={formValues.bio}
+                        onChange={handleChange}
+                        className="border-none p-2 text-gray-900 bg-gray-300 w-full rounded-lg focus:outline-none text-sm dark:bg-gray-900 dark:text-gray-300"
+                    />
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {formValues.bio?.length || 0}/500
                     </div>
                 </div>
                 <div className="flex items-center justify-end w-full">

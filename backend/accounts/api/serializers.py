@@ -24,6 +24,8 @@ class UserSerializer(serializers.ModelSerializer):
     followers = serializers.SerializerMethodField()
     following = serializers.SerializerMethodField()
     date_joined = serializers.SerializerMethodField()
+    aircraft_types_list = serializers.SerializerMethodField()
+    pilot_type_display = serializers.CharField(source='get_pilot_type_display', read_only=True)
 
     class Meta:
         model = User
@@ -37,6 +39,13 @@ class UserSerializer(serializers.ModelSerializer):
             "followers",
             "cover_pic",
             "password",
+            "pilot_type",
+            "pilot_type_display",
+            "flight_hours",
+            "aircraft_types",
+            "aircraft_types_list",
+            "license_number",
+            "bio",
         ]
         extra_kwargs = {
             "date_joined": {
@@ -55,6 +64,9 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_date_joined(self, user):
         return naturalday(user.date_joined)
+    
+    def get_aircraft_types_list(self, user):
+        return user.get_aircraft_types_list()
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():

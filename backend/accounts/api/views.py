@@ -120,3 +120,27 @@ class ProfileUpdateAPIView(UpdateAPIView):
 
     def get_object(self):
         return get_object_or_404(self.model, id=self.request.user.id)
+
+
+class PilotListAPIView(ListAPIView):
+    """Список пилотов с фильтрацией по типу"""
+    serializer_class = UserSerializer
+    
+    def get_queryset(self):
+        queryset = User.objects.all()
+        pilot_type = self.request.query_params.get('pilot_type', None)
+        
+        if pilot_type:
+            if pilot_type == 'virtual':
+                queryset = queryset.filter(pilot_type__in=['virtual', 'both'])
+            elif pilot_type == 'real':
+                queryset = queryset.filter(pilot_type__in=['real', 'both'])
+            elif pilot_type == 'both':
+                queryset = queryset.filter(pilot_type='both')
+        
+        # Сортировка по часам налета (по убыванию)
+        order_by = self.request.query_params.get('order_by', '-flight_hours')
+        if order_by in ['flight_hours', '-flight_hours', 'username', '-username']:
+            queryset = queryset.order_by(order_by)
+        
+        return queryset

@@ -45,6 +45,12 @@ const Profile = () => {
     date_joined,
     cover_pic,
     is_following,
+    pilot_type,
+    pilot_type_display,
+    flight_hours,
+    aircraft_types_list,
+    license_number,
+    bio,
   } = profileData;
   const currentTab = queryParams.get("tab") || "posts";
 
@@ -121,6 +127,31 @@ const Profile = () => {
           <div className="capitalize text-sm text-[#5B7083]">
             joined {date_joined}
           </div>
+          {pilot_type_display && (
+            <div className="text-sm text-purple-600 dark:text-purple-400 font-medium">
+              ✈️ {pilot_type_display}
+            </div>
+          )}
+          {flight_hours > 0 && (
+            <div className="text-sm text-[#5B7083]">
+              Налет: {parseFloat(flight_hours).toFixed(1)} часов
+            </div>
+          )}
+          {aircraft_types_list && aircraft_types_list.length > 0 && (
+            <div className="text-sm text-[#5B7083]">
+              Самолеты: {aircraft_types_list.join(', ')}
+            </div>
+          )}
+          {license_number && (
+            <div className="text-sm text-[#5B7083]">
+              Лицензия: {license_number}
+            </div>
+          )}
+          {bio && (
+            <div className="text-sm text-gray-700 dark:text-gray-300 mt-2">
+              {bio}
+            </div>
+          )}
           <div className="text-[#5b7083] text-sm flex gap-1">
             <div>
               <span className="text-black dark:text-gray-400">

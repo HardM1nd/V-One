@@ -7,7 +7,8 @@ from .views import (
     SignupAPIView,
     ProfileUpdateAPIView,
     FollowingListAPIView,
-    FollowerListAPIView
+    FollowerListAPIView,
+    PilotListAPIView,
 )
 
 
@@ -23,4 +24,5 @@ urlpatterns = [
     path("follow_unfollow/<int:pk>/", FollowUnfollowUserAPIView.as_view()),
     path('api/token/blacklist/', TokenBlacklistView.as_view(),
          name='token_blacklist'),
+    path("pilots/", PilotListAPIView.as_view(), name='pilot_list'),
 ]

@@ -4,6 +4,8 @@ import { Link, useLocation } from "react-router-dom";
 const navElement = [
     { name: "Home", icon: "ant-design:home-filled", href: "/" },
     { name: "Explore", icon: "material-symbols:explore-outline-rounded", href: "/explore" },
+    { name: "Pilots", icon: "material-symbols:flight-outline", href: "/pilots" },
+    { name: "Routes", icon: "material-symbols:route-outline", href: "/routes" },
     { name: "Likes", icon: "icon-park-solid:like", href: "/likes" },
     { name: "Saved", icon: "dashicons:cloud-saved", href: "/saved" },
     { name: "Profile", icon: "healthicons:ui-user-profile", href: "/profile" },
