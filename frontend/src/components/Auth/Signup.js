@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import useUserContext from "../../contexts/UserContext";
 import { Navigate, Link } from "react-router-dom";
+import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
+import { Input } from "../ui/input";
 
 const validUsernamePattern = /^[\w.@+-]+$/;
 
@@ -42,68 +45,76 @@ export default function SignUp() {
 
     if (user) return <Navigate to="/" />;
     return (
-        <main className="w-screen h-screen flex items-center justify-center">
-            <div className="w-[90vw] bg-purple-50 max-w-lg p-6 h-max-content rounded-lgz border-l-4">
-                <h1 className="text-2xl text-purple-500 flex justify-center gap-1 items-center m-2">
-                    
-                    Create An Account
-                </h1>
-                <form onSubmit={(e) => handleSubmit(e)} className="w-full flex flex-col gap-3">
-                    <label htmlFor="signup-username">Username</label>
-
-                    {usernameError && (
-                        <p className="text-sm text-red-500">
-                            Invalid username, only letters, numbers, and @/./+/-/_ characters.
+        <main className="w-screen h-screen flex items-center justify-center bg-background">
+            <Card className="w-[90vw] max-w-lg">
+                <CardContent className="p-6 space-y-4">
+                    <div className="space-y-1">
+                        <h1 className="text-2xl font-semibold">Создать аккаунт</h1>
+                        <p className="text-sm text-muted-foreground">
+                            Зарегистрируйтесь, чтобы публиковать посты и маршруты.
                         </p>
-                    )}
-                    <input
-                        type="text"
-                        autoFocus
-                        name="username"
-                        required
-                        className="rounded-lg p-2 text-sm"
-                        onChange={handleChange}
-                        value={formData.username}
-                        placeholder="username"
-                        id="signup-username"
-                    />
-                    {passwordError && <p className="text-sm text-red-500">invalid password</p>}
-                    <label htmlFor="signup-password">Password</label>
-                    <input
-                        type="password"
-                        className="rounded-lg p-2 text-sm"
-                        name="password"
-                        id="signup-password"
-                        required
-                        value={formData.password}
-                        onChange={handleChange}
-                        placeholder="password"
-                    />
-
-                    <label htmlFor="signup-password-confirm">Password confirmation</label>
-                    <input
-                        type="password"
-                        className="rounded-lg p-2 text-sm"
-                        name="passwordConfirm"
-                        id="signup-password-confirm"
-                        value={formData.passwordConfirm}
-                        required
-                        onChange={handleChange}
-                        placeholder="password confirm"
-                    />
-                    <p className="mt-3">
-                        Already have an account,{" "}
-                        <Link to="/signin" className="underline text-blue-600">
-                            Login
-                        </Link>
-                    </p>
-                    <div>
-                        <button className="bg-purple-600 text-purple-100 rounded-full px-2 w-20 py-1 float-right mt-2">
-                            Signup
-                        </button>
                     </div>
-                </form>
-            </div>
+                    <form onSubmit={(e) => handleSubmit(e)} className="w-full flex flex-col gap-3">
+                        <label htmlFor="signup-username" className="text-sm text-muted-foreground">
+                            Username
+                        </label>
+
+                        {usernameError && (
+                            <p className="text-sm text-red-500">
+                                Invalid username, only letters, numbers, and @/./+/-/_ characters.
+                            </p>
+                        )}
+                        <Input
+                            type="text"
+                            autoFocus
+                            name="username"
+                            required
+                            onChange={handleChange}
+                            value={formData.username}
+                            placeholder="username"
+                            id="signup-username"
+                        />
+                        {passwordError && <p className="text-sm text-red-500">invalid password</p>}
+                        <label htmlFor="signup-password" className="text-sm text-muted-foreground">
+                            Password
+                        </label>
+                        <Input
+                            type="password"
+                            name="password"
+                            id="signup-password"
+                            required
+                            value={formData.password}
+                            onChange={handleChange}
+                            placeholder="password"
+                        />
+
+                        <label
+                            htmlFor="signup-password-confirm"
+                            className="text-sm text-muted-foreground"
+                        >
+                            Password confirmation
+                        </label>
+                        <Input
+                            type="password"
+                            name="passwordConfirm"
+                            id="signup-password-confirm"
+                            value={formData.passwordConfirm}
+                            required
+                            onChange={handleChange}
+                            placeholder="password confirm"
+                        />
+                        <p className="text-sm text-muted-foreground">
+                            Уже есть аккаунт?{" "}
+                            <Link to="/signin" className="text-primary hover:underline">
+                                Войти
+                            </Link>
+                        </p>
+                        <div className="flex justify-end">
+                            <Button type="submit">Signup</Button>
+                        </div>
+                    </form>
+                </CardContent>
+            </Card>
         </main>
     );
 }
