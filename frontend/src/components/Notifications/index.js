@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import useUserContext from "../../contexts/UserContext";
-import { Button } from "@mui/material";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader } from "../ui/card";
+import { Badge } from "../ui/badge";
 
 const Notifications = () => {
     const { axiosInstance } = useUserContext();
@@ -62,18 +64,20 @@ const Notifications = () => {
 
     return (
         <div className="w-[599px] max-w-[99%] mt-1 mx-auto">
-            <div className="bg-gray-100 dark:bg-[#030108] p-4">
-                <div className="flex items-center justify-between gap-4 mb-4">
-                    <h2 className="text-2xl font-bold dark:text-gray-100">🔔 Уведомления</h2>
-                    <Button variant="outlined" onClick={markAllRead}>
-                        Прочитать все
-                    </Button>
-                </div>
+            <Card className="p-4">
+                <CardHeader className="px-0 pt-0">
+                    <div className="flex items-center justify-between gap-4">
+                        <h2 className="text-2xl font-bold">🔔 Уведомления</h2>
+                        <Button variant="outline" onClick={markAllRead}>
+                            Прочитать все
+                        </Button>
+                    </div>
+                </CardHeader>
 
                 {loading ? (
-                    <div className="text-center py-8 dark:text-gray-400">Загрузка...</div>
+                    <div className="text-center py-8 text-muted-foreground">Загрузка...</div>
                 ) : notifications.length === 0 ? (
-                    <div className="text-center py-8 dark:text-gray-400">
+                    <div className="text-center py-8 text-muted-foreground">
                         Уведомлений пока нет
                     </div>
                 ) : (
@@ -81,44 +85,51 @@ const Notifications = () => {
                         {notifications.map((notification) => {
                             const link = buildLink(notification);
                             return (
-                                <div
+                                <Card
                                     key={notification.id}
                                     className={`p-4 rounded-lg ${
                                         notification.is_read
-                                            ? "bg-gray-50 dark:bg-[#1a1a1a]"
-                                            : "bg-purple-50 dark:bg-[#2a1f3d]"
+                                            ? "bg-card"
+                                            : "bg-primary/10"
                                     }`}
                                 >
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div className="flex-1">
-                                            <div className="text-sm text-gray-700 dark:text-gray-300">
-                                                {notification.message || "Новое уведомление"}
+                                    <CardContent className="p-4">
+                                        <div className="flex items-start justify-between gap-4">
+                                            <div className="flex-1 space-y-1">
+                                                <div className="text-sm text-foreground">
+                                                    {notification.message || "Новое уведомление"}
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    {link && (
+                                                        <Link
+                                                            to={link}
+                                                            className="text-sm text-primary hover:underline"
+                                                        >
+                                                            Открыть
+                                                        </Link>
+                                                    )}
+                                                    {!notification.is_read && (
+                                                        <Badge variant="secondary">Новое</Badge>
+                                                    )}
+                                                </div>
                                             </div>
-                                            {link && (
-                                                <Link
-                                                    to={link}
-                                                    className="text-sm text-purple-600 dark:text-purple-400 hover:underline"
+                                            {!notification.is_read && (
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => markRead(notification.id)}
                                                 >
-                                                    Открыть
-                                                </Link>
+                                                    Прочитано
+                                                </Button>
                                             )}
                                         </div>
-                                        {!notification.is_read && (
-                                            <Button
-                                                size="small"
-                                                variant="outlined"
-                                                onClick={() => markRead(notification.id)}
-                                            >
-                                                Прочитано
-                                            </Button>
-                                        )}
-                                    </div>
-                                </div>
+                                    </CardContent>
+                                </Card>
                             );
                         })}
                     </div>
                 )}
-            </div>
+            </Card>
         </div>
     );
 };

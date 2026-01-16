@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Avatar, Chip, TextField, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import useUserContext from "../contexts/UserContext";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent } from "./ui/card";
+import { Input } from "./ui/input";
 
 const Pilots = () => {
     const { axiosInstance, user } = useUserContext();
@@ -38,16 +42,16 @@ const Pilots = () => {
         fetchPilots();
     }, [fetchPilots]);
 
-    const getPilotTypeColor = (type) => {
+    const getPilotTypeBadge = (type) => {
         switch (type) {
             case "virtual":
-                return "primary";
+                return "secondary";
             case "real":
                 return "success";
             case "both":
-                return "secondary";
-            default:
                 return "default";
+            default:
+                return "outline";
         }
     };
 
@@ -77,50 +81,57 @@ const Pilots = () => {
 
     return (
         <div className="w-[599px] max-w-[99%] mt-1 mx-auto">
-            <div className="bg-gray-100 dark:bg-[#030108] p-4">
+            <Card className="bg-card p-4">
                 <h2 className="text-2xl font-bold dark:text-gray-100 mb-4">
                     ✈️ Сообщество пилотов
                 </h2>
                 
                 <div className="flex flex-wrap gap-2 mb-3">
-                    <TextField
+                    <Input
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Поиск пилотов"
-                        size="small"
                         className="min-w-[200px]"
                     />
-                    <Chip
-                        label="Все"
+                    <Button
+                        type="button"
                         onClick={() => setFilter("all")}
-                        color={filter === "all" ? "primary" : "default"}
-                        variant={filter === "all" ? "filled" : "outlined"}
-                    />
-                    <Chip
-                        label="Виртуальные"
+                        variant={filter === "all" ? "default" : "outline"}
+                        size="sm"
+                    >
+                        Все
+                    </Button>
+                    <Button
+                        type="button"
                         onClick={() => setFilter("virtual")}
-                        color={filter === "virtual" ? "primary" : "default"}
-                        variant={filter === "virtual" ? "filled" : "outlined"}
-                    />
-                    <Chip
-                        label="Реальные"
+                        variant={filter === "virtual" ? "default" : "outline"}
+                        size="sm"
+                    >
+                        Виртуальные
+                    </Button>
+                    <Button
+                        type="button"
                         onClick={() => setFilter("real")}
-                        color={filter === "real" ? "primary" : "default"}
-                        variant={filter === "real" ? "filled" : "outlined"}
-                    />
-                    <Chip
-                        label="Оба типа"
+                        variant={filter === "real" ? "default" : "outline"}
+                        size="sm"
+                    >
+                        Реальные
+                    </Button>
+                    <Button
+                        type="button"
                         onClick={() => setFilter("both")}
-                        color={filter === "both" ? "primary" : "default"}
-                        variant={filter === "both" ? "filled" : "outlined"}
-                    />
+                        variant={filter === "both" ? "default" : "outline"}
+                        size="sm"
+                    >
+                        Оба типа
+                    </Button>
                 </div>
 
                 <div className="flex gap-2 mb-4">
                     <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
-                        className="p-2 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg border-none"
+                        className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground"
                     >
                         <option value="-flight_hours">По часам налета (убывание)</option>
                         <option value="flight_hours">По часам налета (возрастание)</option>
@@ -130,15 +141,15 @@ const Pilots = () => {
                 </div>
 
                 {loading ? (
-                    <div className="text-center py-8 dark:text-gray-400">Загрузка...</div>
+                    <div className="text-center py-8 text-muted-foreground">Загрузка...</div>
                 ) : pilots.length === 0 ? (
-                    <div className="text-center py-8 dark:text-gray-400">
+                    <div className="text-center py-8 text-muted-foreground">
                         Пилоты не найдены
                     </div>
                 ) : (
                     <div className="space-y-3">
                         {pilots.map((pilot) => (
-                            <div
+                            <Card
                                 role="button"
                                 tabIndex={0}
                                 onClick={() => navigate(`/user/${pilot.id}/`)}
@@ -148,71 +159,70 @@ const Pilots = () => {
                                     }
                                 }}
                                 key={pilot.id}
-                                className="block bg-gray-50 dark:bg-[#1a1a1a] p-4 rounded-lg hover:bg-gray-200 dark:hover:bg-[#2a2a2a] transition"
+                                className="transition hover:bg-accent/40"
                             >
-                                <div className="flex items-start gap-4">
-                                    <Avatar
-                                        src={pilot.profile_pic || null}
-                                        alt={pilot.username}
-                                        sx={{ width: 64, height: 64 }}
-                                    >
-                                        {pilot.username?.charAt(0).toUpperCase()}
-                                    </Avatar>
-                                    <div className="flex-1">
-                                        <div className="flex items-start justify-between gap-2 mb-2">
-                                            <div className="flex items-center gap-2">
-                                                <h3 className="text-lg font-semibold dark:text-gray-100">
-                                                    @{pilot.username}
-                                                </h3>
-                                                {pilot.pilot_type_display && (
-                                                    <Chip
-                                                        label={pilot.pilot_type_display}
-                                                        size="small"
-                                                        color={getPilotTypeColor(pilot.pilot_type)}
-                                                    />
+                                <CardContent className="p-4">
+                                    <div className="flex items-start gap-4">
+                                        <Avatar className="h-14 w-14">
+                                            <AvatarImage src={pilot.profile_pic || ""} alt={pilot.username} />
+                                            <AvatarFallback>
+                                                {pilot.username?.charAt(0).toUpperCase()}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1">
+                                            <div className="flex items-start justify-between gap-2 mb-2">
+                                                <div className="flex items-center gap-2">
+                                                    <h3 className="text-lg font-semibold">
+                                                        @{pilot.username}
+                                                    </h3>
+                                                    {pilot.pilot_type_display && (
+                                                        <Badge variant={getPilotTypeBadge(pilot.pilot_type)}>
+                                                            {pilot.pilot_type_display}
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                                {user && user.id !== pilot.id && (
+                                                    <Button
+                                                        size="sm"
+                                                        variant={pilot.is_following ? "outline" : "default"}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleFollowToggle(pilot.id);
+                                                        }}
+                                                    >
+                                                        {pilot.is_following ? "Отписаться" : "Подписаться"}
+                                                    </Button>
                                                 )}
                                             </div>
-                                            {user && user.id !== pilot.id && (
-                                                <Button
-                                                    size="small"
-                                                    variant={pilot.is_following ? "outlined" : "contained"}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleFollowToggle(pilot.id);
-                                                    }}
-                                                >
-                                                    {pilot.is_following ? "Отписаться" : "Подписаться"}
-                                                </Button>
+                                            {pilot.bio && (
+                                                <p className="text-sm text-muted-foreground mb-2">
+                                                    {pilot.bio}
+                                                </p>
                                             )}
-                                        </div>
-                                        {pilot.bio && (
-                                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                                {pilot.bio}
-                                            </p>
-                                        )}
-                                        <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
-                                            {pilot.flight_hours > 0 && (
+                                            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                                                {pilot.flight_hours > 0 && (
+                                                    <span>
+                                                        ✈️ {parseFloat(pilot.flight_hours).toFixed(1)} ч
+                                                    </span>
+                                                )}
+                                                {pilot.aircraft_types_list && pilot.aircraft_types_list.length > 0 && (
+                                                    <span>
+                                                        🛩️ {pilot.aircraft_types_list.slice(0, 2).join(", ")}
+                                                        {pilot.aircraft_types_list.length > 2 && "..."}
+                                                    </span>
+                                                )}
                                                 <span>
-                                                    ✈️ {parseFloat(pilot.flight_hours).toFixed(1)} ч
+                                                    👥 {pilot.followers} подписчиков
                                                 </span>
-                                            )}
-                                            {pilot.aircraft_types_list && pilot.aircraft_types_list.length > 0 && (
-                                                <span>
-                                                    🛩️ {pilot.aircraft_types_list.slice(0, 2).join(", ")}
-                                                    {pilot.aircraft_types_list.length > 2 && "..."}
-                                                </span>
-                                            )}
-                                            <span>
-                                                👥 {pilot.followers} подписчиков
-                                            </span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
+                                </CardContent>
+                            </Card>
                         ))}
                     </div>
                 )}
-            </div>
+            </Card>
         </div>
     );
 };
