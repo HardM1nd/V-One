@@ -1,6 +1,7 @@
 import React from "react";
 import usePageContext from "../../contexts/pageContext";
 import Card from "./Card";
+import { Card as UiCard, CardContent } from "../ui/card";
 
 const CardContainer = (props) => {
     const {
@@ -9,6 +10,19 @@ const CardContainer = (props) => {
     let results = posts;
     if (props.posts) results = props.posts;
     const { onLike, onSave, onComment } = props;
+    const emptyMessage = props.emptyMessage || "Пока нет постов.";
+    const emptyHint = props.emptyHint || "Добавьте первый пост, чтобы начать общение.";
+
+    if (!results || results.length === 0) {
+        return (
+            <UiCard className="w-[598px] max-w-[95%] mt-4">
+                <CardContent className="p-6 text-center">
+                    <div className="text-sm text-muted-foreground">{emptyMessage}</div>
+                    {emptyHint && <div className="text-xs text-muted-foreground mt-1">{emptyHint}</div>}
+                </CardContent>
+            </UiCard>
+        );
+    }
 
     return (
         <>

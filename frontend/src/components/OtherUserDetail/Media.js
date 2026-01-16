@@ -70,6 +70,8 @@ const Media = () => {
                 onLike={onLike}
                 onSave={onSave}
                 onComment={updateCommentCount}
+                emptyMessage="У пользователя нет медиа."
+                emptyHint="Здесь появятся посты с изображениями."
             />
             {next && (
                 <div className="flex flex-col items-center w-full">

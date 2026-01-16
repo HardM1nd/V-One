@@ -46,7 +46,10 @@ const Home = () => {
     return (
         <div className="flex flex-col items-center w-full" ref={container} id="demo">
             <TweetForm />
-            <CardContainer />
+            <CardContainer
+                emptyMessage="Пока нет постов в ленте."
+                emptyHint="Опубликуйте первый пост, чтобы начать."
+            />
             {getNextUrl() && (
                 <Button variant="outline" className="mt-6" onClick={retrieveNextPost}>
                     Показать еще

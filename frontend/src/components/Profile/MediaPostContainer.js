@@ -31,7 +31,10 @@ const MediaPostContainer = () => {
     };
     return (
         <div ref={container} className="flex flex-col items-center w-full">
-            <CardContainer />
+            <CardContainer
+                emptyMessage="Постов с медиа пока нет."
+                emptyHint="Добавьте изображение к посту."
+            />
             {getNextUrl() && (
                 <Button variant="outline" className="mt-6" onClick={retrieveNextPost}>
                     Показать еще

@@ -71,6 +71,8 @@ const Posts = () => {
                 onSave={onSave}
                 onLike={onLike}
                 onComment={updateCommentCount}
+                emptyMessage="У пользователя нет постов."
+                emptyHint="Возвращайтесь позже."
             />
             {next && (
                 <div className="flex flex-col items-center w-full">

@@ -40,7 +40,10 @@ const Explore = () => {
     };
     return (
         <div className="flex flex-col items-center w-full" ref={container} id="demo">
-            <CardContainer />
+            <CardContainer
+                emptyMessage="Посты не найдены."
+                emptyHint="Попробуйте обновить страницу чуть позже."
+            />
             {getNextUrl() && (
                 <Button variant="outline" className="mt-6" onClick={retrieveNextPost}>
                     Показать еще

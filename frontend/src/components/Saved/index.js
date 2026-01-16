@@ -33,7 +33,10 @@ const Saved = () => {
     };
     return (
         <div className="flex flex-col items-center w-full" ref={container} id="demo">
-            <CardContainer />
+            <CardContainer
+                emptyMessage="Нет сохраненных постов."
+                emptyHint="Сохраняйте посты, чтобы вернуться к ним позже."
+            />
             {getNextUrl() && (
                 <Button variant="outline" className="mt-6" onClick={retrieveNextPost}>
                     Показать еще

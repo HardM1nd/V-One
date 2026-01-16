@@ -32,7 +32,10 @@ const ProfilePostContainer = () => {
 
     return (
         <div ref={container} className="flex flex-col items-center w-full">
-            <CardContainer />
+            <CardContainer
+                emptyMessage="У вас пока нет постов."
+                emptyHint="Создайте первый пост в ленте."
+            />
             {getNextUrl() && (
                 <Button variant="outline" className="mt-6" onClick={retrieveNextPost}>
                     Показать еще

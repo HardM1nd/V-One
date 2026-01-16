@@ -40,7 +40,10 @@ const Liked = () => {
     };
     return (
         <div className="flex flex-col items-center w-full" ref={container} id="demo">
-            <CardContainer />
+            <CardContainer
+                emptyMessage="Нет лайкнутых постов."
+                emptyHint="Поставьте лайк — пост появится здесь."
+            />
             {getNextUrl() && (
                 <Button variant="outline" className="mt-6" onClick={retrieveNextPost}>
                     Показать еще
