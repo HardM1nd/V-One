@@ -16,7 +16,7 @@ const ImagePreview = ({ src, removeImage, file }) => {
             <div className="w-full float-right relative mt-3">
                 <img
                     src={file.file ? file.file : src}
-                    alt="selected file preview"
+                    alt="превью выбранного файла"
                     className="w-full rounded-lg object-cover max-h-[50vh]"
                 ></img>
                 <button
@@ -24,14 +24,14 @@ const ImagePreview = ({ src, removeImage, file }) => {
                     onClick={removeImage}
                     type="button"
                 >
-                    Remove Image
+                    Удалить изображение
                 </button>
             </div>
         );
     }
     return (
         <div className="w-full h-48 rounded-md bg-white text-gray-700 dark:text-gray-200 flex items-center text-3xl justify-center dark:bg-[#03060e]">
-            No File Selected
+            Файл не выбран
         </div>
     );
 };
@@ -67,7 +67,7 @@ const CommentsModal = ({ id, open, close, onComment }) => {
                 comments: response.data.results,
             });
         };
-        getComments(id, success, () => alert("Couldn't load comments"));
+        getComments(id, success, () => alert("Не удалось загрузить комментарии"));
     }, [id, setComments, getComments]);
 
     const retrieveNextComments = () => {
@@ -148,16 +148,16 @@ const EditPostModal = ({ id, open, onClose }) => {
             return;
         }
         const success = () => {
-            alert("Successfully updated post");
+            alert("Пост обновлен");
         };
         updatePost(id, new FormData(formElement), success, () => {
-            alert("Failed to update post");
+            alert("Не удалось обновить пост");
         });
     };
 
     const clearFile = (e) => {
         e.preventDefault();
-        const remove = window.confirm(`Clear image from form?`);
+        const remove = window.confirm("Удалить изображение из формы?");
         if (!remove) return;
         if (!file.file) {
             setPrevImageSrc("");
@@ -192,7 +192,7 @@ const EditPostModal = ({ id, open, onClose }) => {
                         >
                             <div className="space-y-2">
                                 <label htmlFor="edit-tweet-input" className="fixed -top-[10000px]">
-                                    Post content
+                                    Текст поста
                                 </label>
                                 <Textarea
                                     name="content"
@@ -205,7 +205,7 @@ const EditPostModal = ({ id, open, onClose }) => {
                                     htmlFor="edit-post-image-field"
                                     className="fixed -top-[10000px]"
                                 >
-                                    Select post image
+                                    Выбор изображения
                                 </label>
                                 <input
                                     type="file"
@@ -234,8 +234,8 @@ const EditPostModal = ({ id, open, onClose }) => {
                                             : "text-emerald-600 dark:text-emerald-300"
                                     }`}
                                 >
-                                    Размер: {file.sizeKb} kb / {maxFileSizeKb} kb (
-                                    {file.sizeKb <= maxFileSizeKb ? "Ok" : "Too Large"})
+                                    Размер: {file.sizeKb} КБ / {maxFileSizeKb} КБ (
+                                    {file.sizeKb <= maxFileSizeKb ? "Ок" : "Слишком большой"})
                                 </div>
                             )}
                             <ImagePreview
@@ -245,17 +245,17 @@ const EditPostModal = ({ id, open, onClose }) => {
                             />
                             <div className="flex items-center gap-2">
                                 <Button type="button" variant="outline" onClick={chooseImageFile}>
-                                    <iconify-icon icon="bi:image">Choose Image</iconify-icon>
+                                    <iconify-icon icon="bi:image">Выбрать изображение</iconify-icon>
                                 </Button>
                                 <Button type="submit" className="ml-auto">
-                                    Update
+                                    Обновить
                                 </Button>
                             </div>
                         </form>
                     </div>
                     <div className="flex justify-end">
                         <Button variant="outline" onClick={onClose}>
-                            Close
+                            Закрыть
                         </Button>
                     </div>
                 </div>
@@ -282,7 +282,7 @@ const ChangePasswordModal = ({ open, close }) => {
     function handleSubmit(e) {
         e.preventDefault();
         if (newPassword !== newPasswordConfirm) {
-            alert("Passwords do not match");
+            alert("Пароли не совпадают");
             return;
         }
         axiosInstance
@@ -290,10 +290,10 @@ const ChangePasswordModal = ({ open, close }) => {
                 password: newPassword,
             })
             .then(() => {
-                alert("Update Successfull");
+                alert("Пароль обновлен");
                 close();
             })
-            .catch(() => alert("Couldn't update passwords"));
+            .catch(() => alert("Не удалось обновить пароль"));
     }
     function handleChange(e) {
         setPasswords((prev) => ({
@@ -307,16 +307,16 @@ const ChangePasswordModal = ({ open, close }) => {
         <Dialog open={open} onOpenChange={(value) => !value && close()}>
             <DialogContent className="max-w-lg w-[95vw]">
                 <DialogHeader>
-                    <DialogTitle>Change Password</DialogTitle>
+                    <DialogTitle>Смена пароля</DialogTitle>
                 </DialogHeader>
                 <form
                     className="flex flex-col gap-3"
                     id="update-password-form"
                     onSubmit={handleSubmit}
                 >
-                    {passwordError && <p className="text-sm text-red-500">Invalid password</p>}
+                    {passwordError && <p className="text-sm text-red-500">Некорректный пароль</p>}
                     <label htmlFor="new-password" className="text-sm">
-                        New password
+                        Новый пароль
                     </label>
                     <Input
                         type="password"
@@ -325,10 +325,10 @@ const ChangePasswordModal = ({ open, close }) => {
                         onChange={handleChange}
                         required
                         value={newPassword}
-                        placeholder="password"
+                        placeholder="пароль"
                     />
                     <label htmlFor="new-password-confirm" className="text-sm">
-                        Type password again
+                        Повторите пароль
                     </label>
                     <Input
                         type="password"
@@ -337,13 +337,13 @@ const ChangePasswordModal = ({ open, close }) => {
                         name="newPasswordConfirm"
                         id="new-password-confirm"
                         required
-                        placeholder="confirm your password"
+                        placeholder="повторите пароль"
                     />
                     <div className="flex justify-end gap-2 pt-2">
                         <Button type="button" variant="outline" onClick={close}>
-                            Cancel
+                            Отмена
                         </Button>
-                        <Button type="submit">Update</Button>
+                        <Button type="submit">Обновить</Button>
                     </div>
                 </form>
             </DialogContent>

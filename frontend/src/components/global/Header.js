@@ -15,6 +15,17 @@ const Header = (props) => {
     const location = useLocation();
     let cur = location.pathname.split("/").at(1);
     if (cur === "") cur = "home";
+    const titleMap = {
+        home: "главная",
+        explore: "обзор",
+        pilots: "пилоты",
+        routes: "маршруты",
+        notifications: "уведомления",
+        likes: "лайки",
+        saved: "сохраненные",
+        profile: "профиль",
+    };
+    const pageTitle = titleMap[cur] || cur;
     return (
         <header className="flex items-center justify-center pl-12 sm:pl-2 p-2 h-14 absolute w-full bg-background border-0 text-foreground sm:px-8">
             <div className="max max-w-6xl w-full flex justify-between">
@@ -23,7 +34,7 @@ const Header = (props) => {
                     aria-hidden={true}
                 >
                     <h1 className="font-bold italic inline-block capitalize">
-                        {isError ? "v-one" : cur}
+                        {isError ? "v-one" : pageTitle}
                     </h1>
                 </div>
                 <div className="flex justify-between items-center gap-2 lg:gap-3">
@@ -38,7 +49,7 @@ const Header = (props) => {
                         <span className="fixed -left-[10000000000000000px]">
                             View code on Github
                         </span>
-                        <iconify-icon icon="bi:github">Light Theme</iconify-icon>
+                        <iconify-icon icon="bi:github">GitHub</iconify-icon>
                     </a>
                     <Button
                         variant="ghost"
@@ -46,9 +57,9 @@ const Header = (props) => {
                         onClick={() => setDarkTheme((p) => !p)}
                     >
                         {darkTheme ? (
-                            <iconify-icon icon="carbon:light">Light Theme</iconify-icon>
+                            <iconify-icon icon="carbon:light">Светлая тема</iconify-icon>
                         ) : (
-                            <iconify-icon icon="bi:moon-stars-fill">Dark theme</iconify-icon>
+                            <iconify-icon icon="bi:moon-stars-fill">Темная тема</iconify-icon>
                         )}
                     </Button>
                     <Avatar>

@@ -18,7 +18,7 @@ const CommentCard = (props) => {
                 <div className="flex-grow">
                     <div className="flex items-center gap-2 text-sm">
                         <div className="capitalize text-foreground">
-                            {creator_id === user_id ? "You" : creator_name}
+                            {creator_id === user_id ? "Вы" : creator_name}
                         </div>
                         <div className="text-xs text-muted-foreground">• {created}</div>
                     </div>

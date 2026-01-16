@@ -12,7 +12,7 @@ const ProfilePostContainer = () => {
         const success = (response) => {
             setData({ next: response.data.next, posts: response.data.results });
         };
-        getPosts("user", success, () => alert("Couldn't load content"));
+        getPosts("user", success, () => alert("Не удалось загрузить посты"));
         return () => setData({ next: null, posts: [] });
     }, [getPosts, setData]);
 

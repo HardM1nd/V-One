@@ -22,7 +22,7 @@ const ProfileUsers = () => {
                     followers: response.data.results,
                 });
             })
-            .catch(() => alert("Could not retrieve data"));
+            .catch(() => alert("Не удалось загрузить подписки"));
     }, [axiosInstance, user_id]);
     return (
         <div className="grid grid-cols-1 gap-2 md:grid-cols-2 p-2">

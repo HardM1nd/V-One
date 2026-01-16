@@ -33,17 +33,17 @@ const Profile = () => {
   } = profileData;
   const currentTab = queryParams.get("tab") || "posts";
   const tabs = [
-    { value: "posts", label: "Posts" },
-    { value: "comments", label: "Comments" },
-    { value: "media", label: "Media" },
-    { value: "following", label: "Following" },
-    { value: "routes", label: "Routes" },
-    { value: "update", label: "Update Profile" },
+    { value: "posts", label: "Посты" },
+    { value: "comments", label: "Комментарии" },
+    { value: "media", label: "Медиа" },
+    { value: "following", label: "Подписки" },
+    { value: "routes", label: "Маршруты" },
+    { value: "update", label: "Редактировать" },
   ];
 
   useEffect(() => {
     if (!username) return;
-    document.title = `V-One Profile | @${username}`;
+    document.title = `V-One | Профиль @${username}`;
     return function () {
       document.title = "V-One";
     };
@@ -73,7 +73,7 @@ const Profile = () => {
         </div>
         <CardContent className="p-4 flex flex-col gap-2">
           <p className="capitalize text-lg">@{username}</p>
-          <div className="text-sm text-muted-foreground">joined {date_joined}</div>
+          <div className="text-sm text-muted-foreground">в сети с {date_joined}</div>
           {pilot_type_display && (
             <Badge variant="secondary">✈️ {pilot_type_display}</Badge>
           )}
@@ -94,11 +94,11 @@ const Profile = () => {
           <div className="text-muted-foreground text-sm flex gap-2">
             <div>
               <span className="text-foreground">{followers} </span>
-              {followers > 1 ? "followers" : "follower"}
+              {followers > 1 ? "подписчиков" : "подписчик"}
             </div>
             <span>•</span>
             <div>
-              <span className="text-foreground">{following}</span> following
+              <span className="text-foreground">{following}</span> подписок
             </div>
           </div>
         </CardContent>

@@ -12,14 +12,14 @@ const Liked = () => {
         const success = (r) => {
             setData({ next: r.data.next, posts: r.data.results });
         };
-        getPosts("liked", success, () => alert("Couldn't load content"));
+        getPosts("liked", success, () => alert("Не удалось загрузить лайкнутые посты"));
         return () => {
             setData({ next: null, posts: [] });
         };
     }, [getPosts, setData]);
 
     useEffect(() => {
-        document.title = "V-One | Liked Posts";
+        document.title = "V-One | Лайкнутые посты";
         return function () {
             document.title = "V-One";
         };

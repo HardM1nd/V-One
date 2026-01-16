@@ -19,7 +19,7 @@ const Explore = () => {
     }, [getPosts, setData]);
 
     useEffect(() => {
-        document.title = "V-One | Explore";
+        document.title = "V-One | Обзор";
         return () => {
             document.title = "V-One";
         };

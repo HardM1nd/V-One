@@ -12,7 +12,7 @@ const MediaPostContainer = () => {
         const success = (response) => {
             setData({ next: response.data.next, posts: response.data.results });
         };
-        getPosts("media", success, () => alert("Couldn't complete action"));
+        getPosts("media", success, () => alert("Не удалось загрузить медиа"));
         return () => setData({ next: null, posts: [] });
     }, [getPosts, setData]);
 

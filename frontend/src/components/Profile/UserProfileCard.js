@@ -20,11 +20,11 @@ const UserProfileCard = (props) => {
                 <div className="flex flex-col mr-auto">
                     <div className="text-sm">{id === userId ? "You" : username}</div>
                     <div className="text-xs text-muted-foreground">
-                        {followers === 1 ? "1 follower" : followers + " followers"}
+                        {followers === 1 ? "1 подписчик" : `${followers} подписчиков`}
                     </div>
                 </div>
                 <Button asChild variant="outline" size="sm">
-                    <Link to={id === userId ? "/profile" : `/user/${id}/`}>View Profile</Link>
+                    <Link to={id === userId ? "/profile" : `/user/${id}/`}>Профиль</Link>
                 </Button>
             </CardContent>
         </Card>

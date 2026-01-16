@@ -6,7 +6,7 @@ const Logout = () => {
     const { logout } = useUserContext();
 
     useEffect(() => {
-        document.title = "V-One | Signup";
+        document.title = "V-One | Выход";
         return function () {
             document.title = "V-One";
         };

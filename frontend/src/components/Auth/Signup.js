@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import useUserContext from "../../contexts/UserContext";
 import { Navigate, Link } from "react-router-dom";
 import { Button } from "../ui/button";
@@ -43,6 +43,13 @@ export default function SignUp() {
         } else setUsernameError(false);
     };
 
+    useEffect(() => {
+        document.title = "V-One | Регистрация";
+        return () => {
+            document.title = "V-One";
+        };
+    }, []);
+
     if (user) return <Navigate to="/" />;
     return (
         <main className="w-screen h-screen flex items-center justify-center bg-background">
@@ -56,12 +63,12 @@ export default function SignUp() {
                     </div>
                     <form onSubmit={(e) => handleSubmit(e)} className="w-full flex flex-col gap-3">
                         <label htmlFor="signup-username" className="text-sm text-muted-foreground">
-                            Username
+                            Имя пользователя
                         </label>
 
                         {usernameError && (
                             <p className="text-sm text-red-500">
-                                Invalid username, only letters, numbers, and @/./+/-/_ characters.
+                                Некорректное имя: допустимы буквы, цифры и символы @/./+/-/_.
                             </p>
                         )}
                         <Input
@@ -71,12 +78,12 @@ export default function SignUp() {
                             required
                             onChange={handleChange}
                             value={formData.username}
-                            placeholder="username"
+                            placeholder="имя пользователя"
                             id="signup-username"
                         />
-                        {passwordError && <p className="text-sm text-red-500">invalid password</p>}
+                        {passwordError && <p className="text-sm text-red-500">пароли не совпадают</p>}
                         <label htmlFor="signup-password" className="text-sm text-muted-foreground">
-                            Password
+                            Пароль
                         </label>
                         <Input
                             type="password"
@@ -85,14 +92,14 @@ export default function SignUp() {
                             required
                             value={formData.password}
                             onChange={handleChange}
-                            placeholder="password"
+                            placeholder="пароль"
                         />
 
                         <label
                             htmlFor="signup-password-confirm"
                             className="text-sm text-muted-foreground"
                         >
-                            Password confirmation
+                            Подтверждение пароля
                         </label>
                         <Input
                             type="password"
@@ -101,7 +108,7 @@ export default function SignUp() {
                             value={formData.passwordConfirm}
                             required
                             onChange={handleChange}
-                            placeholder="password confirm"
+                            placeholder="повторите пароль"
                         />
                         <p className="text-sm text-muted-foreground">
                             Уже есть аккаунт?{" "}
@@ -110,7 +117,7 @@ export default function SignUp() {
                             </Link>
                         </p>
                         <div className="flex justify-end">
-                            <Button type="submit">Signup</Button>
+                            <Button type="submit">Зарегистрироваться</Button>
                         </div>
                     </form>
                 </CardContent>

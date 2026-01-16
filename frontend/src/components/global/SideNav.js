@@ -4,15 +4,15 @@ import useUserContext from "../../contexts/UserContext";
 import { Badge } from "../ui/badge";
 
 const navElement = [
-    { name: "Home", icon: "ant-design:home-filled", href: "/" },
-    { name: "Explore", icon: "material-symbols:explore-outline-rounded", href: "/explore" },
-    { name: "Pilots", icon: "material-symbols:flight-outline", href: "/pilots" },
-    { name: "Routes", icon: "material-symbols:route-outline", href: "/routes" },
-    { name: "Notifications", icon: "material-symbols:notifications-outline", href: "/notifications" },
-    { name: "Likes", icon: "icon-park-solid:like", href: "/likes" },
-    { name: "Saved", icon: "dashicons:cloud-saved", href: "/saved" },
-    { name: "Profile", icon: "healthicons:ui-user-profile", href: "/profile" },
-    { name: "Logout", icon: "oi:account-logout", href: "/logout" },
+    { key: "home", label: "Главная", icon: "ant-design:home-filled", href: "/" },
+    { key: "explore", label: "Обзор", icon: "material-symbols:explore-outline-rounded", href: "/explore" },
+    { key: "pilots", label: "Пилоты", icon: "material-symbols:flight-outline", href: "/pilots" },
+    { key: "routes", label: "Маршруты", icon: "material-symbols:route-outline", href: "/routes" },
+    { key: "notifications", label: "Уведомления", icon: "material-symbols:notifications-outline", href: "/notifications" },
+    { key: "likes", label: "Лайки", icon: "icon-park-solid:like", href: "/likes" },
+    { key: "saved", label: "Сохраненные", icon: "dashicons:cloud-saved", href: "/saved" },
+    { key: "profile", label: "Профиль", icon: "healthicons:ui-user-profile", href: "/profile" },
+    { key: "logout", label: "Выход", icon: "oi:account-logout", href: "/logout" },
 ];
 
 const SideNav = (props) => {
@@ -79,12 +79,12 @@ const SideNav = (props) => {
                 </button>
                 {navElement.map((el) => {
                     const activeClass =
-                        el.name.toLowerCase() === cur
+                        el.key === cur
                             ? "text-primary bg-accent/60"
                             : "text-muted-foreground";
                     return (
                         <Link
-                            key={el.icon + el.name}
+                            key={el.icon + el.label}
                             to={el.href}
                             className={`w-full flex text-left justify-left transition pl-[22%] items-center h-12 gap-3 rounded-md px-2 hover:bg-accent ${activeClass}`}
                         >
@@ -96,9 +96,9 @@ const SideNav = (props) => {
                                     open ? "scale-1" : "scale-0"
                                 } transition-all duration-200 pl-6 origin-right lg:scale-100`}
                             >
-                                {el.name}
+                                {el.label}
                             </span>
-                            {el.name === "Notifications" && unreadCount > 0 && (
+                            {el.key === "notifications" && unreadCount > 0 && (
                                 <Badge className="ml-auto mr-2" variant="default">
                                     {unreadCount}
                                 </Badge>

@@ -46,15 +46,15 @@ const Profile = () => {
   } = profileData;
   const currentTab = queryParams.get("tab") || "posts";
   const tabs = [
-    { value: "posts", label: "Posts" },
-    { value: "media", label: "Media" },
-    { value: "following", label: "Following" },
+    { value: "posts", label: "Посты" },
+    { value: "media", label: "Медиа" },
+    { value: "following", label: "Подписки" },
   ];
   const showCover = Boolean(cover_pic) && !cover_pic.includes("coverphoto.jpg");
 
   useEffect(() => {
     if (!username) return;
-    document.title = `V-One Profile | @${username}`;
+    document.title = `V-One | Профиль @${username}`;
     return function () {
       document.title = "V-One";
     };
@@ -66,9 +66,7 @@ const Profile = () => {
       setProfileData((prev) => ({ ...prev, followers: followers }));
     };
     const failure = () => {
-      alert(
-        "Could no't complete action, check internet connection and refresh"
-      );
+      alert("Не удалось выполнить действие. Проверьте соединение.");
     };
     followUser(id, success, failure);
   };
@@ -101,12 +99,12 @@ const Profile = () => {
             variant={is_following ? "outline" : "default"}
             size="sm"
           >
-            {is_following ? "unfollow" : "follow"}
+            {is_following ? "Отписаться" : "Подписаться"}
           </Button>
         </div>
         <CardContent className="p-4 flex flex-col gap-2">
           <p className="capitalize text-lg">@{username}</p>
-          <div className="text-sm text-muted-foreground">joined {date_joined}</div>
+          <div className="text-sm text-muted-foreground">в сети с {date_joined}</div>
           {pilot_type_display && <Badge variant="secondary">✈️ {pilot_type_display}</Badge>}
           {flight_hours > 0 && (
             <div className="text-sm text-muted-foreground">
@@ -125,11 +123,11 @@ const Profile = () => {
           <div className="text-muted-foreground text-sm flex gap-2">
             <div>
               <span className="text-foreground">{followers} </span>
-              {followers > 1 ? "followers" : "follower"}
+              {followers > 1 ? "подписчиков" : "подписчик"}
             </div>
             <span>•</span>
             <div>
-              <span className="text-foreground">{following}</span> following
+              <span className="text-foreground">{following}</span> подписок
             </div>
           </div>
         </CardContent>

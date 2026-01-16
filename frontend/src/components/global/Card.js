@@ -19,7 +19,7 @@ const CardOptionsComponent = ({ deletePost, edit, onClose }) => {
                 className="flex gap-2 justify-between p-2 w-full hover:bg-accent"
                 onClick={edit}
             >
-                <span>Edit</span>
+                <span>Редактировать</span>
                 <iconify-icon icon="material-symbols:edit"></iconify-icon>
             </button>
             <div className="w-full h-px bg-border"></div>
@@ -27,7 +27,7 @@ const CardOptionsComponent = ({ deletePost, edit, onClose }) => {
                 className="flex gap-2 justify-between p-2 w-full hover:bg-accent text-destructive"
                 onClick={deletePost}
             >
-                <span>Delete</span>
+                <span>Удалить</span>
                 <iconify-icon icon="material-symbols:delete-rounded"></iconify-icon>
             </button>
         </div>
@@ -70,15 +70,15 @@ const Card = (props) => {
     }, [card_image]);
 
     const handleDelete = (e) => {
-        const del = window.confirm("Delete post?");
+        const del = window.confirm("Удалить пост?");
         if (!del) {
-            alert("Not deleted");
+            alert("Удаление отменено");
             return;
         }
         const success = (response) => {
-            alert("Successfully completed action");
+            alert("Действие выполнено");
         };
-        const failure = () => alert("Could not complet action");
+        const failure = () => alert("Не удалось выполнить действие");
         deletePost(id, success, failure);
     };
 
@@ -97,19 +97,19 @@ const Card = (props) => {
                             className="text-foreground font-medium hover:text-primary"
                             to={user_id === creator_id ? "/profile" : `/user/${creator_id}/`}
                         >
-                            {user_id === creator_id ? "You" : user}
+                            {user_id === creator_id ? "Вы" : user}
                         </Link>
                         <span>•</span>
                         <span>{created}</span>
                         {id !== creator_id && is_following_user && (
                             <>
                                 <span>•</span>
-                                <span>following</span>
+                                <span>в подписках</span>
                             </>
                         )}
                     </div>
                     <div className="text-sm text-foreground">
-                        {isEdited ? "Edited: " : ""}
+                        {isEdited ? "Изменено: " : ""}
                         {card_content}
                     </div>
                     {card_image && !imageError && (
@@ -117,7 +117,7 @@ const Card = (props) => {
                             <img
                                 src={card_image}
                                 className="max-h-[65vh] w-full rounded-xl object-cover"
-                                alt="posts"
+                                alt="пост"
                                 onError={() => setImageError(true)}
                             />
                         </div>
@@ -133,7 +133,7 @@ const Card = (props) => {
                                         setOpenOptions((prev) => !prev);
                                     }}
                                 >
-                                    <span className="fixed left-[30000000px]">toggle options</span>
+                                    <span className="fixed left-[30000000px]">открыть меню</span>
                                     <iconify-icon icon="simple-line-icons:options-vertical"></iconify-icon>
                                 </Button>
                                 {openOptions ? (
@@ -163,9 +163,9 @@ const Card = (props) => {
                             onClick={() => setViewComment(true)}
                         >
                             {is_commented ? (
-                                <iconify-icon icon="bi:chat-fill">Comments</iconify-icon>
+                                <iconify-icon icon="bi:chat-fill">Комментарии</iconify-icon>
                             ) : (
-                                <iconify-icon icon="fa:comment-o">Comments</iconify-icon>
+                                <iconify-icon icon="fa:comment-o">Комментарии</iconify-icon>
                             )}
                             <span>{comments}</span>
                         </Button>
@@ -183,9 +183,9 @@ const Card = (props) => {
                             onClick={() => likePost(id, onLike)}
                         >
                             {liked ? (
-                                <iconify-icon icon="flat-color-icons:like">Like</iconify-icon>
+                                <iconify-icon icon="flat-color-icons:like">Лайк</iconify-icon>
                             ) : (
-                                <iconify-icon icon="icon-park-outline:like">Like</iconify-icon>
+                                <iconify-icon icon="icon-park-outline:like">Лайк</iconify-icon>
                             )}
                             <span>{likes}</span>
                         </Button>
@@ -194,7 +194,7 @@ const Card = (props) => {
                             className={is_saved ? "text-blue-500" : "text-muted-foreground"}
                             onClick={() => savePost(id, onSave)}
                         >
-                            <iconify-icon icon="bi:save">Save</iconify-icon>
+                            <iconify-icon icon="bi:save">Сохранить</iconify-icon>
                             <span>{saves}</span>
                         </Button>
                     </nav>

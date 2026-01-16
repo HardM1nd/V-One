@@ -17,14 +17,14 @@ const Home = () => {
         const success = (r) => {
             setData({ next: r.data.next, posts: r.data.results });
         };
-        getPosts("", success, () => alert("Couldn't load content"));
+        getPosts("", success, () => alert("Не удалось загрузить ленту"));
         return () => {
             setData({ next: null, posts: [] });
         };
     }, [getPosts, setData]);
 
     useEffect(() => {
-        document.title = "V-One | Home";
+        document.title = "V-One | Главная";
         return () => {
             document.title = "V-One";
         };

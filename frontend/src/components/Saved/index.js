@@ -12,7 +12,7 @@ const Saved = () => {
         const success = (r) => {
             setData({ next: r.data.next, posts: r.data.results });
         };
-        getPosts("saved", success, () => alert("Couldn't complete action"));
+        getPosts("saved", success, () => alert("Не удалось загрузить сохраненные посты"));
         return () => {
             setData({ next: null, posts: [] });
         };

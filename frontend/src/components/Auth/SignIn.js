@@ -18,7 +18,7 @@ export default function SignIn() {
     });
 
     useEffect(() => {
-        document.title = "Sign In To V-One";
+        document.title = "V-One | Вход";
         return function () {
             document.title = "V-One";
         };
@@ -26,7 +26,7 @@ export default function SignIn() {
 
     function handleSubmit(e) {
         e.preventDefault();
-        login(formData, () => alert("Invalid Login Credentials"));
+        login(formData, () => alert("Неверный логин или пароль"));
     }
 
     const handleChange = (e) => {
@@ -40,7 +40,7 @@ export default function SignIn() {
         e.preventDefault();
         setFormData(demoUser);
         // Using a setTimeOut to wait a bit so the passwords are revealed to the user before submitting the form
-        setTimeout(() => login(demoUser, () => alert("Invalid Login Credentials")), 100);
+        setTimeout(() => login(demoUser, () => alert("Неверный логин или пароль")), 100);
     };
 
     if (user) return <Navigate to="/" />;
@@ -56,7 +56,7 @@ export default function SignIn() {
                     </div>
                     <form onSubmit={(e) => handleSubmit(e)} className="w-full flex flex-col gap-3">
                         <label htmlFor="signup-username" className="text-sm text-muted-foreground">
-                            Username
+                            Имя пользователя
                         </label>
                         <Input
                             type="text"
@@ -65,11 +65,11 @@ export default function SignIn() {
                             required
                             value={formData.username}
                             onChange={handleChange}
-                            placeholder="username"
+                            placeholder="имя пользователя"
                             id="signup-username"
                         />
                         <label htmlFor="signup-password" className="text-sm text-muted-foreground">
-                            Password
+                            Пароль
                         </label>
                         <Input
                             type="password"
@@ -78,7 +78,7 @@ export default function SignIn() {
                             required
                             value={formData.password}
                             onChange={handleChange}
-                            placeholder="password"
+                            placeholder="пароль"
                         />
                         <p className="text-sm text-muted-foreground">
                             Нет аккаунта?{" "}
@@ -87,9 +87,9 @@ export default function SignIn() {
                             </Link>
                         </p>
                         <div className="flex justify-end items-center gap-2">
-                            <Button type="submit">Login</Button>
+                            <Button type="submit">Войти</Button>
                             <Button type="button" variant="outline" onClick={loginInHasDemo}>
-                                Login As Demo User
+                                Войти как Demo
                             </Button>
                         </div>
                     </form>

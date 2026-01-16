@@ -23,7 +23,7 @@ const PostCommentCard = (props) => {
                     </Avatar>
                     <div className="text-xs">
                         <div className="capitalize text-foreground">{post_creator}</div>
-                        <div className="text-muted-foreground">posted {post_created}</div>
+                        <div className="text-muted-foreground">опубликовано {post_created}</div>
                     </div>
                 </div>
                 <Link to={`/post/${post_id}`} className="text-sm text-muted-foreground hover:text-primary">
@@ -33,8 +33,8 @@ const PostCommentCard = (props) => {
                     </span>
                 </Link>
                 <p className="text-sm flex flex-col text-foreground">
-                    <span>You - {content}</span>
-                    <span className="text-xs text-muted-foreground">Commented {created}</span>
+                    <span>Вы — {content}</span>
+                    <span className="text-xs text-muted-foreground">Комментарий {created}</span>
                 </p>
             </CardContent>
         </Card>

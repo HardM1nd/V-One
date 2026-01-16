@@ -18,7 +18,7 @@ const CommentForm = ({ handleSubmit }) => {
                 </Avatar>
                 <form className="flex-1 flex flex-col focus:outline-0 gap-3" onSubmit={handleSubmit}>
                     <label htmlFor="commentText" className="fixed -top-[200000px]">
-                        Comment
+                        Комментарий
                     </label>
                     <Input
                         type="text"
@@ -27,7 +27,7 @@ const CommentForm = ({ handleSubmit }) => {
                         placeholder="Напишите комментарий"
                     />
                     <Button type="submit" className="ml-auto">
-                        Post
+                        Отправить
                     </Button>
                 </form>
             </CardContent>

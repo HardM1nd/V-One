@@ -12,7 +12,7 @@ const ImagePreview = ({ file, removeImage }) => {
         <div className="w-full float-right relative mt-3">
             <img
                 src={file}
-                alt="selected file preview"
+                alt="превью выбранного файла"
                 className="w-full rounded-lg object-cover max-h-[50vh]"
             ></img>
             <button
@@ -20,7 +20,7 @@ const ImagePreview = ({ file, removeImage }) => {
                 onClick={removeImage}
                 type="button"
             >
-                Remove Image
+                Удалить изображение
             </button>
         </div>
     );
@@ -45,7 +45,7 @@ const TweetForm = () => {
         e.preventDefault();
         if (file.sizeKb > maxFileSizeKb) {
             alert(
-                `File to large, maximum size is ${maxFileSizeKb} kb. Your file is ${file.sizeKb} kb`
+                `Файл слишком большой. Максимум ${maxFileSizeKb} КБ. Ваш файл: ${file.sizeKb} КБ`
             );
             return;
         }
@@ -58,7 +58,7 @@ const TweetForm = () => {
             formElement.image.value = "";
             clearFile();
         };
-        createPost(new FormData(formElement), success, () => alert("Couldn't complete actions"));
+        createPost(new FormData(formElement), success, () => alert("Не удалось отправить пост"));
     };
 
     const clearFile = (e) => {
@@ -100,7 +100,7 @@ const TweetForm = () => {
                 >
                     <div className="space-y-2">
                         <label htmlFor="main-tweet-form" className="fixed -top-[10000px]">
-                            Post content
+                            Текст поста
                         </label>
                         <Textarea
                             name="content"
@@ -109,7 +109,7 @@ const TweetForm = () => {
                             required
                         />
                         <label htmlFor="post-image-field" className="fixed -top-[10000px]">
-                            Select post image
+                            Выбор изображения
                         </label>
                         <input
                             type="file"
@@ -139,8 +139,8 @@ const TweetForm = () => {
                                         : "text-emerald-600 dark:text-emerald-300"
                                 }`}
                             >
-                                Размер: {file.sizeKb} kb / {maxFileSizeKb} kb (
-                                {file.sizeKb <= maxFileSizeKb ? "Ok" : "Too Large"})
+                                Размер: {file.sizeKb} КБ / {maxFileSizeKb} КБ (
+                                {file.sizeKb <= maxFileSizeKb ? "Ок" : "Слишком большой"})
                             </div>
                         )}
 
@@ -150,7 +150,7 @@ const TweetForm = () => {
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                         <Button type="button" variant="outline" onClick={chooseImageFile}>
-                            <iconify-icon icon="bi:image">Choose Image</iconify-icon>
+                            <iconify-icon icon="bi:image">Выбрать изображение</iconify-icon>
                         </Button>
                         <Button
                             type="button"
@@ -161,18 +161,18 @@ const TweetForm = () => {
                                 setPreviewImage((prev) => !prev);
                             }}
                         >
-                            <iconify-icon
+                                <iconify-icon
                                 icon={
                                     previewImage
                                         ? "ant-design:eye-invisible-filled"
                                         : "icon-park-outline:preview-open"
                                 }
                             >
-                                Toggle image preview
+                                    Показать превью
                             </iconify-icon>
                         </Button>
                         <Button className="ml-auto" type="submit">
-                            Post
+                            Опубликовать
                         </Button>
                     </div>
                 </form>

@@ -84,12 +84,12 @@ const Settings = () => {
     const submitForm = (e) => {
         e.preventDefault();
         if (!validateUsername(formValues.username)) {
-            alert("You have provided an invalid username");
+            alert("Некорректное имя пользователя");
             return;
         }
         const formElement = e.target;
         const success = () => {
-            alert("Changes will take effect next time you load the page");
+            alert("Изменения применятся после обновления страницы");
         };
 
         const failure = (e) => {
@@ -119,7 +119,7 @@ const Settings = () => {
                         htmlFor="profilePicUpdate"
                         className="dark:text-gray-200 font-medium tracking-wide"
                     >
-                        Profile Picture
+                        Аватар
                     </label>
                     <input
                         type="file"
@@ -137,7 +137,7 @@ const Settings = () => {
                             variant="outline"
                             onClick={() => handleEditClick("profilePicUpdate")}
                         >
-                            Edit
+                            Редактировать
                         </Button>
                         {formValues.profile_pic.file && (
                             <Button
@@ -146,7 +146,7 @@ const Settings = () => {
                                 variant="destructive"
                                 onClick={() => clearField("profile_pic")}
                             >
-                                Clear
+                            Очистить
                             </Button>
                         )}
                     </div>
@@ -159,8 +159,8 @@ const Settings = () => {
                                     : "text-green-600 dark:text-green-300 "
                             }`}
                         >
-                            Size: {formValues.profile_pic.sizeKb} kb / {maxFileSizeKb} kb (
-                            {formValues.profile_pic.sizeKb <= maxFileSizeKb ? "Ok" : "Too Large"})
+                            Размер: {formValues.profile_pic.sizeKb} КБ / {maxFileSizeKb} КБ (
+                            {formValues.profile_pic.sizeKb <= maxFileSizeKb ? "Ок" : "Слишком большой"})
                         </div>
                     )}
                     <div className="w-full flex items-center justify-center">
@@ -186,7 +186,7 @@ const Settings = () => {
                         htmlFor="coverPicUpdate"
                         className="dark:text-gray-200 font-medium tracking-wide"
                     >
-                        Cover Image
+                        Обложка
                     </label>
                     <input
                         type="file"
@@ -205,7 +205,7 @@ const Settings = () => {
                             variant="outline"
                             onClick={() => handleEditClick("coverPicUpdate")}
                         >
-                            Edit
+                            Редактировать
                         </Button>
                         {formValues.cover_pic.file && (
                             <Button
@@ -214,7 +214,7 @@ const Settings = () => {
                                 variant="destructive"
                                 onClick={() => clearField("cover_pic")}
                             >
-                                Clear
+                            Очистить
                             </Button>
                         )}
                     </div>
@@ -227,15 +227,15 @@ const Settings = () => {
                                     : "text-green-600 dark:text-green-300 "
                             }`}
                         >
-                            Size: {formValues.cover_pic.sizeKb} kb / {maxFileSizeKb} kb (
-                            {formValues.cover_pic.sizeKb <= maxFileSizeKb ? "Ok" : "Too Large"})
+                            Размер: {formValues.cover_pic.sizeKb} КБ / {maxFileSizeKb} КБ (
+                            {formValues.cover_pic.sizeKb <= maxFileSizeKb ? "Ок" : "Слишком большой"})
                         </div>
                     )}
                     <div className="w-full flex items-center justify-center p-2 rounded">
                         {formValues.cover_pic.file || showCover ? (
                             <img
                                 src={formValues.cover_pic.file ? formValues.cover_pic.file : cover_pic}
-                                alt="Profile Cover"
+                                alt="Обложка профиля"
                                 className="w-4/5 rounded-lg object-cover max-h-[40vh]"
                             ></img>
                         ) : (
@@ -248,7 +248,7 @@ const Settings = () => {
                         htmlFor="usernameUpdate"
                         className="dark:text-gray-200 font-medium tracking-wide"
                     >
-                        Username
+                        Имя пользователя
                     </label>
                     <div className="flex gap-3 absolute top-0 right-3">
                         <Button
@@ -257,13 +257,13 @@ const Settings = () => {
                             variant="outline"
                             onClick={() => {
                                 if (isDemoUser) {
-                                    alert("You can't change the username of this account");
+                                    alert("Нельзя изменить имя у демо-аккаунта");
                                     return;
                                 }
                                 setEditUsername((prev) => !prev);
                             }}
                         >
-                            {editUsername ? "cancel" : "edit"}
+                            {editUsername ? "отмена" : "редактировать"}
                         </Button>
                     </div>
                     <div className="w-2 h-2"></div>
@@ -271,7 +271,7 @@ const Settings = () => {
                         <Input
                             type="text"
                             name="username"
-                            placeholder="Username"
+                            placeholder="Имя пользователя"
                             id="usernameUpdate"
                             autoFocus
                             onChange={handleChange}
@@ -286,7 +286,7 @@ const Settings = () => {
                         htmlFor="usernameUpdate"
                         className="dark:text-gray-200 font-medium tracking-wide"
                     >
-                        Password
+                        Пароль
                     </label>
                     <div className="flex gap-3 absolute top-0 right-3">
                         <Button
@@ -295,13 +295,13 @@ const Settings = () => {
                             variant="outline"
                             onClick={() => {
                                 if (isDemoUser) {
-                                    alert("You can't update the password of this account");
+                                    alert("Нельзя менять пароль у демо-аккаунта");
                                     return;
                                 }
                                 setupdatePassword(true);
                             }}
                         >
-                            Change
+                            Изменить
                         </Button>
                     </div>
                 </div>
@@ -395,7 +395,7 @@ const Settings = () => {
                     </div>
                 </div>
                 <div className="flex items-center justify-end w-full">
-                    <Button type="submit">Update</Button>
+                    <Button type="submit">Сохранить</Button>
                 </div>
                 </form>
                 {updatePassword && (

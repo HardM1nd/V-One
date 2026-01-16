@@ -21,7 +21,7 @@ const Media = () => {
                 const { next, results } = response.data;
                 setData({ next: next, posts: results });
             })
-            .catch(() => alert("Couldn't refresh post, check internet connection and refresh"));
+            .catch(() => alert("Не удалось загрузить посты. Проверьте соединение."));
     }, [axiosInstance, userId]);
 
     const retrieveNextPosts = () => {
