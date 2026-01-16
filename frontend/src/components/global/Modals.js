@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
+import { Card, CardContent } from "../ui/card";
 
 const ImagePreview = ({ src, removeImage, file }) => {
     if (src || file.file) {
@@ -38,11 +39,14 @@ const ImagePreview = ({ src, removeImage, file }) => {
 
 const CommentsModal = ({ id, open, close, onComment }) => {
     const { getComments } = usePostActionContext();
-    const { createComment, getNextItems } = usePageContext();
+    const { createComment, getNextItems, setData } = usePageContext();
+    const { axiosInstance, user, profileData } = useUserContext();
     const [{ comments, next }, setComments] = useState({
         next: null,
         comments: [],
     });
+    const [editingId, setEditingId] = useState(null);
+    const [editingText, setEditingText] = useState("");
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -83,6 +87,65 @@ const CommentsModal = ({ id, open, close, onComment }) => {
         getNextItems(next, success);
     };
 
+    const handleDelete = async (commentId) => {
+        if (!window.confirm("Удалить комментарий?")) {
+            return;
+        }
+        try {
+            await axiosInstance.delete(`post/comments/delete/${commentId}/`);
+            setComments((prev) => ({
+                ...prev,
+                comments: prev.comments.filter((c) => c.id !== commentId),
+            }));
+            setData((prev) => {
+                if (!prev?.posts?.length) return prev;
+                return {
+                    ...prev,
+                    posts: prev.posts.map((post) =>
+                        post.id === id
+                            ? { ...post, comments: Math.max(0, post.comments - 1) }
+                            : post
+                    ),
+                };
+            });
+        } catch (error) {
+            console.error("Delete comment error:", error);
+            alert("Не удалось удалить комментарий");
+        }
+    };
+
+    const handleEditStart = (comment) => {
+        setEditingId(comment.id);
+        setEditingText(comment.content || "");
+    };
+
+    const handleEditCancel = () => {
+        setEditingId(null);
+        setEditingText("");
+    };
+
+    const handleEditSave = async (commentId) => {
+        if (!editingText.trim()) {
+            alert("Комментарий не может быть пустым");
+            return;
+        }
+        try {
+            const response = await axiosInstance.patch(`post/comments/update/${commentId}/`, {
+                content: editingText.trim(),
+            });
+            setComments((prev) => ({
+                ...prev,
+                comments: prev.comments.map((c) =>
+                    c.id === commentId ? response.data : c
+                ),
+            }));
+            handleEditCancel();
+        } catch (error) {
+            console.error("Update comment error:", error);
+            alert("Не удалось обновить комментарий");
+        }
+    };
+
     return (
         <Dialog open={open} onOpenChange={(value) => !value && close()}>
             <DialogContent className="p-0 max-w-2xl w-[95vw] h-[90vh] sm:h-auto">
@@ -93,16 +156,70 @@ const CommentsModal = ({ id, open, close, onComment }) => {
                     <CommentForm handleSubmit={handleSubmit} />
                     <div className="overflow-y-auto h-full pb-6 pr-1">
                         {comments.map((comment) => {
+                            const currentUserId = user?.user_id || profileData?.id;
+                            const canEdit =
+                                currentUserId &&
+                                Number(comment.creator?.id) === Number(currentUserId);
+                            if (editingId === comment.id) {
+                                return (
+                                    <Card key={comment.id}>
+                                        <CardContent className="p-3 space-y-2">
+                                            <Textarea
+                                                value={editingText}
+                                                onChange={(e) => setEditingText(e.target.value)}
+                                                rows={3}
+                                            />
+                                            <div className="flex justify-end gap-2">
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={handleEditCancel}
+                                                >
+                                                    Отмена
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    onClick={() => handleEditSave(comment.id)}
+                                                >
+                                                    Сохранить
+                                                </Button>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                );
+                            }
                             return (
-                                <CommentCard
-                                    content={comment.content}
-                                    creator_name={comment.creator.username}
-                                    creator_profile_pic={comment.creator.profile_pic}
-                                    creator_id={comment.creator.id}
-                                    key={comment.id}
-                                    created={comment.created}
-                                    created_at={comment.created_at}
-                                />
+                                <div key={comment.id} className="space-y-1">
+                                    <CommentCard
+                                        content={comment.content}
+                                        creator_name={comment.creator.username}
+                                        creator_profile_pic={comment.creator.profile_pic}
+                                        creator_id={comment.creator.id}
+                                        created={comment.created}
+                                        created_at={comment.created_at}
+                                    />
+                                    {canEdit && (
+                                        <div className="flex justify-end gap-2">
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => handleEditStart(comment)}
+                                            >
+                                                Редактировать
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                className="text-destructive"
+                                                onClick={() => handleDelete(comment.id)}
+                                            >
+                                                Удалить
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
                             );
                         })}
                         {next && (
