@@ -14,12 +14,17 @@ export const PostActionContextProvider = ({ children }) => {
         } else onFailure(response);
     };
 
-    const getPosts = async (filter = null, onSuccess, onFailure) => {
-        let response;
-        response = await axiosInstance.get(`post/all/?filter=${filter}`);
-        if (response.status >= 200 && response.status < 400) {
-            onSuccess(response);
-        } else onFailure(response);
+    const getPosts = async (filter = null, onSuccess, onFailure = console.error) => {
+        try {
+            const response = await axiosInstance.get(`post/all/?filter=${filter}`);
+            if (response.status >= 200 && response.status < 400) {
+                onSuccess(response);
+            } else {
+                onFailure(response);
+            }
+        } catch (error) {
+            onFailure(error);
+        }
     };
 
     const likePost = async (id, onSuccess, onFailure = console.error) => {

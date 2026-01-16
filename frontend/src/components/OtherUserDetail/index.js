@@ -45,7 +45,6 @@ const Profile = () => {
     date_joined,
     cover_pic,
     is_following,
-    pilot_type,
     pilot_type_display,
     flight_hours,
     aircraft_types_list,
@@ -53,6 +52,7 @@ const Profile = () => {
     bio,
   } = profileData;
   const currentTab = queryParams.get("tab") || "posts";
+  const showCover = Boolean(cover_pic) && !cover_pic.includes("coverphoto.jpg");
 
   useEffect(() => {
     if (!username) return;
@@ -96,11 +96,15 @@ const Profile = () => {
       <div className="bg-gray-100 dark:bg-[#030108]">
         <div className="h-[270px] w-full relative">
           <div className="h-[200px]">
-            <img
-              src={cover_pic}
-              alt="cover"
-              className="w-full h-full object-cover"
-            ></img>
+            {showCover ? (
+              <img
+                src={cover_pic}
+                alt="cover"
+                className="w-full h-full object-cover"
+              ></img>
+            ) : (
+              <div className="w-full h-full bg-gray-200 dark:bg-[#0b0b12]" />
+            )}
           </div>
           {profile_pic ? (
             <img

@@ -48,6 +48,7 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+      - /app/.bun
     environment:
       - REACT_APP_API_URL=http://localhost:8000
       - CHOKIDAR_USEPOLLING=true

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { TextField, Autocomplete, Box } from "@mui/material";
-import axios from "axios";
 
 // Популярные аэропорты России и мира (можно расширить или подключить API)
 const POPULAR_AIRPORTS = [
@@ -29,7 +28,7 @@ const AirportSearch = ({
     lng 
 }) => {
     const [inputValue, setInputValue] = useState(value || "");
-    const [options, setOptions] = useState(POPULAR_AIRPORTS);
+    const options = POPULAR_AIRPORTS;
 
     useEffect(() => {
         if (value) {

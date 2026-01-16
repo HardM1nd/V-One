@@ -86,3 +86,32 @@ class User(AbstractUser):
         if self.aircraft_types:
             return [t.strip() for t in self.aircraft_types.split(',') if t.strip()]
         return []
+
+
+class Notification(models.Model):
+    """Уведомления для пользователей"""
+    NOTIFICATION_TYPES = [
+        ("follow", "Подписка"),
+        ("post_like", "Лайк поста"),
+        ("route_like", "Лайк маршрута"),
+        ("route_save", "Сохранение маршрута"),
+    ]
+
+    user = models.ForeignKey(
+        User, related_name="notifications", on_delete=models.CASCADE
+    )
+    actor = models.ForeignKey(
+        User, related_name="actor_notifications", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    type = models.CharField(max_length=30, choices=NOTIFICATION_TYPES)
+    message = models.CharField(max_length=255, blank=True)
+    target_type = models.CharField(max_length=30, blank=True)
+    target_id = models.IntegerField(null=True, blank=True)
+    is_read = models.BooleanField(default=False)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created"]
+
+    def __str__(self):
+        return f"{self.user.username}: {self.type}"

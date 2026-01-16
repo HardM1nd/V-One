@@ -9,6 +9,7 @@ from .route_views import (
     FlightRouteSaveAPIView,
     MyFlightRoutesAPIView,
     SavedFlightRoutesAPIView,
+    FollowingFlightRoutesAPIView,
 )
 
 urlpatterns = [
@@ -21,5 +22,6 @@ urlpatterns = [
     path('routes/<int:pk>/save/', FlightRouteSaveAPIView.as_view(), name='route_save'),
     path('routes/my/', MyFlightRoutesAPIView.as_view(), name='my_routes'),
     path('routes/saved/', SavedFlightRoutesAPIView.as_view(), name='saved_routes'),
+    path('routes/following/', FollowingFlightRoutesAPIView.as_view(), name='following_routes'),
 ]
 

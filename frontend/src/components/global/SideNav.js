@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
+import useUserContext from "../../contexts/UserContext";
 
 const navElement = [
     { name: "Home", icon: "ant-design:home-filled", href: "/" },
     { name: "Explore", icon: "material-symbols:explore-outline-rounded", href: "/explore" },
     { name: "Pilots", icon: "material-symbols:flight-outline", href: "/pilots" },
     { name: "Routes", icon: "material-symbols:route-outline", href: "/routes" },
+    { name: "Notifications", icon: "material-symbols:notifications-outline", href: "/notifications" },
     { name: "Likes", icon: "icon-park-solid:like", href: "/likes" },
     { name: "Saved", icon: "dashicons:cloud-saved", href: "/saved" },
     { name: "Profile", icon: "healthicons:ui-user-profile", href: "/profile" },
@@ -14,10 +16,34 @@ const navElement = [
 
 const SideNav = (props) => {
     const { setShowSidebar, open } = props;
+    const { axiosInstance, user, fetchUserData } = useUserContext();
+    const [unreadCount, setUnreadCount] = useState(0);
 
     const location = useLocation();
     let cur = location.pathname.split("/").at(1);
     if (cur.length === 0) cur = "home";
+
+    const fetchUnread = useCallback(async () => {
+        if (!user) {
+            setUnreadCount(0);
+            return;
+        }
+        try {
+            const response = await axiosInstance.get("accounts/notifications/unread_count/");
+            setUnreadCount(response.data.unread_count || 0);
+        } catch (error) {
+            console.error("Error fetching unread count:", error);
+        }
+    }, [axiosInstance, user]);
+
+    useEffect(() => {
+        fetchUnread();
+        const handleNotificationsUpdate = () => fetchUnread();
+        window.addEventListener("notifications:updated", handleNotificationsUpdate);
+        return () => {
+            window.removeEventListener("notifications:updated", handleNotificationsUpdate);
+        };
+    }, [fetchUnread, fetchUserData]);
 
     return (
         <div
@@ -71,6 +97,11 @@ const SideNav = (props) => {
                             >
                                 {el.name}
                             </span>
+                            {el.name === "Notifications" && unreadCount > 0 && (
+                                <span className="ml-auto mr-4 text-xs bg-purple-500 text-white rounded-full px-2 py-0.5">
+                                    {unreadCount}
+                                </span>
+                            )}
                         </Link>
                     );
                 })}

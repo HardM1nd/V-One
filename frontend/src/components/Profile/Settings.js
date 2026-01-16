@@ -28,6 +28,7 @@ const Settings = () => {
         profile_pic: { name: "", file: null, sizeKb: 0 },
         cover_pic: { name: "", file: null, sizeKb: 0 },
     };
+    const showCover = Boolean(cover_pic) && !cover_pic.includes("coverphoto.jpg");
     const [editUsername, setEditUsername] = useState(false);
     const [formValues, setFormValues] = useState({
         username: username,
@@ -222,11 +223,15 @@ const Settings = () => {
                         </div>
                     )}
                     <div className="w-full flex items-center justify-center p-2 rounded">
-                        <img
-                            src={formValues.cover_pic.file ? formValues.cover_pic.file : cover_pic}
-                            alt="Profile Cover"
-                            className="w-4/5 rounded-lg object-cover max-h-[40vh]"
-                        ></img>
+                        {formValues.cover_pic.file || showCover ? (
+                            <img
+                                src={formValues.cover_pic.file ? formValues.cover_pic.file : cover_pic}
+                                alt="Profile Cover"
+                                className="w-4/5 rounded-lg object-cover max-h-[40vh]"
+                            ></img>
+                        ) : (
+                            <div className="w-4/5 rounded-lg max-h-[40vh] h-40 bg-gray-200 dark:bg-[#0b0b12]" />
+                        )}
                     </div>
                 </div>
                 <div className="flex gap-1 flex-col justify-center relative">

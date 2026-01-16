@@ -4,10 +4,13 @@ import TweetForm from "../global/TweetForm";
 import usePostActionContext from "../../contexts/PostActionContext";
 import usePageContext from "../../contexts/pageContext";
 import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
+import useUserContext from "../../contexts/UserContext";
+import RouteList from "../Routes/RouteList";
 
 const Home = () => {
     const { getPosts } = usePostActionContext();
     const { setData, getNextItems, getNextUrl } = usePageContext();
+    const { user } = useUserContext();
     const container = useRef();
     useEffect(() => {
         const success = (r) => {
@@ -52,6 +55,23 @@ const Home = () => {
                     <KeyboardDoubleArrowDownIcon />
                 </button>
             )}
+            <div className="w-[599px] max-w-[99%] mt-6">
+                <div className="bg-gray-100 dark:bg-[#030108] p-4 mb-4 rounded-lg">
+                    <h3 className="text-xl font-bold dark:text-gray-100">
+                        🛫 Активность в маршрутах
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                        Последние маршруты пилотов, на которых вы подписаны
+                    </p>
+                </div>
+                {user ? (
+                    <RouteList endpoint="post/routes/following/" showFilters={false} />
+                ) : (
+                    <div className="text-center text-sm text-gray-500 dark:text-gray-400">
+                        Войдите, чтобы видеть маршруты подписок
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

@@ -88,14 +88,20 @@ class PostSerializer(serializers.ModelSerializer):
 
     def get_is_liked(self, post):
         user = self.context.get("request").user
+        if not user or not user.is_authenticated:
+            return False
         return post.likes.filter(id=user.id).exists()
 
     def get_is_saved(self, post):
         user = self.context.get("request").user
+        if not user or not user.is_authenticated:
+            return False
         return post.saves.filter(id=user.id).exists()
 
     def get_is_commented(self, post):
         user = self.context.get("request").user
+        if not user or not user.is_authenticated:
+            return False
         return post.comments.filter(creator=user).exists()
 
     def get_likes(self, post):
@@ -104,11 +110,15 @@ class PostSerializer(serializers.ModelSerializer):
     def get_is_following_user(self, post):
         creator = post.creator
         user = self.context.get("request").user
+        if not user or not user.is_authenticated:
+            return False
         return user.following.filter(id=creator.id).exists()
 
     def get_is_followed_by_user(self, post):
         creator = post.creator
         user = self.context.get("request").user
+        if not user or not user.is_authenticated:
+            return False
         return creator.following.filter(id=user.id).exists()
 
     def get_comments(self, post):

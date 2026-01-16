@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from .notification_views import unread_notifications_count
 
 
 urlpatterns = [
@@ -24,4 +25,5 @@ urlpatterns = [
     path("api/accounts/", include("accounts.api.urls")),
     path("api/post/", include("post.api.urls")),
     path("api/post/", include("post.api.route_urls")),
+    path("api/v1/user/notifications/unread_count/", unread_notifications_count),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

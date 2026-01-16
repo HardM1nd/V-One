@@ -1,4 +1,5 @@
-from accounts.models import User
+from accounts.models import User, Notification
+from django.db import models
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.generics import (
@@ -11,8 +12,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
-from .serializers import MyTokenObtainPairSerializer, SignupSerializer, UserSerializer
+from .serializers import MyTokenObtainPairSerializer, SignupSerializer, UserSerializer, NotificationSerializer
 
 
 def get_tokens_for_user(user):
@@ -53,21 +55,30 @@ class SignupAPIView(CreateAPIView):
 class UserDetailAPIView(RetrieveAPIView):
     model = User
     serializer_class = UserSerializer
+    permission_classes = [AllowAny]
 
     def get_object(self):
-        pk = self.kwargs.get("id", self.request.user.id)
+        pk = self.kwargs.get("id")
+        if pk is None:
+            pk = self.request.user.id
         user = get_object_or_404(self.model, id=pk)
         self.check_object_permissions(self.request, user)
         return user
 
     def retrieve(self, request, *args, **kwargs):
+        if "id" not in self.kwargs and not request.user.is_authenticated:
+            return Response(
+                {"detail": "Authentication credentials were not provided."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         data = serializer.data
         id = self.kwargs.get("id", None)
-        if id:
-            user = self.request.user
-            data["is_following"] = user.following.filter(id=id).exists()
+        if id and request.user.is_authenticated:
+            data["is_following"] = request.user.following.filter(id=id).exists()
+        elif id:
+            data["is_following"] = False
         return Response(data)
 
 
@@ -108,6 +119,15 @@ class FollowUnfollowUserAPIView(APIView):
             followed = True
             user_following.add(other_user)
             other_user_followers.add(user)
+            if other_user != user:
+                Notification.objects.create(
+                    user=other_user,
+                    actor=user,
+                    type="follow",
+                    message=f"{user.username} подписался на вас",
+                    target_type="user",
+                    target_id=user.id,
+                )
         data = SignupSerializer(user).data
         data["followed"] = followed
         data["followers"] = user_following.count()
@@ -125,10 +145,13 @@ class ProfileUpdateAPIView(UpdateAPIView):
 class PilotListAPIView(ListAPIView):
     """Список пилотов с фильтрацией по типу"""
     serializer_class = UserSerializer
+    permission_classes = [AllowAny]
+    authentication_classes = []
     
     def get_queryset(self):
         queryset = User.objects.all()
         pilot_type = self.request.query_params.get('pilot_type', None)
+        query = self.request.query_params.get('q', None)
         
         if pilot_type:
             if pilot_type == 'virtual':
@@ -137,6 +160,14 @@ class PilotListAPIView(ListAPIView):
                 queryset = queryset.filter(pilot_type__in=['real', 'both'])
             elif pilot_type == 'both':
                 queryset = queryset.filter(pilot_type='both')
+
+        if query:
+            queryset = queryset.filter(
+                models.Q(username__icontains=query)
+                | models.Q(bio__icontains=query)
+                | models.Q(aircraft_types__icontains=query)
+                | models.Q(license_number__icontains=query)
+            )
         
         # Сортировка по часам налета (по убыванию)
         order_by = self.request.query_params.get('order_by', '-flight_hours')
@@ -144,3 +175,37 @@ class PilotListAPIView(ListAPIView):
             queryset = queryset.order_by(order_by)
         
         return queryset
+
+
+class NotificationListAPIView(ListAPIView):
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(user=self.request.user)
+
+
+class NotificationReadAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        notification = get_object_or_404(Notification, pk=pk, user=request.user)
+        notification.is_read = True
+        notification.save(update_fields=["is_read"])
+        return Response({"status": "ok"})
+
+
+class NotificationReadAllAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+        return Response({"status": "ok"})
+
+
+class NotificationUnreadCountAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        count = Notification.objects.filter(user=request.user, is_read=False).count()
+        return Response({"unread_count": count})

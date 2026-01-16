@@ -30,6 +30,7 @@ const Header = (props) => {
                         className="dark:text-white text-gray-900 text-3xl hover:text-purple-500"
                         href="https://github.com/HardM1nd/V-One"
                         target="_blank"
+                        rel="noreferrer"
                         alt="github"
                         aria-label="view code on github"
                     >

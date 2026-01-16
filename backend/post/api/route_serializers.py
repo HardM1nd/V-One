@@ -1,3 +1,4 @@
+import json
 from rest_framework import serializers
 from post.models import FlightRoute
 from accounts.api.serializers import UserSerializer
@@ -13,6 +14,7 @@ class FlightRouteSerializer(serializers.ModelSerializer):
     saves_count = serializers.SerializerMethodField()
     created_display = serializers.SerializerMethodField()
     flight_date_display = serializers.SerializerMethodField()
+    visibility_display = serializers.CharField(source="get_visibility_display", read_only=True)
 
     class Meta:
         model = FlightRoute
@@ -27,6 +29,7 @@ class FlightRouteSerializer(serializers.ModelSerializer):
             'departure_lng',
             'destination_lat',
             'destination_lng',
+            'waypoints',
             'description',
             'flight_date',
             'flight_date_display',
@@ -34,6 +37,8 @@ class FlightRouteSerializer(serializers.ModelSerializer):
             'distance',
             'aircraft_type',
             'route_file',
+            'visibility',
+            'visibility_display',
             'is_public',
             'created',
             'created_display',
@@ -70,6 +75,27 @@ class FlightRouteSerializer(serializers.ModelSerializer):
         if route.flight_date:
             return naturalday(route.flight_date)
         return None
+
+    def validate_waypoints(self, value):
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except json.JSONDecodeError as exc:
+                raise serializers.ValidationError("Invalid waypoints JSON.") from exc
+        if value is None:
+            return []
+        if not isinstance(value, list):
+            raise serializers.ValidationError("Waypoints must be a list.")
+        return value
+
+    def validate(self, attrs):
+        visibility = attrs.get("visibility")
+        if visibility is None and "is_public" in attrs:
+            visibility = "public" if attrs.get("is_public") else "private"
+            attrs["visibility"] = visibility
+        if visibility is not None:
+            attrs["is_public"] = visibility == "public"
+        return attrs
 
     def create(self, validated_data):
         request = self.context.get('request')

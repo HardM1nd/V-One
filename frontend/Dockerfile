@@ -1,17 +1,17 @@
-FROM node:18-alpine
+FROM oven/bun:latest
 
 WORKDIR /app
 
 # Копирование package файлов
 COPY package*.json ./
 
-# Установка зависимостей
-RUN npm install --legacy-peer-deps
+# Установка зависимостей через bun
+RUN bun install
 
 # Копирование остальных файлов
 COPY . .
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["bun", "run", "start"]
 

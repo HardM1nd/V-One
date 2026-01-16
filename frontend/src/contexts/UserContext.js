@@ -1,4 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+    createContext,
+    useContext,
+    useState,
+    useEffect,
+    useCallback,
+    useMemo,
+    useRef,
+} from "react";
 import { jwtDecode } from 'jwt-decode';
 import axios from "axios";
 
@@ -41,35 +49,44 @@ function UserContextProvider({ children }) {
         : pyAnywhere;
     const [profileData, setProfileData] = useState(defaultProfileData);
     const [tokens, setTokens] = useState(userTokensFromStorage);
+    const tokensRef = useRef(tokens);
+    
+    useEffect(() => {
+        tokensRef.current = tokens;
+    }, [tokens]);
     
     // Функция выхода
-    const logout = () => {
+    const logout = useCallback(() => {
         setUser(null);
         setTokens(null);
         setProfileData(defaultProfileData);
         localStorage.removeItem("userTokens");
-    };
+    }, []);
 
     // Создаем базовый axios instance
-    const axiosInstance = axios.create({
-        baseURL: SERVERURL + "api",
-    });
+    const axiosInstance = useMemo(() => {
+        return axios.create({
+            baseURL: SERVERURL + "api",
+        });
+    }, [SERVERURL]);
 
     // Функция для обновления токена
-    const refreshToken = async () => {
-        if (!tokens || !tokens.refresh) {
+    const refreshToken = useCallback(async () => {
+        const currentTokens = tokensRef.current;
+        if (!currentTokens || !currentTokens.refresh) {
             logout();
             return null;
         }
         try {
             const response = await axios.post(SERVERURL + "api/accounts/token/refresh/", {
-                refresh: tokens.refresh
+                refresh: currentTokens.refresh
             });
             const newTokens = {
                 access: response.data.access,
-                refresh: tokens.refresh
+                refresh: currentTokens.refresh
             };
             setTokens(newTokens);
+            tokensRef.current = newTokens;
             localStorage.setItem("userTokens", JSON.stringify(newTokens));
             if (newTokens.access) {
                 setUser(jwtDecode(newTokens.access));
@@ -80,52 +97,61 @@ function UserContextProvider({ children }) {
             logout();
             return null;
         }
-    };
+    }, [SERVERURL, logout]);
 
-    // Interceptor для автоматического обновления токена при 401
-    axiosInstance.interceptors.request.use(
-        (config) => {
-            if (tokens && tokens.access) {
-                config.headers.Authorization = `Bearer ${tokens.access}`;
+    useEffect(() => {
+        // Interceptor для автоматического обновления токена при 401
+        const requestId = axiosInstance.interceptors.request.use(
+            (config) => {
+                const currentTokens = tokensRef.current;
+                if (currentTokens && currentTokens.access) {
+                    config.headers.Authorization = `Bearer ${currentTokens.access}`;
+                }
+                return config;
+            },
+            (error) => {
+                return Promise.reject(error);
             }
-            return config;
-        },
-        (error) => {
-            return Promise.reject(error);
-        }
-    );
+        );
 
-    axiosInstance.interceptors.response.use(
-        (response) => response,
-        async (error) => {
-            const originalRequest = error.config;
-            
-            // Если ошибка 401 и это не запрос на обновление токена или логин
-            if (error.response?.status === 401 && 
-                !originalRequest._retry &&
-                !originalRequest.url?.includes('token/refresh') &&
-                !originalRequest.url?.includes('token/') &&
-                !originalRequest.url?.includes('signup')) {
-                originalRequest._retry = true;
+        const responseId = axiosInstance.interceptors.response.use(
+            (response) => response,
+            async (error) => {
+                const originalRequest = error.config;
                 
-                const newAccessToken = await refreshToken();
-                if (newAccessToken) {
-                    originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-                    return axiosInstance(originalRequest);
-                } else {
-                    // Если не удалось обновить токен, перенаправляем на логин
-                    if (window.location.pathname !== '/signin/') {
-                        window.location.href = '/signin/';
+                // Если ошибка 401 и это не запрос на обновление токена или логин
+                if (error.response?.status === 401 && 
+                    !originalRequest._retry &&
+                    !originalRequest.url?.includes('token/refresh') &&
+                    !originalRequest.url?.includes('token/') &&
+                    !originalRequest.url?.includes('signup')) {
+                    originalRequest._retry = true;
+                    
+                    const newAccessToken = await refreshToken();
+                    if (newAccessToken) {
+                        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+                        return axiosInstance(originalRequest);
+                    } else {
+                        // Если не удалось обновить токен, перенаправляем на логин
+                        if (window.location.pathname !== '/signin/') {
+                            window.location.href = '/signin/';
+                        }
                     }
                 }
+                
+                return Promise.reject(error);
             }
-            
-            return Promise.reject(error);
-        }
-    );
+        );
 
-    const fetchUserData = async () => {
-        if (!tokens || !tokens.access) {
+        return () => {
+            axiosInstance.interceptors.request.eject(requestId);
+            axiosInstance.interceptors.response.eject(responseId);
+        };
+    }, [axiosInstance, refreshToken]);
+
+    const fetchUserData = useCallback(async () => {
+        const currentTokens = tokensRef.current;
+        if (!currentTokens || !currentTokens.access) {
             return;
         }
         try {
@@ -136,7 +162,7 @@ function UserContextProvider({ children }) {
             // Если и это не помогло, пользователь будет разлогинен
             console.error("Error fetching user data:", error);
         }
-    };
+    }, [axiosInstance]);
 
     const login = (data, onfailure) => {
         axiosInstance
@@ -149,6 +175,7 @@ function UserContextProvider({ children }) {
                     data = response.data;
                     setUser(jwtDecode(data.access));
                     setTokens(data);
+                    tokensRef.current = data;
                     localStorage.setItem("userTokens", JSON.stringify(data));
                 }
             })
@@ -165,6 +192,7 @@ function UserContextProvider({ children }) {
                     const { tokens } = response.data;
                     setUser(jwtDecode(tokens.access));
                     setTokens(tokens);
+                    tokensRef.current = tokens;
                     localStorage.setItem("userTokens", JSON.stringify(tokens));
                 }
             })
@@ -192,13 +220,14 @@ function UserContextProvider({ children }) {
         profileData: profileData,
         setProfileData: setProfileData,
         isDemoUser: profileData.username === "DemoUser",
+        fetchUserData: fetchUserData,
     };
 
     useEffect(() => {
         if (tokens && tokens.access) {
             fetchUserData();
         }
-    }, [tokens]);
+    }, [tokens, fetchUserData]);
 
     return <userContext.Provider value={authcontext}>{children}</userContext.Provider>;
 }

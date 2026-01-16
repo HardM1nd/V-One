@@ -1,16 +1,18 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { Avatar, Chip, IconButton } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { Avatar, Chip, IconButton, Tooltip } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import FlightLandIcon from "@mui/icons-material/FlightLand";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import useUserContext from "../../contexts/UserContext";
 
 const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
     const { axiosInstance } = useUserContext();
+    const navigate = useNavigate();
     
     const handleLike = async (e) => {
         e.preventDefault();
@@ -56,10 +58,32 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
         return duration;
     };
 
+    const waypointCount = Array.isArray(route.waypoints) ? route.waypoints.length : 0;
+
+    const handleCopyLink = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const link = `${window.location.origin}/route/${route.id}/`;
+        try {
+            await navigator.clipboard.writeText(link);
+            alert("Ссылка скопирована");
+        } catch (error) {
+            console.error("Copy error:", error);
+            alert("Не удалось скопировать ссылку");
+        }
+    };
+
     return (
-        <Link
-            to={`/route/${route.id}/`}
-            className="block bg-gray-50 dark:bg-[#1a1a1a] p-4 rounded-lg hover:bg-gray-200 dark:hover:bg-[#2a2a2a] transition mb-3"
+        <div
+            role="button"
+            tabIndex={0}
+            onClick={() => navigate(`/route/${route.id}`)}
+            onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    navigate(`/route/${route.id}`);
+                }
+            }}
+            className="block bg-gray-50 dark:bg-[#1a1a1a] p-4 rounded-lg hover:bg-gray-200 dark:hover:bg-[#2a2a2a] transition mb-3 cursor-pointer"
         >
             <div className="flex items-start gap-4">
                 <Avatar
@@ -76,13 +100,23 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                                 {route.title}
                             </h3>
                             <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                <Link
-                                    to={`/user/${route.pilot?.id}/`}
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="hover:text-purple-500"
+                                <span
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigate(`/user/${route.pilot?.id}/`);
+                                    }}
+                                    className="hover:text-purple-500 cursor-pointer"
+                                    role="link"
+                                    tabIndex={0}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" || e.key === " ") {
+                                            e.stopPropagation();
+                                            navigate(`/user/${route.pilot?.id}/`);
+                                        }
+                                    }}
                                 >
                                     @{route.pilot?.username}
-                                </Link>
+                                </span>
                                 {route.created_display && (
                                     <>
                                         <span>•</span>
@@ -93,28 +127,41 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                         </div>
                         {showActions && (
                             <div className="flex gap-1">
-                                <IconButton
-                                    size="small"
-                                    onClick={handleLike}
-                                    color={route.is_liked ? "error" : "default"}
-                                >
-                                    {route.is_liked ? (
-                                        <FavoriteIcon fontSize="small" />
-                                    ) : (
-                                        <FavoriteBorderIcon fontSize="small" />
-                                    )}
-                                </IconButton>
-                                <IconButton
-                                    size="small"
-                                    onClick={handleSave}
-                                    color={route.is_saved ? "primary" : "default"}
-                                >
-                                    {route.is_saved ? (
-                                        <BookmarkIcon fontSize="small" />
-                                    ) : (
-                                        <BookmarkBorderIcon fontSize="small" />
-                                    )}
-                                </IconButton>
+                                <Tooltip title="Лайк">
+                                    <IconButton
+                                        size="small"
+                                        onClick={handleLike}
+                                        color={route.is_liked ? "error" : "default"}
+                                    >
+                                        {route.is_liked ? (
+                                            <FavoriteIcon fontSize="small" />
+                                        ) : (
+                                            <FavoriteBorderIcon fontSize="small" />
+                                        )}
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Сохранить">
+                                    <IconButton
+                                        size="small"
+                                        onClick={handleSave}
+                                        color={route.is_saved ? "primary" : "default"}
+                                    >
+                                        {route.is_saved ? (
+                                            <BookmarkIcon fontSize="small" />
+                                        ) : (
+                                            <BookmarkBorderIcon fontSize="small" />
+                                        )}
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Скопировать ссылку">
+                                    <IconButton
+                                        size="small"
+                                        onClick={handleCopyLink}
+                                        color="default"
+                                    >
+                                        <ContentCopyIcon fontSize="small" />
+                                    </IconButton>
+                                </Tooltip>
                             </div>
                         )}
                     </div>
@@ -137,10 +184,17 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                         </p>
                     )}
 
-                    <div className="flex flex-wrap gap-3 text-xs text-gray-600 dark:text-gray-400">
+                    <div className="flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-400">
                         {route.aircraft_type && (
                             <Chip
                                 label={route.aircraft_type}
+                                size="small"
+                                variant="outlined"
+                            />
+                        )}
+                        {waypointCount > 1 && (
+                            <Chip
+                                label={`Точек: ${waypointCount}`}
                                 size="small"
                                 variant="outlined"
                             />
@@ -154,16 +208,15 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                         {route.distance && (
                             <span>📏 {parseFloat(route.distance).toFixed(0)} км</span>
                         )}
-                        {route.likes_count > 0 && (
-                            <span>❤️ {route.likes_count}</span>
-                        )}
-                        {route.saves_count > 0 && (
-                            <span>🔖 {route.saves_count}</span>
+                        {(route.likes_count > 0 || route.saves_count > 0) && (
+                            <span>
+                                ❤️ {route.likes_count || 0} · 🔖 {route.saves_count || 0}
+                            </span>
                         )}
                     </div>
                 </div>
             </div>
-        </Link>
+        </div>
     );
 };
 

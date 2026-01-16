@@ -61,6 +61,11 @@ const Card = (props) => {
     const { likePost, savePost, deletePost } = usePageContext();
     const [viewComment, setViewComment] = useState(false);
     const [openOptions, setOpenOptions] = useState(false);
+    const [imageError, setImageError] = useState(false);
+
+    useEffect(() => {
+        setImageError(false);
+    }, [card_image]);
 
     const handleDelete = (e) => {
         const del = window.confirm("Delete post?");
@@ -100,12 +105,13 @@ const Card = (props) => {
                     {isEdited ? "Edited: " : ""}
                     {card_content}
                 </div>
-                {card_image && (
+                {card_image && !imageError && (
                     <div className="my-2 ">
                         <img
                             src={card_image}
                             className="h-ful max-h-[65vh] w-full rounded-xl object-cover"
                             alt="posts"
+                            onError={() => setImageError(true)}
                         />
                     </div>
                 )}

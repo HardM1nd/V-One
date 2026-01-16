@@ -7,19 +7,30 @@ from rest_framework.generics import (
     RetrieveDestroyAPIView
 )
 from post.models import Post, Comment
+from accounts.models import Notification
 from .serializers import PostSerializer, CommentSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from accounts.models import User
 from typing import Any
 
 
 class PostListAPIView(ListAPIView):
     serializer_class = PostSerializer
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         filter = self.request.query_params.get('filter', None)
         user = self.request.user
+        if not user.is_authenticated:
+            if filter in {"saved", "liked", "user", "media"}:
+                return Post.objects.none()
+            if filter == "explore":
+                def _(post):
+                    return post.likes.count() + post.saves.count() + post.comments.count()
+                return sorted(Post.objects.all().order_by("-created"), key=_, reverse=True)
+            return Post.objects.all().order_by("-created")
         if filter == 'saved':
             return user.saved_post.all().order_by("-created")
         elif filter == "liked":
@@ -39,6 +50,7 @@ class PostListAPIView(ListAPIView):
 class UserPostListAPIView(ListAPIView):
     serializer_class = PostSerializer
     kwargs: dict[str, Any]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         filter = self.request.query_params.get('filter', None)
@@ -52,11 +64,13 @@ class UserPostListAPIView(ListAPIView):
 class PostCreateAPIView(CreateAPIView):
     model = Post
     serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class PostUpdateAPIView(RetrieveUpdateAPIView):
     model = Post
     serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -68,11 +82,13 @@ class PostRetrieveAPIView(RetrieveAPIView):
     model = Post
     serializer_class = PostSerializer
     queryset = Post.objects.all()
+    permission_classes = [AllowAny]
 
 
 class PostDeleteAPIView(RetrieveDestroyAPIView):
     model = Post
     serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -82,6 +98,7 @@ class PostDeleteAPIView(RetrieveDestroyAPIView):
 
 class PostCommentsListAPIView(ListAPIView):
     serializer_class = CommentSerializer
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         post_id = self.kwargs.get('pk')
@@ -90,6 +107,7 @@ class PostCommentsListAPIView(ListAPIView):
 
 class CommentsListAPIView(ListAPIView):
     serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -99,6 +117,7 @@ class CommentsListAPIView(ListAPIView):
 class CommentCreateApiView(CreateAPIView):
     model = Comment
     serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
@@ -109,6 +128,7 @@ class CommentCreateApiView(CreateAPIView):
 class CommentDestroyApiView(RetrieveDestroyAPIView):
     model = Comment
     serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return self.model.objects.filter(creator=self.request.user)
@@ -117,6 +137,7 @@ class CommentDestroyApiView(RetrieveDestroyAPIView):
 class CommentUpdateApiView(RetrieveUpdateAPIView):
     model = Comment
     serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return self.model.objects.filter(creator=self.request.user)
@@ -125,12 +146,14 @@ class CommentUpdateApiView(RetrieveUpdateAPIView):
 class CommentRetrieveAPIView(RetrieveAPIView):
     model = Comment
     serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return self.model.objects.filter(creator=self.request.user)
 
 
 class LikeUnlikePostAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
@@ -139,11 +162,21 @@ class LikeUnlikePostAPIView(APIView):
             post_likes.remove(self.request.user)
         else:
             post_likes.add(self.request.user)
+            if post.creator_id != request.user.id:
+                Notification.objects.create(
+                    user=post.creator,
+                    actor=request.user,
+                    type="post_like",
+                    message=f"{request.user.username} поставил лайк вашему посту",
+                    target_type="post",
+                    target_id=post.id,
+                )
         data = PostSerializer(post, context={"request": self.request}).data
         return Response(data)
 
 
 class SaveUnsavePostAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
         post = get_object_or_404(Post, pk=pk)

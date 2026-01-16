@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, createBrowserRouter, createRoutesFromElements } from "react-router-dom";
+import { Navigate, Route, createBrowserRouter, createRoutesFromElements } from "react-router-dom";
 import Base from "./components/global/Base";
 import Home from "./components/Home";
 import Saved from "./components/Saved";
@@ -16,6 +16,7 @@ import SignUp from "./components/Auth/Signup";
 import Pilots from "./components/Pilots";
 import Routes from "./components/Routes";
 import RouteDetail from "./components/Routes/RouteDetail";
+import Notifications from "./components/Notifications";
 
 const App = createBrowserRouter(
     createRoutesFromElements(
@@ -26,8 +27,13 @@ const App = createBrowserRouter(
                     <Route path="likes/" element={<Liked />} />
                     <Route path="saved/" element={<Saved />} />
                     <Route path="explore/" element={<Explore />} />
+                    <Route path="pilots" element={<Pilots />} />
                     <Route path="pilots/" element={<Pilots />} />
                     <Route path="routes/" element={<Routes />} />
+                    <Route path="routes/create" element={<Navigate to="/routes/?tab=create" replace />} />
+                    <Route path="routes/create/" element={<Navigate to="/routes/?tab=create" replace />} />
+                    <Route path="routes/:routeId" element={<RouteDetail />} />
+                    <Route path="notifications/" element={<Notifications />} />
                     <Route path="route/:routeId" element={<RouteDetail />} />
                     <Route path="profile/" element={<Profile />} />
                     <Route path="logout/" element={<Logout />} />

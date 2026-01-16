@@ -1,6 +1,6 @@
 from typing import Any
 
-from accounts.models import User
+from accounts.models import User, Notification
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.humanize.templatetags.humanize import naturalday
 from rest_framework import serializers
@@ -26,6 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
     date_joined = serializers.SerializerMethodField()
     aircraft_types_list = serializers.SerializerMethodField()
     pilot_type_display = serializers.CharField(source='get_pilot_type_display', read_only=True)
+    is_following = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -46,6 +47,7 @@ class UserSerializer(serializers.ModelSerializer):
             "aircraft_types_list",
             "license_number",
             "bio",
+            "is_following",
         ]
         extra_kwargs = {
             "date_joined": {
@@ -67,6 +69,14 @@ class UserSerializer(serializers.ModelSerializer):
     
     def get_aircraft_types_list(self, user):
         return user.get_aircraft_types_list()
+
+    def get_is_following(self, user):
+        request = self.context.get("request")
+        if not request or not request.user.is_authenticated:
+            return False
+        if request.user.id == user.id:
+            return False
+        return request.user.following.filter(id=user.id).exists()
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
@@ -103,6 +113,29 @@ class SignupSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+
+
+class NotificationActorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("id", "username", "profile_pic")
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    actor = NotificationActorSerializer(read_only=True)
+
+    class Meta:
+        model = Notification
+        fields = (
+            "id",
+            "type",
+            "message",
+            "actor",
+            "target_type",
+            "target_id",
+            "is_read",
+            "created",
+        )
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():

@@ -56,6 +56,11 @@ class Post(models.Model):
 
 class FlightRoute(models.Model):
     """Модель для маршрутов полетов"""
+    VISIBILITY_CHOICES = [
+        ("public", "Публичный"),
+        ("followers", "Только подписчики"),
+        ("private", "Только я"),
+    ]
     pilot = models.ForeignKey(
         User, related_name='flight_routes', on_delete=models.CASCADE, verbose_name='Пилот')
     title = models.CharField(max_length=200, verbose_name='Название маршрута')
@@ -91,6 +96,12 @@ class FlightRoute(models.Model):
         null=True,
         verbose_name='Долгота назначения'
     )
+    waypoints = models.JSONField(
+        blank=True,
+        null=True,
+        default=list,
+        verbose_name='Точки маршрута'
+    )
     
     description = models.TextField(blank=True, null=True, verbose_name='Описание')
     flight_date = models.DateField(blank=True, null=True, verbose_name='Дата полета')
@@ -108,6 +119,12 @@ class FlightRoute(models.Model):
         blank=True, 
         null=True,
         verbose_name='Файл маршрута'
+    )
+    visibility = models.CharField(
+        max_length=20,
+        choices=VISIBILITY_CHOICES,
+        default="public",
+        verbose_name="Доступ",
     )
     is_public = models.BooleanField(default=True, verbose_name='Публичный маршрут')
     created = models.DateTimeField(auto_now_add=True)

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Avatar, Chip, IconButton, CircularProgress } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -21,11 +21,7 @@ const RouteDetail = () => {
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
 
-    useEffect(() => {
-        fetchRoute();
-    }, [routeId]);
-
-    const fetchRoute = async () => {
+    const fetchRoute = useCallback(async () => {
         try {
             setLoading(true);
             const response = await axiosInstance.get(`post/routes/${routeId}/`);
@@ -36,7 +32,11 @@ const RouteDetail = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [axiosInstance, navigate, routeId]);
+
+    useEffect(() => {
+        fetchRoute();
+    }, [fetchRoute]);
 
     const handleLike = async () => {
         try {
@@ -94,6 +94,94 @@ const RouteDetail = () => {
             return `${minutes}м`;
         }
         return duration;
+    };
+
+    const toRad = (value) => (value * Math.PI) / 180;
+    const haversineKm = (a, b) => {
+        const R = 6371;
+        const dLat = toRad(b.lat - a.lat);
+        const dLng = toRad(b.lng - a.lng);
+        const lat1 = toRad(a.lat);
+        const lat2 = toRad(b.lat);
+        const h =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.sin(dLng / 2) * Math.sin(dLng / 2) * Math.cos(lat1) * Math.cos(lat2);
+        return 2 * R * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+    };
+
+    const getRoutePoints = () => {
+        if (route?.waypoints && route.waypoints.length > 1) {
+            return route.waypoints.map(point => ({
+                lat: parseFloat(point.lat),
+                lng: parseFloat(point.lng),
+            }));
+        }
+        if (route?.departure_lat && route?.departure_lng && route?.destination_lat && route?.destination_lng) {
+            return [
+                { lat: parseFloat(route.departure_lat), lng: parseFloat(route.departure_lng) },
+                { lat: parseFloat(route.destination_lat), lng: parseFloat(route.destination_lng) },
+            ];
+        }
+        return [];
+    };
+
+    const calculateDistance = () => {
+        const points = getRoutePoints();
+        if (points.length < 2) return null;
+        let total = 0;
+        for (let i = 1; i < points.length; i += 1) {
+            total += haversineKm(points[i - 1], points[i]);
+        }
+        return total;
+    };
+
+    const downloadGeoJson = () => {
+        const points = getRoutePoints();
+        if (points.length < 2) {
+            alert("Недостаточно точек для экспорта");
+            return;
+        }
+        const computedDistance = calculateDistance();
+        const feature = {
+            type: "Feature",
+            properties: {
+                title: route?.title || "Маршрут",
+                aircraft_type: route?.aircraft_type || null,
+                flight_date: route?.flight_date || null,
+                distance: route?.distance || (computedDistance ? computedDistance.toFixed(2) : null),
+            },
+            geometry: {
+                type: "LineString",
+                coordinates: points.map((p) => [p.lng, p.lat]),
+            },
+        };
+        const dataStr = JSON.stringify(feature, null, 2);
+        const blob = new Blob([dataStr], { type: "application/geo+json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `route-${route?.id || "export"}.geojson`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+    };
+
+    const copyRouteLink = async () => {
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            alert("Ссылка скопирована");
+        } catch (error) {
+            console.error("Copy error:", error);
+            alert("Не удалось скопировать ссылку");
+        }
+    };
+
+    const buildOsmUrl = () => {
+        const points = getRoutePoints();
+        if (points.length < 2) return null;
+        const routeParam = points.map((p) => `${p.lat},${p.lng}`).join(";");
+        return `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${routeParam}`;
     };
 
     const isOwner = user && route && user.id === route.pilot?.id;
@@ -213,6 +301,12 @@ const RouteDetail = () => {
                             <Chip label={route.aircraft_type} className="ml-2" />
                         </div>
                     )}
+                    {route.visibility_display && (
+                        <div>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">Доступ:</span>
+                            <span className="ml-2 dark:text-gray-300">{route.visibility_display}</span>
+                        </div>
+                    )}
                     {route.flight_date_display && (
                         <div>
                             <span className="text-sm text-gray-500 dark:text-gray-400">Дата полета:</span>
@@ -231,6 +325,14 @@ const RouteDetail = () => {
                             <span className="ml-2 dark:text-gray-300">{parseFloat(route.distance).toFixed(0)} км</span>
                         </div>
                     )}
+                    {!route.distance && calculateDistance() && (
+                        <div>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">Расстояние (по карте):</span>
+                            <span className="ml-2 dark:text-gray-300">
+                                {calculateDistance().toFixed(0)} км
+                            </span>
+                        </div>
+                    )}
                 </div>
 
                 {route.route_file && (
@@ -244,13 +346,39 @@ const RouteDetail = () => {
                         </a>
                     </div>
                 )}
+                <div className="mb-4 flex flex-wrap gap-4">
+                    <button
+                        className="text-purple-500 hover:text-purple-700 dark:text-purple-400 underline"
+                        onClick={downloadGeoJson}
+                        type="button"
+                    >
+                        🧭 Скачать GeoJSON маршрута
+                    </button>
+                    <button
+                        className="text-purple-500 hover:text-purple-700 dark:text-purple-400 underline"
+                        onClick={copyRouteLink}
+                        type="button"
+                    >
+                        🔗 Скопировать ссылку
+                    </button>
+                    {buildOsmUrl() && (
+                        <a
+                            className="text-purple-500 hover:text-purple-700 dark:text-purple-400 underline"
+                            href={buildOsmUrl()}
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            🗺️ Открыть в OSM
+                        </a>
+                    )}
+                </div>
 
                 <div className="flex gap-4 text-sm text-gray-600 dark:text-gray-400 mb-4">
                     <span>❤️ {route.likes_count || 0} лайков</span>
                     <span>🔖 {route.saves_count || 0} сохранений</span>
                 </div>
 
-                {(route.departure_lat && route.departure_lng && route.destination_lat && route.destination_lng) && (
+                {((route.departure_lat && route.departure_lng && route.destination_lat && route.destination_lng) || (route.waypoints && route.waypoints.length > 1)) && (
                     <div className="mt-6">
                         <h3 className="text-xl font-semibold mb-3 dark:text-gray-200">
                             Карта маршрута
@@ -262,9 +390,24 @@ const RouteDetail = () => {
                             departureLng={route.departure_lng}
                             destinationLat={route.destination_lat}
                             destinationLng={route.destination_lng}
+                            waypoints={route.waypoints || []}
                             interactive={false}
                             height="500px"
                         />
+                        {route.waypoints && route.waypoints.length > 0 && (
+                            <div className="mt-4 bg-gray-50 dark:bg-[#1a1a1a] p-3 rounded-lg">
+                                <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    Точки маршрута
+                                </div>
+                                <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                                    {route.waypoints.map((point, index) => (
+                                        <div key={`wp-${index}`}>
+                                            {index + 1}. {parseFloat(point.lat).toFixed(5)}, {parseFloat(point.lng).toFixed(5)}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

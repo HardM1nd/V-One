@@ -1,21 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { Avatar, Chip } from "@mui/material";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { Avatar, Chip, TextField, Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import useUserContext from "../contexts/UserContext";
-import axios from "axios";
 
 const Pilots = () => {
-    const { axiosInstance } = useUserContext();
+    const { axiosInstance, user } = useUserContext();
+    const navigate = useNavigate();
     const [pilots, setPilots] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState("all");
     const [sortBy, setSortBy] = useState("-flight_hours");
+    const [query, setQuery] = useState("");
 
-    useEffect(() => {
-        fetchPilots();
-    }, [filter, sortBy]);
-
-    const fetchPilots = async () => {
+    const fetchPilots = useCallback(async () => {
         try {
             setLoading(true);
             const params = {};
@@ -25,6 +22,9 @@ const Pilots = () => {
             if (sortBy) {
                 params.order_by = sortBy;
             }
+            if (query) {
+                params.q = query;
+            }
             const response = await axiosInstance.get("accounts/pilots/", { params });
             setPilots(response.data.results || response.data);
         } catch (error) {
@@ -32,7 +32,11 @@ const Pilots = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [axiosInstance, filter, sortBy, query]);
+
+    useEffect(() => {
+        fetchPilots();
+    }, [fetchPilots]);
 
     const getPilotTypeColor = (type) => {
         switch (type) {
@@ -47,6 +51,30 @@ const Pilots = () => {
         }
     };
 
+    const handleFollowToggle = async (pilotId) => {
+        if (!user) {
+            navigate("/signin/");
+            return;
+        }
+        try {
+            const response = await axiosInstance.post(`accounts/follow_unfollow/${pilotId}/`);
+            const followed = response.data.followed;
+            setPilots((prev) =>
+                prev.map((pilot) =>
+                    pilot.id === pilotId
+                        ? {
+                              ...pilot,
+                              is_following: followed,
+                              followers: Math.max(0, (pilot.followers || 0) + (followed ? 1 : -1)),
+                          }
+                        : pilot
+                )
+            );
+        } catch (error) {
+            console.error("Error follow/unfollow:", error);
+        }
+    };
+
     return (
         <div className="w-[599px] max-w-[99%] mt-1 mx-auto">
             <div className="bg-gray-100 dark:bg-[#030108] p-4">
@@ -54,7 +82,14 @@ const Pilots = () => {
                     ✈️ Сообщество пилотов
                 </h2>
                 
-                <div className="flex flex-wrap gap-2 mb-4">
+                <div className="flex flex-wrap gap-2 mb-3">
+                    <TextField
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="Поиск пилотов"
+                        size="small"
+                        className="min-w-[200px]"
+                    />
                     <Chip
                         label="Все"
                         onClick={() => setFilter("all")}
@@ -103,9 +138,16 @@ const Pilots = () => {
                 ) : (
                     <div className="space-y-3">
                         {pilots.map((pilot) => (
-                            <Link
+                            <div
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => navigate(`/user/${pilot.id}/`)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                        navigate(`/user/${pilot.id}/`);
+                                    }
+                                }}
                                 key={pilot.id}
-                                to={`/user/${pilot.id}/`}
                                 className="block bg-gray-50 dark:bg-[#1a1a1a] p-4 rounded-lg hover:bg-gray-200 dark:hover:bg-[#2a2a2a] transition"
                             >
                                 <div className="flex items-start gap-4">
@@ -117,16 +159,30 @@ const Pilots = () => {
                                         {pilot.username?.charAt(0).toUpperCase()}
                                     </Avatar>
                                     <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <h3 className="text-lg font-semibold dark:text-gray-100">
-                                                @{pilot.username}
-                                            </h3>
-                                            {pilot.pilot_type_display && (
-                                                <Chip
-                                                    label={pilot.pilot_type_display}
+                                        <div className="flex items-start justify-between gap-2 mb-2">
+                                            <div className="flex items-center gap-2">
+                                                <h3 className="text-lg font-semibold dark:text-gray-100">
+                                                    @{pilot.username}
+                                                </h3>
+                                                {pilot.pilot_type_display && (
+                                                    <Chip
+                                                        label={pilot.pilot_type_display}
+                                                        size="small"
+                                                        color={getPilotTypeColor(pilot.pilot_type)}
+                                                    />
+                                                )}
+                                            </div>
+                                            {user && user.id !== pilot.id && (
+                                                <Button
                                                     size="small"
-                                                    color={getPilotTypeColor(pilot.pilot_type)}
-                                                />
+                                                    variant={pilot.is_following ? "outlined" : "contained"}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleFollowToggle(pilot.id);
+                                                    }}
+                                                >
+                                                    {pilot.is_following ? "Отписаться" : "Подписаться"}
+                                                </Button>
                                             )}
                                         </div>
                                         {pilot.bio && (
@@ -152,7 +208,7 @@ const Pilots = () => {
                                         </div>
                                     </div>
                                 </div>
-                            </Link>
+                            </div>
                         ))}
                     </div>
                 )}
