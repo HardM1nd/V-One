@@ -44,10 +44,10 @@ const Header = (props) => {
                         target="_blank"
                         rel="noreferrer"
                         alt="github"
-                        aria-label="view code on github"
+                        aria-label="код на GitHub"
                     >
                         <span className="fixed -left-[10000000000000000px]">
-                            View code on Github
+                            Код на GitHub
                         </span>
                         <iconify-icon icon="bi:github">GitHub</iconify-icon>
                     </a>

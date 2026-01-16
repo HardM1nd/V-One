@@ -15,11 +15,13 @@ class CreatorSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     creator = CreatorSerializer(read_only=True)
     created = serializers.SerializerMethodField(read_only=True)
+    created_at = serializers.DateTimeField(source="created", read_only=True)
     post_id = serializers.SerializerMethodField()
     post_content = serializers.SerializerMethodField()
     post_creator_profile = serializers.SerializerMethodField()
     post_creator = serializers.SerializerMethodField()
     post_created = serializers.SerializerMethodField()
+    post_created_at = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
@@ -51,6 +53,9 @@ class CommentSerializer(serializers.ModelSerializer):
     def get_post_created(self, comment):
         return naturaltime(comment.post.created)
 
+    def get_post_created_at(self, comment):
+        return comment.post.created.isoformat()
+
 
 class PostSerializer(serializers.ModelSerializer):
     creator = CreatorSerializer(read_only=True)
@@ -61,6 +66,7 @@ class PostSerializer(serializers.ModelSerializer):
     comments = serializers.SerializerMethodField()
     saves = serializers.SerializerMethodField()
     created = serializers.SerializerMethodField(read_only=True)
+    created_at = serializers.DateTimeField(source="created", read_only=True)
     is_following_user = serializers.SerializerMethodField(read_only=True)
     is_followed_by_user = serializers.SerializerMethodField(read_only=True)
 
@@ -74,6 +80,7 @@ class PostSerializer(serializers.ModelSerializer):
             'image',
             'content',
             'created',
+            'created_at',
             'comments',
             'saves',
             'is_saved',

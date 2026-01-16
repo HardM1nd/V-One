@@ -74,7 +74,7 @@ const SideNav = (props) => {
                         rotate={open ? "180deg" : ""}
                         width="30px"
                     >
-                        Toggle Sidebar
+                        Открыть меню
                     </iconify-icon>
                 </button>
                 {navElement.map((el) => {

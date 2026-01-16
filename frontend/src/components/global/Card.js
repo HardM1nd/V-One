@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Card as UiCard, CardContent } from "../ui/card";
+import { formatDateTime } from "../../lib/utils";
 
 const CardOptionsComponent = ({ deletePost, edit, onClose }) => {
     useEffect(() => {
@@ -57,6 +58,7 @@ const Card = (props) => {
         is_commented,
         is_following_user,
         created,
+        created_at,
         isEdited,
         onComment,
     } = props;
@@ -100,7 +102,7 @@ const Card = (props) => {
                             {user_id === creator_id ? "Вы" : user}
                         </Link>
                         <span>•</span>
-                        <span>{created}</span>
+                        <span>{formatDateTime(created_at, created)}</span>
                         {id !== creator_id && is_following_user && (
                             <>
                                 <span>•</span>

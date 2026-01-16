@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Card, CardContent } from "../ui/card";
+import { formatDateTime } from "../../lib/utils";
 
 const PostCommentCard = (props) => {
     const {
@@ -12,6 +13,8 @@ const PostCommentCard = (props) => {
         post_creator_profile,
         post_creator,
         post_created,
+        post_created_at,
+        created_at,
     } = props;
     return (
         <Card className="mt-4">
@@ -23,7 +26,9 @@ const PostCommentCard = (props) => {
                     </Avatar>
                     <div className="text-xs">
                         <div className="capitalize text-foreground">{post_creator}</div>
-                        <div className="text-muted-foreground">опубликовано {post_created}</div>
+                        <div className="text-muted-foreground">
+                            опубликовано {formatDateTime(post_created_at, post_created)}
+                        </div>
                     </div>
                 </div>
                 <Link to={`/post/${post_id}`} className="text-sm text-muted-foreground hover:text-primary">
@@ -34,7 +39,9 @@ const PostCommentCard = (props) => {
                 </Link>
                 <p className="text-sm flex flex-col text-foreground">
                     <span>Вы — {content}</span>
-                    <span className="text-xs text-muted-foreground">Комментарий {created}</span>
+                    <span className="text-xs text-muted-foreground">
+                        Комментарий {formatDateTime(created_at, created)}
+                    </span>
                 </p>
             </CardContent>
         </Card>

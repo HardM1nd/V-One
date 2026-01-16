@@ -2,6 +2,7 @@ import React from "react";
 import useUserContext from "../../contexts/UserContext";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Card, CardContent } from "../ui/card";
+import { formatDateTime } from "../../lib/utils";
 
 const CommentCard = (props) => {
     const {
@@ -20,7 +21,9 @@ const CommentCard = (props) => {
                         <div className="capitalize text-foreground">
                             {creator_id === user_id ? "Вы" : creator_name}
                         </div>
-                        <div className="text-xs text-muted-foreground">• {created}</div>
+                        <div className="text-xs text-muted-foreground">
+                            • {formatDateTime(props.created_at, created)}
+                        </div>
                     </div>
                     <div className="text-sm text-muted-foreground mt-2 text-justify">
                         {content}

@@ -101,6 +101,7 @@ const CommentsModal = ({ id, open, close, onComment }) => {
                                     creator_id={comment.creator.id}
                                     key={comment.id}
                                     created={comment.created}
+                                    created_at={comment.created_at}
                                 />
                             );
                         })}

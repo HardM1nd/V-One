@@ -9,19 +9,30 @@ const Notifications = () => {
     const { axiosInstance } = useUserContext();
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [nextUrl, setNextUrl] = useState(null);
+    const [unreadOnly, setUnreadOnly] = useState(false);
 
-    const fetchNotifications = useCallback(async () => {
+    const fetchNotifications = useCallback(async (url = null) => {
         try {
             setLoading(true);
-            const response = await axiosInstance.get("accounts/notifications/");
-            setNotifications(response.data.results || response.data);
+            const requestUrl = url || "accounts/notifications/";
+            const response = await axiosInstance.get(requestUrl, {
+                params: url ? undefined : { unread: unreadOnly ? "1" : "" },
+            });
+            const data = response.data.results || response.data;
+            if (url) {
+                setNotifications((prev) => [...prev, ...data]);
+            } else {
+                setNotifications(data);
+            }
+            setNextUrl(response.data.next || null);
             window.dispatchEvent(new Event("notifications:updated"));
         } catch (error) {
             console.error("Error fetching notifications:", error);
         } finally {
             setLoading(false);
         }
-    }, [axiosInstance]);
+    }, [axiosInstance, unreadOnly]);
 
     useEffect(() => {
         fetchNotifications();
@@ -44,6 +55,9 @@ const Notifications = () => {
             await axiosInstance.post("accounts/notifications/read_all/");
             setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
             window.dispatchEvent(new Event("notifications:updated"));
+            if (unreadOnly) {
+                fetchNotifications();
+            }
         } catch (error) {
             console.error("Error marking all read:", error);
         }
@@ -62,15 +76,29 @@ const Notifications = () => {
         return null;
     };
 
+    const loadMore = () => {
+        if (nextUrl) {
+            fetchNotifications(nextUrl);
+        }
+    };
+
     return (
         <div className="w-[599px] max-w-[99%] mt-1 mx-auto">
             <Card className="p-4">
                 <CardHeader className="px-0 pt-0">
                     <div className="flex items-center justify-between gap-4">
                         <h2 className="text-2xl font-bold">🔔 Уведомления</h2>
-                        <Button variant="outline" onClick={markAllRead}>
-                            Прочитать все
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant={unreadOnly ? "default" : "outline"}
+                                onClick={() => setUnreadOnly((prev) => !prev)}
+                            >
+                                {unreadOnly ? "Все" : "Непрочитанные"}
+                            </Button>
+                            <Button variant="outline" onClick={markAllRead}>
+                                Прочитать все
+                            </Button>
+                        </div>
                     </div>
                 </CardHeader>
 
@@ -104,6 +132,11 @@ const Notifications = () => {
                                                         <Link
                                                             to={link}
                                                             className="text-sm text-primary hover:underline"
+                                                            onClick={() => {
+                                                                if (!notification.is_read) {
+                                                                    markRead(notification.id);
+                                                                }
+                                                            }}
                                                         >
                                                             Открыть
                                                         </Link>
@@ -127,6 +160,13 @@ const Notifications = () => {
                                 </Card>
                             );
                         })}
+                        {nextUrl && (
+                            <div className="flex justify-center pt-2">
+                                <Button variant="outline" onClick={loadMore}>
+                                    Показать еще
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 )}
             </Card>

@@ -50,6 +50,7 @@ const CardContainer = (props) => {
                         is_following_user={post.is_following_user}
                         is_followed_by_user={post.is_followed_by_user}
                         created={post.created}
+                        created_at={post.created_at}
                         isEdited={post.isEdited}
                     />
                 );
