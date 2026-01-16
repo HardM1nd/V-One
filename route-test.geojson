@@ -1,0 +1,17 @@
+{
+  "type": "Feature",
+  "properties": {
+    "title": "Тестовый маршрут",
+    "aircraft_type": "Cessna 172",
+    "flight_date": "2026-01-16",
+    "distance": 1280.5
+  },
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [37.4147, 55.9736],
+      [39.9566, 43.4499],
+      [30.2625, 59.8003]
+    ]
+  }
+}
