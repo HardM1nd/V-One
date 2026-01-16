@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import useUserContext from "../../contexts/UserContext";
+import { Badge } from "../ui/badge";
 
 const navElement = [
     { name: "Home", icon: "ant-design:home-filled", href: "/" },
@@ -47,12 +48,12 @@ const SideNav = (props) => {
 
     return (
         <div
-            className={`w-full h-full transition-all duration-300 relative  flex flex-col bg-white border-gray-300 dark:bg-black ${
-                open ? "border-r-4" : "sm:border-r-4"
+            className={`w-full h-full transition-all duration-300 relative flex flex-col bg-background border-border ${
+                open ? "border-r" : "sm:border-r"
             }`}
         >
             <header
-                className={`flex dark:bg-[#030409] w-[100%] bg-gray-100  h-14 lg:scale-[1_!important] transition origin-left duration-500 justify-center gap-4 dark:border-b-gray-900 text-2xl text-purple-500 items-center ${
+                className={`flex bg-muted/60 w-[100%] h-14 lg:scale-[1_!important] transition origin-left duration-500 justify-center gap-4 border-b text-2xl text-primary items-center ${
                     !open && "scale-0"
                 }`}
             >
@@ -60,7 +61,7 @@ const SideNav = (props) => {
             </header>
             <nav className="flex flex-col py-2 flex-grow overflow-y-scroll overflow-x-hidden">
                 <button
-                    className={`lg:hidden transition duration-300 rotate top-3 sm:top-4 text-purple-500 sm:absolute sm:left-auto sm:right-2 ${
+                    className={`lg:hidden transition duration-300 rotate top-3 sm:top-4 text-primary sm:absolute sm:left-auto sm:right-2 ${
                         open
                             ? "sm:rotate-[720deg] absolute left-auto right-2"
                             : "fixed left-4 sm:absolute sm:left-auto sm:right-2"
@@ -79,28 +80,28 @@ const SideNav = (props) => {
                 {navElement.map((el) => {
                     const activeClass =
                         el.name.toLowerCase() === cur
-                            ? "text-purple-500 scale-110 hover"
-                            : "text-gray-500 dark:text-gray-300";
+                            ? "text-primary bg-accent/60"
+                            : "text-muted-foreground";
                     return (
                         <Link
                             key={el.icon + el.name}
                             to={el.href}
-                            className={`w-full flex text-left justify-left transition hover:scale-110 pl-[25%] items-center h-14 pt-3 ${activeClass}`}
+                            className={`w-full flex text-left justify-left transition pl-[22%] items-center h-12 gap-3 rounded-md px-2 hover:bg-accent ${activeClass}`}
                         >
-                            <span className="text-[1.7rem] ">
+                            <span className="text-[1.5rem] ">
                                 <iconify-icon icon={el.icon}></iconify-icon>
                             </span>
                             <span
-                                className={`text-[1.2rem] ${
+                                className={`text-[1.05rem] ${
                                     open ? "scale-1" : "scale-0"
                                 } transition-all duration-200 pl-6 origin-right lg:scale-100`}
                             >
                                 {el.name}
                             </span>
                             {el.name === "Notifications" && unreadCount > 0 && (
-                                <span className="ml-auto mr-4 text-xs bg-purple-500 text-white rounded-full px-2 py-0.5">
+                                <Badge className="ml-auto mr-2" variant="default">
                                     {unreadCount}
-                                </span>
+                                </Badge>
                             )}
                         </Link>
                     );

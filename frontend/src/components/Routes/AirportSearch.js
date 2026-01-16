@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { TextField, Autocomplete, Box } from "@mui/material";
+import React, { useState, useEffect, useMemo } from "react";
+import { Input } from "../ui/input";
 
 // Популярные аэропорты России и мира (можно расширить или подключить API)
 const POPULAR_AIRPORTS = [
@@ -29,6 +29,14 @@ const AirportSearch = ({
 }) => {
     const [inputValue, setInputValue] = useState(value || "");
     const options = POPULAR_AIRPORTS;
+    const [showOptions, setShowOptions] = useState(false);
+    const filteredOptions = useMemo(() => {
+        if (!inputValue) return options;
+        const needle = inputValue.toLowerCase();
+        return options.filter((opt) =>
+            `${opt.name} ${opt.code}`.toLowerCase().includes(needle)
+        );
+    }, [inputValue]);
 
     useEffect(() => {
         if (value) {
@@ -36,24 +44,13 @@ const AirportSearch = ({
         }
     }, [value]);
 
-    const handleChange = (event, newValue) => {
-        if (newValue) {
-            onChange(newValue.name || newValue);
-            if (newValue.lat && newValue.lng) {
-                onCoordinatesChange(newValue.lat, newValue.lng);
-            }
-        } else {
-            onChange("");
-            onCoordinatesChange(null, null);
-        }
-    };
-
     const handleInputChange = (event, newInputValue) => {
-        setInputValue(newInputValue);
-        onChange(newInputValue);
+        const value = typeof newInputValue === "string" ? newInputValue : event.target.value;
+        setInputValue(value);
+        onChange(value);
         
         // Если введены координаты в формате "lat, lng"
-        const coordMatch = newInputValue.match(/^(-?\d+\.?\d*),\s*(-?\d+\.?\d*)$/);
+        const coordMatch = value.match(/^(-?\d+\.?\d*),\s*(-?\d+\.?\d*)$/);
         if (coordMatch) {
             const lat = parseFloat(coordMatch[1]);
             const lng = parseFloat(coordMatch[2]);
@@ -63,46 +60,47 @@ const AirportSearch = ({
         }
     };
 
+    const handleOptionSelect = (option) => {
+        setInputValue(option.name);
+        onChange(option.name);
+        onCoordinatesChange(option.lat, option.lng);
+        setShowOptions(false);
+    };
+
     return (
-        <Box>
-            <Autocomplete
-                freeSolo
-                options={options}
-                getOptionLabel={(option) => 
-                    typeof option === 'string' 
-                        ? option 
-                        : `${option.name} (${option.code})`
-                }
+        <div className="relative">
+            <label className="text-sm text-muted-foreground">{label}</label>
+            <Input
                 value={inputValue}
-                onChange={handleChange}
-                onInputChange={handleInputChange}
-                renderInput={(params) => (
-                    <TextField
-                        {...params}
-                        label={label}
-                        placeholder="Например: Москва (Шереметьево) или 55.9736, 37.4147"
-                        variant="outlined"
-                        fullWidth
-                    />
-                )}
-                renderOption={(props, option) => (
-                    <Box component="li" {...props}>
-                        <div>
-                            <strong>{option.name}</strong>
-                            <br />
-                            <span className="text-sm text-gray-500">
-                                {option.code} • {option.lat.toFixed(4)}, {option.lng.toFixed(4)}
-                            </span>
-                        </div>
-                    </Box>
-                )}
+                onChange={handleInputChange}
+                placeholder="Например: Москва (Шереметьево) или 55.9736, 37.4147"
+                onFocus={() => setShowOptions(true)}
+                onBlur={() => setTimeout(() => setShowOptions(false), 150)}
             />
+            {showOptions && filteredOptions.length > 0 && (
+                <div className="absolute z-10 mt-1 max-h-52 w-full overflow-auto rounded-md border bg-background shadow">
+                    {filteredOptions.map((option) => (
+                        <button
+                            type="button"
+                            key={option.code}
+                            className="w-full text-left px-3 py-2 text-sm hover:bg-accent"
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => handleOptionSelect(option)}
+                        >
+                            <strong>{option.name}</strong>
+                            <div className="text-xs text-muted-foreground">
+                                {option.code} • {option.lat.toFixed(4)}, {option.lng.toFixed(4)}
+                            </div>
+                        </button>
+                    ))}
+                </div>
+            )}
             {lat && lng && (
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-xs text-muted-foreground mt-1">
                     Координаты: {parseFloat(lat).toFixed(6)}, {parseFloat(lng).toFixed(6)}
                 </div>
             )}
-        </Box>
+        </div>
     );
 };
 

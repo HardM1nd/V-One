@@ -1,8 +1,11 @@
 import React, { useState, useRef } from "react";
-import { Avatar } from "@mui/material";
 import useUserContext from "../../contexts/UserContext";
 import usePostActionContext from "../../contexts/PostActionContext";
 import usePageContext from "../../contexts/pageContext";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
+import { Textarea } from "../ui/textarea";
 
 const ImagePreview = ({ file, removeImage }) => {
     return (
@@ -80,102 +83,101 @@ const TweetForm = () => {
         };
     });
     return (
-        <div className="w-[95%] max-w-[598px] grid-cols-[49px,_auto] h-min-content grid p-3  border-b-4 gap-1 bg-gray-100 mt-2 dark:bg-black dark:bg-opacity-90 dark:shadow-xl dark:border-gray-800">
-            <div>
-                <Avatar alt="post" src={profile_pic}>
-                    {username && username.at(0).toUpperCase()}
-                </Avatar>
-            </div>
-            <form
-                className="flex flex-col gap-3 justify-between"
-                action="/"
-                method="post"
-                id="tweet-form"
-                encType="multipart/form-data"
-            >
+        <Card className="w-[95%] max-w-[598px] mt-3">
+            <CardContent className="p-4 grid grid-cols-[48px,_auto] gap-3">
                 <div>
-                    <label htmlFor="main-tweet-form" className="fixed -top-[10000px]">
-                        Post content
-                    </label>
-                    <input
-                        type="text"
-                        name="content"
-                        id="main-tweet-form"
-                        placeholder="Say Something?"
-                        required
-                        className="border-none p-2 text-[#5B7083] bg-white w-full  rounded-lg focus:outline-none text-sm dark:bg-gray-900 dark:text-gray-300"
-                    />
-                    <label htmlFor="post-image-field" className="fixed -top-[10000px]">
-                        Select post image
-                    </label>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        name="image"
-                        id="post-image-field"
-                        className="fixed -top-[10000px]"
-                        ref={fileInputRef}
-                        onChange={(e) => {
-                            const file = URL.createObjectURL(e.target.files[0]);
-                            setFile({
-                                file: file,
-                                sizeKb: Math.round(e.target.files[0].size / 1024),
-                                name: e.target.value.split("\\").pop(),
-                            });
-                        }}
-                    />
-                    <div className="text-gray-600 dark:text-gray-300 mt-2 pl-2">
-                        Chosen File: {file.name}
-                    </div>
-
-                    {file.file && (
-                        <div
-                            className={`mt-2 px-2 w-max  ${
-                                file.sizeKb > maxFileSizeKb
-                                    ? "text-red-600 dark:text-red-400"
-                                    : "text-green-600 dark:text-green-300 "
-                            }`}
-                        >
-                            Size: {file.sizeKb} kb / {maxFileSizeKb} kb (
-                            {file.sizeKb <= maxFileSizeKb ? "Ok" : "Too Large"})
+                    <Avatar>
+                        <AvatarImage src={profile_pic || ""} alt={username} />
+                        <AvatarFallback>{username && username.at(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                </div>
+                <form
+                    className="flex flex-col gap-3 justify-between"
+                    action="/"
+                    method="post"
+                    id="tweet-form"
+                    encType="multipart/form-data"
+                >
+                    <div className="space-y-2">
+                        <label htmlFor="main-tweet-form" className="fixed -top-[10000px]">
+                            Post content
+                        </label>
+                        <Textarea
+                            name="content"
+                            id="main-tweet-form"
+                            placeholder="Что у вас нового?"
+                            required
+                        />
+                        <label htmlFor="post-image-field" className="fixed -top-[10000px]">
+                            Select post image
+                        </label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            name="image"
+                            id="post-image-field"
+                            className="fixed -top-[10000px]"
+                            ref={fileInputRef}
+                            onChange={(e) => {
+                                const file = URL.createObjectURL(e.target.files[0]);
+                                setFile({
+                                    file: file,
+                                    sizeKb: Math.round(e.target.files[0].size / 1024),
+                                    name: e.target.value.split("\\").pop(),
+                                });
+                            }}
+                        />
+                        <div className="text-xs text-muted-foreground">
+                            Файл: {file.name || "не выбран"}
                         </div>
-                    )}
 
-                    {previewImage && file.file ? (
-                        <ImagePreview file={file.file} removeImage={(e) => clearFile(e)} />
-                    ) : null}
-                </div>
-                <div>
-                    <button className="m-2 text-purple-500 text-2xl" onClick={chooseImageFile}>
-                        <iconify-icon icon="bi:image">Choose Image</iconify-icon>
-                    </button>
-                    <button
-                        className="m-2 text-purple-500 text-2xl"
-                        disabled={!file.file}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            setPreviewImage((prev) => !prev);
-                        }}
-                    >
-                        <iconify-icon
-                            icon={
-                                previewImage
-                                    ? "ant-design:eye-invisible-filled"
-                                    : "icon-park-outline:preview-open"
-                            }
+                        {file.file && (
+                            <div
+                                className={`text-xs ${
+                                    file.sizeKb > maxFileSizeKb
+                                        ? "text-red-600 dark:text-red-400"
+                                        : "text-emerald-600 dark:text-emerald-300"
+                                }`}
+                            >
+                                Размер: {file.sizeKb} kb / {maxFileSizeKb} kb (
+                                {file.sizeKb <= maxFileSizeKb ? "Ok" : "Too Large"})
+                            </div>
+                        )}
+
+                        {previewImage && file.file ? (
+                            <ImagePreview file={file.file} removeImage={(e) => clearFile(e)} />
+                        ) : null}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Button type="button" variant="outline" onClick={chooseImageFile}>
+                            <iconify-icon icon="bi:image">Choose Image</iconify-icon>
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            disabled={!file.file}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setPreviewImage((prev) => !prev);
+                            }}
                         >
-                            Toggle image preview
-                        </iconify-icon>
-                    </button>
-                    <button
-                        className="bg-purple-400 text-purple-50 float-right px-2 h-8 rounded-full w-20"
-                        type="submit"
-                    >
-                        Post
-                    </button>
-                </div>
-            </form>
-        </div>
+                            <iconify-icon
+                                icon={
+                                    previewImage
+                                        ? "ant-design:eye-invisible-filled"
+                                        : "icon-park-outline:preview-open"
+                                }
+                            >
+                                Toggle image preview
+                            </iconify-icon>
+                        </Button>
+                        <Button className="ml-auto" type="submit">
+                            Post
+                        </Button>
+                    </div>
+                </form>
+            </CardContent>
+        </Card>
     );
 };
 

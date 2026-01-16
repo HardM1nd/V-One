@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import CardContainer from "../global/CardContainer";
-import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import usePostActionContext from "../../contexts/PostActionContext";
 import usePageContext from "../../contexts/pageContext";
+import { Button } from "../ui/button";
 
 const Saved = () => {
     const { getPosts } = usePostActionContext();
@@ -35,13 +35,9 @@ const Saved = () => {
         <div className="flex flex-col items-center w-full" ref={container} id="demo">
             <CardContainer />
             {getNextUrl() && (
-                <button
-                    className="text-purple-500 m-10 text-3xl p-1 flex justify-center items-center gap-1"
-                    onClick={retrieveNextPost}
-                >
-                    more
-                    <KeyboardDoubleArrowDownIcon />
-                </button>
+                <Button variant="outline" className="mt-6" onClick={retrieveNextPost}>
+                    Показать еще
+                </Button>
             )}
         </div>
     );

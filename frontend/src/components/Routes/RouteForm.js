@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { TextField, Button, FormControlLabel, Switch, MenuItem } from "@mui/material";
 import useUserContext from "../../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 import AirportSearch from "./AirportSearch";
 import RouteMap from "./RouteMap";
+import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 
 const RouteForm = ({ route = null, onSuccess, prefillWaypoints = null }) => {
     const { axiosInstance } = useUserContext();
@@ -369,20 +372,21 @@ const RouteForm = ({ route = null, onSuccess, prefillWaypoints = null }) => {
     };
 
     return (
-        <div className="bg-gray-50 dark:bg-[#030108] p-6 rounded-lg">
-            <h2 className="text-2xl font-bold mb-4 dark:text-gray-100">
-                {route ? 'Редактировать маршрут' : 'Создать маршрут полета'}
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <TextField
-                    fullWidth
-                    label="Название маршрута"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    required
-                    variant="outlined"
-                />
+        <Card>
+            <CardContent className="p-6 space-y-4">
+                <h2 className="text-2xl font-bold">
+                    {route ? "Редактировать маршрут" : "Создать маршрут полета"}
+                </h2>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="text-sm text-muted-foreground">Название маршрута</label>
+                        <Input
+                            name="title"
+                            value={formData.title}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -420,29 +424,28 @@ const RouteForm = ({ route = null, onSuccess, prefillWaypoints = null }) => {
                 </div>
 
                 <div className="flex items-center justify-between gap-4 flex-wrap">
-                    <FormControlLabel
-                        control={
-                            <Switch
-                                checked={useWaypoints}
-                                onChange={(e) => setUseWaypoints(e.target.checked)}
-                                name="use_waypoints"
-                            />
-                        }
-                        label="Маршрут по точкам"
-                    />
-                    <TextField
-                        select
-                        size="small"
-                        label="Доступ"
-                        name="visibility"
-                        value={formData.visibility}
-                        onChange={handleChange}
-                        className="min-w-[200px]"
-                    >
-                        <MenuItem value="public">Публичный</MenuItem>
-                        <MenuItem value="followers">Только подписчики</MenuItem>
-                        <MenuItem value="private">Только я</MenuItem>
-                    </TextField>
+                    <label className="flex items-center gap-2 text-sm">
+                        <input
+                            type="checkbox"
+                            checked={useWaypoints}
+                            onChange={(e) => setUseWaypoints(e.target.checked)}
+                            name="use_waypoints"
+                        />
+                        Маршрут по точкам
+                    </label>
+                    <div className="min-w-[200px]">
+                        <label className="text-sm text-muted-foreground">Доступ</label>
+                        <select
+                            name="visibility"
+                            value={formData.visibility}
+                            onChange={handleChange}
+                            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
+                        >
+                            <option value="public">Публичный</option>
+                            <option value="followers">Только подписчики</option>
+                            <option value="private">Только я</option>
+                        </select>
+                    </div>
                 </div>
 
                 {useWaypoints && (
@@ -458,7 +461,7 @@ const RouteForm = ({ route = null, onSuccess, prefillWaypoints = null }) => {
                         {!mapEnabled && (
                             <Button
                                 type="button"
-                                variant="outlined"
+                                variant="outline"
                                 onClick={() => setMapEnabled(true)}
                             >
                                 Попробовать карту снова
@@ -483,17 +486,16 @@ const RouteForm = ({ route = null, onSuccess, prefillWaypoints = null }) => {
                                 <label className="block text-sm font-medium mb-2 dark:text-gray-300">
                                     Вставить GeoJSON текстом
                                 </label>
-                                <textarea
+                                <Textarea
                                     value={geoJsonText}
                                     onChange={(e) => setGeoJsonText(e.target.value)}
                                     rows={4}
-                                    className="w-full p-2 rounded border text-sm"
                                     placeholder='{"type":"Feature","geometry":{"type":"LineString","coordinates":[[37.4147,55.9736],[39.9566,43.4499]]}}'
                                 />
                                 <div className="mt-2">
                                     <Button
                                         type="button"
-                                        variant="outlined"
+                                        variant="outline"
                                         onClick={handleImportGeoJsonText}
                                         disabled={!geoJsonText.trim()}
                                     >
@@ -548,14 +550,14 @@ const RouteForm = ({ route = null, onSuccess, prefillWaypoints = null }) => {
                                 <div className="flex gap-2">
                                     <Button
                                         type="button"
-                                        variant="outlined"
+                                        variant="outline"
                                         onClick={() => setFormData(prev => ({ ...prev, waypoints: [] }))}
                                     >
                                         Очистить точки
                                     </Button>
                                     <Button
                                         type="button"
-                                        variant="outlined"
+                                        variant="outline"
                                         onClick={downloadGeoJson}
                                     >
                                         Экспорт GeoJSON
@@ -582,70 +584,71 @@ const RouteForm = ({ route = null, onSuccess, prefillWaypoints = null }) => {
                     </div>
                 )}
 
-                <TextField
-                    fullWidth
-                    label="Описание"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    multiline
-                    rows={4}
-                    variant="outlined"
-                />
-
-                <div className="grid grid-cols-2 gap-4">
-                    <TextField
-                        fullWidth
-                        label="Дата полета"
-                        name="flight_date"
-                        type="date"
-                        value={formData.flight_date}
+                <div>
+                    <label className="text-sm text-muted-foreground">Описание</label>
+                    <Textarea
+                        name="description"
+                        value={formData.description}
                         onChange={handleChange}
-                        InputLabelProps={{ shrink: true }}
-                        variant="outlined"
-                    />
-                    <TextField
-                        fullWidth
-                        label="Длительность (ЧЧ:ММ)"
-                        name="flight_duration"
-                        value={formatDuration(formData.flight_duration)}
-                        onChange={handleChange}
-                        placeholder="02:30"
-                        variant="outlined"
-                        helperText="Формат: часы:минуты"
+                        rows={4}
                     />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <TextField
-                        fullWidth
-                        label="Расстояние (км)"
-                        name="distance"
-                        type="number"
-                        value={formData.distance}
-                        onChange={handleChange}
-                        inputProps={{ step: "0.01", min: "0" }}
-                        variant="outlined"
-                        helperText={
-                            computedDistanceKm
+                    <div>
+                        <label className="text-sm text-muted-foreground">Дата полета</label>
+                        <Input
+                            name="flight_date"
+                            type="date"
+                            value={formData.flight_date}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div>
+                        <label className="text-sm text-muted-foreground">Длительность (ЧЧ:ММ)</label>
+                        <Input
+                            name="flight_duration"
+                            value={formatDuration(formData.flight_duration)}
+                            onChange={handleChange}
+                            placeholder="02:30"
+                        />
+                        <div className="text-xs text-muted-foreground mt-1">
+                            Формат: часы:минуты
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="text-sm text-muted-foreground">Расстояние (км)</label>
+                        <Input
+                            name="distance"
+                            type="number"
+                            value={formData.distance}
+                            onChange={handleChange}
+                            step="0.01"
+                            min="0"
+                        />
+                        <div className="text-xs text-muted-foreground mt-1">
+                            {computedDistanceKm
                                 ? `Расчет по карте: ${computedDistanceKm.toFixed(1)} км`
-                                : "Можно рассчитать по карте"
-                        }
-                    />
-                    <TextField
-                        fullWidth
-                        label="Тип самолета"
-                        name="aircraft_type"
-                        value={formData.aircraft_type}
-                        onChange={handleChange}
-                        placeholder="Например: Cessna 172"
-                        variant="outlined"
-                    />
+                                : "Можно рассчитать по карте"}
+                        </div>
+                    </div>
+                    <div>
+                        <label className="text-sm text-muted-foreground">Тип самолета</label>
+                        <Input
+                            name="aircraft_type"
+                            value={formData.aircraft_type}
+                            onChange={handleChange}
+                            placeholder="Например: Cessna 172"
+                        />
+                    </div>
                 </div>
                 <div className="flex gap-2">
                     <Button
                         type="button"
-                        variant="outlined"
+                        variant="outline"
                         onClick={() => {
                             if (!computedDistanceKm) return;
                             setFormData(prev => ({
@@ -677,7 +680,7 @@ const RouteForm = ({ route = null, onSuccess, prefillWaypoints = null }) => {
                 <div className="flex gap-4 justify-end">
                     <Button
                         type="button"
-                        variant="outlined"
+                        variant="outline"
                         onClick={() => navigate(-1)}
                         disabled={loading}
                     >
@@ -685,15 +688,14 @@ const RouteForm = ({ route = null, onSuccess, prefillWaypoints = null }) => {
                     </Button>
                     <Button
                         type="submit"
-                        variant="contained"
-                        color="primary"
                         disabled={loading}
                     >
                         {loading ? 'Сохранение...' : (route ? 'Обновить' : 'Создать')}
                     </Button>
                 </div>
             </form>
-        </div>
+        </CardContent>
+    </Card>
     );
 };
 

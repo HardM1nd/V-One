@@ -1,14 +1,10 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Avatar, Chip, IconButton, Tooltip } from "@mui/material";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import BookmarkIcon from "@mui/icons-material/Bookmark";
-import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
-import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
-import FlightLandIcon from "@mui/icons-material/FlightLand";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import useUserContext from "../../contexts/UserContext";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
 
 const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
     const { axiosInstance } = useUserContext();
@@ -74,7 +70,7 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
     };
 
     return (
-        <div
+        <Card
             role="button"
             tabIndex={0}
             onClick={() => navigate(`/route/${route.id}`)}
@@ -83,140 +79,122 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                     navigate(`/route/${route.id}`);
                 }
             }}
-            className="block bg-gray-50 dark:bg-[#1a1a1a] p-4 rounded-lg hover:bg-gray-200 dark:hover:bg-[#2a2a2a] transition mb-3 cursor-pointer"
+            className="transition hover:bg-accent/40 mb-3 cursor-pointer"
         >
-            <div className="flex items-start gap-4">
-                <Avatar
-                    src={route.pilot?.profile_pic || null}
-                    alt={route.pilot?.username}
-                    sx={{ width: 48, height: 48 }}
-                >
-                    {route.pilot?.username?.charAt(0).toUpperCase()}
-                </Avatar>
-                <div className="flex-1">
-                    <div className="flex items-start justify-between mb-2">
-                        <div>
-                            <h3 className="text-lg font-semibold dark:text-gray-100 mb-1">
-                                {route.title}
-                            </h3>
-                            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                <span
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        navigate(`/user/${route.pilot?.id}/`);
-                                    }}
-                                    className="hover:text-purple-500 cursor-pointer"
-                                    role="link"
-                                    tabIndex={0}
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Enter" || e.key === " ") {
+            <CardContent className="p-4">
+                <div className="flex items-start gap-4">
+                    <Avatar className="h-12 w-12">
+                        <AvatarImage src={route.pilot?.profile_pic || ""} alt={route.pilot?.username} />
+                        <AvatarFallback>
+                            {route.pilot?.username?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                        <div className="flex items-start justify-between mb-2">
+                            <div>
+                                <h3 className="text-lg font-semibold mb-1">{route.title}</h3>
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <span
+                                        onClick={(e) => {
                                             e.stopPropagation();
                                             navigate(`/user/${route.pilot?.id}/`);
-                                        }
-                                    }}
-                                >
-                                    @{route.pilot?.username}
-                                </span>
-                                {route.created_display && (
-                                    <>
-                                        <span>•</span>
-                                        <span>{route.created_display}</span>
-                                    </>
-                                )}
+                                        }}
+                                        className="hover:text-primary cursor-pointer"
+                                        role="link"
+                                        tabIndex={0}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter" || e.key === " ") {
+                                                e.stopPropagation();
+                                                navigate(`/user/${route.pilot?.id}/`);
+                                            }
+                                        }}
+                                    >
+                                        @{route.pilot?.username}
+                                    </span>
+                                    {route.created_display && (
+                                        <>
+                                            <span>•</span>
+                                            <span>{route.created_display}</span>
+                                        </>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                        {showActions && (
-                            <div className="flex gap-1">
-                                <Tooltip title="Лайк">
-                                    <IconButton
-                                        size="small"
+                            {showActions && (
+                                <div className="flex gap-1">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        title="Лайк"
+                                        className={route.is_liked ? "text-red-500" : ""}
                                         onClick={handleLike}
-                                        color={route.is_liked ? "error" : "default"}
                                     >
-                                        {route.is_liked ? (
-                                            <FavoriteIcon fontSize="small" />
-                                        ) : (
-                                            <FavoriteBorderIcon fontSize="small" />
-                                        )}
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Сохранить">
-                                    <IconButton
-                                        size="small"
+                                        <iconify-icon icon={route.is_liked ? "bi:heart-fill" : "bi:heart"} />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        title="Сохранить"
+                                        className={route.is_saved ? "text-blue-500" : ""}
                                         onClick={handleSave}
-                                        color={route.is_saved ? "primary" : "default"}
                                     >
-                                        {route.is_saved ? (
-                                            <BookmarkIcon fontSize="small" />
-                                        ) : (
-                                            <BookmarkBorderIcon fontSize="small" />
-                                        )}
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Скопировать ссылку">
-                                    <IconButton
-                                        size="small"
+                                        <iconify-icon icon={route.is_saved ? "bi:bookmark-fill" : "bi:bookmark"} />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        title="Скопировать ссылку"
                                         onClick={handleCopyLink}
-                                        color="default"
                                     >
-                                        <ContentCopyIcon fontSize="small" />
-                                    </IconButton>
-                                </Tooltip>
+                                        <iconify-icon icon="bi:link-45deg" />
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex items-center gap-4 mb-2 text-sm">
+                            <div className="flex items-center gap-1 text-primary">
+                                <iconify-icon icon="bi:airplane-engines" />
+                                <span className="font-medium">{route.departure}</span>
                             </div>
-                        )}
-                    </div>
-
-                    <div className="flex items-center gap-4 mb-2 text-sm">
-                        <div className="flex items-center gap-1 text-purple-600 dark:text-purple-400">
-                            <FlightTakeoffIcon fontSize="small" />
-                            <span className="font-medium">{route.departure}</span>
+                            <span className="text-muted-foreground">→</span>
+                            <div className="flex items-center gap-1 text-emerald-600">
+                                <iconify-icon icon="bi:geo-alt" />
+                                <span className="font-medium">{route.destination}</span>
+                            </div>
                         </div>
-                        <span className="text-gray-400">→</span>
-                        <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                            <FlightLandIcon fontSize="small" />
-                            <span className="font-medium">{route.destination}</span>
+
+                        {route.description && (
+                            <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                                {route.description}
+                            </p>
+                        )}
+
+                        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                            {route.aircraft_type && (
+                                <Badge variant="outline">{route.aircraft_type}</Badge>
+                            )}
+                            {waypointCount > 1 && (
+                                <Badge variant="outline">Точек: {waypointCount}</Badge>
+                            )}
+                            {route.flight_date_display && (
+                                <span>📅 {route.flight_date_display}</span>
+                            )}
+                            {route.flight_duration && (
+                                <span>⏱️ {formatDuration(route.flight_duration)}</span>
+                            )}
+                            {route.distance && (
+                                <span>📏 {parseFloat(route.distance).toFixed(0)} км</span>
+                            )}
+                            {(route.likes_count > 0 || route.saves_count > 0) && (
+                                <span>
+                                    ❤️ {route.likes_count || 0} · 🔖 {route.saves_count || 0}
+                                </span>
+                            )}
                         </div>
-                    </div>
-
-                    {route.description && (
-                        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2 line-clamp-2">
-                            {route.description}
-                        </p>
-                    )}
-
-                    <div className="flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-400">
-                        {route.aircraft_type && (
-                            <Chip
-                                label={route.aircraft_type}
-                                size="small"
-                                variant="outlined"
-                            />
-                        )}
-                        {waypointCount > 1 && (
-                            <Chip
-                                label={`Точек: ${waypointCount}`}
-                                size="small"
-                                variant="outlined"
-                            />
-                        )}
-                        {route.flight_date_display && (
-                            <span>📅 {route.flight_date_display}</span>
-                        )}
-                        {route.flight_duration && (
-                            <span>⏱️ {formatDuration(route.flight_duration)}</span>
-                        )}
-                        {route.distance && (
-                            <span>📏 {parseFloat(route.distance).toFixed(0)} км</span>
-                        )}
-                        {(route.likes_count > 0 || route.saves_count > 0) && (
-                            <span>
-                                ❤️ {route.likes_count || 0} · 🔖 {route.saves_count || 0}
-                            </span>
-                        )}
                     </div>
                 </div>
-            </div>
-        </div>
+            </CardContent>
+        </Card>
     );
 };
 

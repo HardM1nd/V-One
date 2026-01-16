@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Dialog } from "@mui/material";
 import usePageContext from "../../contexts/pageContext";
 import useUserContext from "../../contexts/UserContext";
 import usePostActionContext from "../../contexts/PostActionContext";
 import CommentCard from "./CommentCard";
 import CommentForm from "./CommentForm";
-import { Avatar } from "@mui/material";
-import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
-import useThemeContext from "../../contexts/themeContext";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 
 const ImagePreview = ({ src, removeImage, file }) => {
     if (src || file.file) {
@@ -42,7 +43,6 @@ const CommentsModal = ({ id, open, close, onComment }) => {
         next: null,
         comments: [],
     });
-    const [fullScreen, setFullScreen] = useState(window.innerWidth < 520);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -70,19 +70,6 @@ const CommentsModal = ({ id, open, close, onComment }) => {
         getComments(id, success, () => alert("Couldn't load comments"));
     }, [id, setComments, getComments]);
 
-    const checkWindowSize = () => {
-        if (window.innerWidth < 520) {
-            setFullScreen(true);
-        } else setFullScreen(false);
-    };
-
-    useEffect(() => {
-        window.addEventListener("resize", checkWindowSize);
-        return () => {
-            window.removeEventListener("resize", checkWindowSize);
-        };
-    }, []);
-
     const retrieveNextComments = () => {
         const success = (response) => {
             setComments((prev) => {
@@ -97,47 +84,41 @@ const CommentsModal = ({ id, open, close, onComment }) => {
     };
 
     return (
-        <Dialog
-            open={open}
-            onClose={close}
-            className="p-0 m-0"
-            PaperProps={{ style: { padding: "0px" } }}
-            fullScreen={fullScreen}
-        >
-            <div
-                className="max-w-md mx-auto w-screen h-screen  dark:bg-black flex flex-col p-2 gap-2 overflow-hidden dark:border-2 dark:border-gray-900"
-                onClick={(e) => e.stopPropagation()}
-            >
-                <CommentForm handleSubmit={handleSubmit} />
-                <div className="overflow-y-scroll h-full pb-12">
-                    {comments.map((comment) => {
-                        return (
-                            <CommentCard
-                                content={comment.content}
-                                creator_name={comment.creator.username}
-                                creator_profile_pic={comment.creator.profile_pic}
-                                creator_id={comment.creator.id}
-                                key={comment.id}
-                                created={comment.created}
-                            />
-                        );
-                    })}
-                    {next && (
-                        <div className="flex flex-col items-center w-full">
-                            <button
-                                className="text-purple-500 m-10 text-2xl p-1 flex justify-center items-center gap-1"
-                                onClick={retrieveNextComments}
-                            >
-                                more
-                                <KeyboardDoubleArrowDownIcon />
-                            </button>
-                        </div>
-                    )}
+        <Dialog open={open} onOpenChange={(value) => !value && close()}>
+            <DialogContent className="p-0 max-w-2xl w-[95vw] h-[90vh] sm:h-auto">
+                <div className="flex flex-col gap-3 p-4 h-full">
+                    <DialogHeader>
+                        <DialogTitle>Комментарии</DialogTitle>
+                    </DialogHeader>
+                    <CommentForm handleSubmit={handleSubmit} />
+                    <div className="overflow-y-auto h-full pb-6 pr-1">
+                        {comments.map((comment) => {
+                            return (
+                                <CommentCard
+                                    content={comment.content}
+                                    creator_name={comment.creator.username}
+                                    creator_profile_pic={comment.creator.profile_pic}
+                                    creator_id={comment.creator.id}
+                                    key={comment.id}
+                                    created={comment.created}
+                                />
+                            );
+                        })}
+                        {next && (
+                            <div className="flex flex-col items-center w-full">
+                                <Button variant="outline" onClick={retrieveNextComments}>
+                                    Показать еще
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                    <div className="flex justify-end">
+                        <Button variant="outline" onClick={close}>
+                            Закрыть
+                        </Button>
+                    </div>
                 </div>
-                <button className="bg-purple-400 text-purple-100" onClick={close}>
-                    Close
-                </button>
-            </div>
+            </DialogContent>
         </Dialog>
     );
 };
@@ -146,7 +127,6 @@ const EditPostModal = ({ id, open, onClose }) => {
     const {
         profileData: { username, profile_pic },
     } = useUserContext();
-    const { darkTheme } = useThemeContext();
     const { getCardInfoFromData, maxFileSizeKb, updatePost } = usePageContext();
     const prevContent = getCardInfoFromData(id)[0];
     const [file, setFile] = useState({ name: "", file: null, sizeKb: 0 });
@@ -156,7 +136,6 @@ const EditPostModal = ({ id, open, onClose }) => {
         e.preventDefault();
         document.querySelector("#edit-post-image-field").click();
     };
-    const [fullScreen, setFullScreen] = useState(window.innerWidth < 520);
     const fileInputRef = useRef();
 
     const submitForm = (e) => {
@@ -191,122 +170,96 @@ const EditPostModal = ({ id, open, onClose }) => {
         });
     };
 
-    const checkWindowSize = () => {
-        if (window.innerWidth < 520) {
-            setFullScreen(true);
-        } else setFullScreen(false);
-    };
-
-    useEffect(() => {
-        window.addEventListener("resize", checkWindowSize);
-        return () => {
-            window.removeEventListener("resize", checkWindowSize);
-        };
-    }, []);
-    const darkThemePaperStyle = {
-        background: "black",
-        border: "2px solid rgb(17, 24, 39)",
-    };
     return (
-        <Dialog
-            open={open}
-            onClose={onClose}
-            fullScreen={fullScreen}
-            PaperProps={{
-                style: darkTheme ? darkThemePaperStyle : {},
-            }}
-        >
-            <div className="max-w-md mb-3 mx-auto w-screen dark:bg-black flex overflow-y-scroll flex-col p-2 gap-2 overflow-hidden">
-                <div className="w-full grid-cols-[49px,_auto] h-min-content grid p-3  border-b-4 gap-1 bg-gray-100 mt-2 dark:bg-black dark:bg-opacity-90 dark:shadow-xl dark:border-gray-800">
-                    <div>
-                        <Avatar alt="post" src={profile_pic}>
-                            {username && username.at(0).toUpperCase()}
+        <Dialog open={open} onOpenChange={(value) => !value && onClose()}>
+            <DialogContent className="p-0 max-w-2xl w-[95vw]">
+                <div className="flex flex-col gap-3 p-4">
+                    <DialogHeader>
+                        <DialogTitle>Редактировать пост</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid grid-cols-[48px,_auto] gap-3">
+                        <Avatar>
+                            <AvatarImage src={profile_pic || ""} alt={username} />
+                            <AvatarFallback>{username && username.at(0).toUpperCase()}</AvatarFallback>
                         </Avatar>
-                    </div>
-                    <form
-                        className="flex flex-col gap-3 justify-between"
-                        action="/"
-                        method="post"
-                        id="edit-form"
-                        onSubmit={submitForm}
-                        encType="multipart/form-data"
-                    >
-                        <div>
-                            <label htmlFor="edit-tweet-input" className="fixed -top-[10000px]">
-                                Post content
-                            </label>
-                            <input
-                                type="text"
-                                name="content"
-                                value={editPostText}
-                                id="edit-tweet-input"
-                                required
-                                onChange={(e) => setEditPostText(e.target.value)}
-                                className="border-none p-2 text-[#5B7083] bg-white w-full  rounded-lg focus:outline-none text-sm dark:bg-gray-900 dark:text-gray-300"
-                            />
-
-                            <label htmlFor="edit-post-image-field" className="fixed -top-[10000px]">
-                                Select post image
-                            </label>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                name="image"
-                                id="edit-post-image-field"
-                                ref={fileInputRef}
-                                className="fixed -top-[10000px]"
-                                disabled={prevImageSrc && !file.file}
-                                onChange={(e) => {
-                                    const file = URL.createObjectURL(e.target.files[0]);
-                                    setFile({
-                                        file: file,
-                                        sizeKb: Math.round(e.target.files[0].size / 1024),
-                                        name: e.target.value.split("\\").pop(),
-                                    });
-                                }}
-                            />
-                            <input type="hidden" name="isEdited" value="True" />
-                        </div>
-                        {file.file && (
-                            <div
-                                className={`mt-2 px-2 w-max  ${
-                                    file.sizeKb > maxFileSizeKb
-                                        ? "text-red-600 dark:text-red-400"
-                                        : "text-green-600 dark:text-green-300 "
-                                }`}
-                            >
-                                Size: {file.sizeKb} mb / {maxFileSizeKb} mb (
-                                {file.sizeKb <= maxFileSizeKb ? "Ok" : "Too Large"})
+                        <form
+                            className="flex flex-col gap-3 justify-between"
+                            action="/"
+                            method="post"
+                            id="edit-form"
+                            onSubmit={submitForm}
+                            encType="multipart/form-data"
+                        >
+                            <div className="space-y-2">
+                                <label htmlFor="edit-tweet-input" className="fixed -top-[10000px]">
+                                    Post content
+                                </label>
+                                <Textarea
+                                    name="content"
+                                    value={editPostText}
+                                    id="edit-tweet-input"
+                                    required
+                                    onChange={(e) => setEditPostText(e.target.value)}
+                                />
+                                <label
+                                    htmlFor="edit-post-image-field"
+                                    className="fixed -top-[10000px]"
+                                >
+                                    Select post image
+                                </label>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    name="image"
+                                    id="edit-post-image-field"
+                                    ref={fileInputRef}
+                                    className="fixed -top-[10000px]"
+                                    disabled={prevImageSrc && !file.file}
+                                    onChange={(e) => {
+                                        const file = URL.createObjectURL(e.target.files[0]);
+                                        setFile({
+                                            file: file,
+                                            sizeKb: Math.round(e.target.files[0].size / 1024),
+                                            name: e.target.value.split("\\").pop(),
+                                        });
+                                    }}
+                                />
+                                <input type="hidden" name="isEdited" value="True" />
                             </div>
-                        )}
-                        <ImagePreview
-                            file={file}
-                            src={prevImageSrc}
-                            removeImage={(e) => clearFile(e)}
-                        />
-                        <div>
-                            <button
-                                className="m-2 text-purple-500 text-2xl"
-                                onClick={chooseImageFile}
-                            >
-                                <iconify-icon icon="bi:image">Choose Image</iconify-icon>
-                            </button>
-                            <button
-                                className="bg-purple-400 text-purple-50 float-right px-2 h-8 rounded-full w-20"
-                                type="submit"
-                            >
-                                Update
-                            </button>
-                        </div>
-                    </form>
+                            {file.file && (
+                                <div
+                                    className={`text-xs ${
+                                        file.sizeKb > maxFileSizeKb
+                                            ? "text-red-600 dark:text-red-400"
+                                            : "text-emerald-600 dark:text-emerald-300"
+                                    }`}
+                                >
+                                    Размер: {file.sizeKb} kb / {maxFileSizeKb} kb (
+                                    {file.sizeKb <= maxFileSizeKb ? "Ok" : "Too Large"})
+                                </div>
+                            )}
+                            <ImagePreview
+                                file={file}
+                                src={prevImageSrc}
+                                removeImage={(e) => clearFile(e)}
+                            />
+                            <div className="flex items-center gap-2">
+                                <Button type="button" variant="outline" onClick={chooseImageFile}>
+                                    <iconify-icon icon="bi:image">Choose Image</iconify-icon>
+                                </Button>
+                                <Button type="submit" className="ml-auto">
+                                    Update
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+                    <div className="flex justify-end">
+                        <Button variant="outline" onClick={onClose}>
+                            Close
+                        </Button>
+                    </div>
                 </div>
-            </div>
-            <button
-                className="bg-purple-400 text-purple-100 w-[96%] mx-auto rounded-sm mb-4 mt-auto"
-                onClick={onClose}
-            >
-                Close
-            </button>
+            </DialogContent>
         </Dialog>
     );
 };
@@ -351,23 +304,22 @@ const ChangePasswordModal = ({ open, close }) => {
     }
 
     return (
-        <Dialog open={open} PaperProps={{ style: { background: "transparent" } }} onClose={close}>
-            <div className="w-[80vw] bg-purple-50 max-w-lg p-6 h-max-content rounded-lg dark:bg-black dark:border-2 border-gray-900 rounded-lgz">
-                <h1 className="text-2xl text-purple-500 flex justify-center gap-1 items-center m-2">
-                    Change Password
-                </h1>
+        <Dialog open={open} onOpenChange={(value) => !value && close()}>
+            <DialogContent className="max-w-lg w-[95vw]">
+                <DialogHeader>
+                    <DialogTitle>Change Password</DialogTitle>
+                </DialogHeader>
                 <form
-                    className="flex flex-col gap-3 border-b-4 border-gray-300  dark:border-gray-900 pb-6"
+                    className="flex flex-col gap-3"
                     id="update-password-form"
                     onSubmit={handleSubmit}
                 >
                     {passwordError && <p className="text-sm text-red-500">Invalid password</p>}
-                    <label htmlFor="new-password" className="dark:text-gray-200">
+                    <label htmlFor="new-password" className="text-sm">
                         New password
                     </label>
-                    <input
+                    <Input
                         type="password"
-                        className="rounded-lg p-2 text-sm text-[#5B7083] bg-white dark:bg-gray-900 dark:text-gray-300"
                         name="newPassword"
                         id="new-password"
                         onChange={handleChange}
@@ -375,26 +327,26 @@ const ChangePasswordModal = ({ open, close }) => {
                         value={newPassword}
                         placeholder="password"
                     />
-                    <label htmlFor="new-password-confirm" className="dark:text-gray-200">
+                    <label htmlFor="new-password-confirm" className="text-sm">
                         Type password again
                     </label>
-                    <input
+                    <Input
                         type="password"
                         value={newPasswordConfirm}
                         onChange={handleChange}
-                        className="rounded-lg p-2 text-sm text-[#5B7083] bg-white dark:bg-gray-900 dark:text-gray-300"
                         name="newPasswordConfirm"
                         id="new-password-confirm"
                         required
                         placeholder="confirm your password"
                     />
-                    <div>
-                        <button className="bg-purple-600 text-purple-100 rounded-full px-2 w-20 py-1 float-right mt-2">
-                            Update
-                        </button>
+                    <div className="flex justify-end gap-2 pt-2">
+                        <Button type="button" variant="outline" onClick={close}>
+                            Cancel
+                        </Button>
+                        <Button type="submit">Update</Button>
                     </div>
                 </form>
-            </div>
+            </DialogContent>
         </Dialog>
     );
 };

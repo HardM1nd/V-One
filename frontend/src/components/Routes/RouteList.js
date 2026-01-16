@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import RouteCard from "./RouteCard";
 import useUserContext from "../../contexts/UserContext";
-import { CircularProgress, TextField, MenuItem, Select, FormControl, InputLabel, Button } from "@mui/material";
+import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
+import { Input } from "../ui/input";
 
 const RouteList = ({ endpoint, pilotId = null, showFilters = true }) => {
     const { axiosInstance } = useUserContext();
@@ -120,14 +122,14 @@ const RouteList = ({ endpoint, pilotId = null, showFilters = true }) => {
     if (loading && routes.length === 0) {
         return (
             <div className="flex justify-center py-8">
-                <CircularProgress />
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
             </div>
         );
     }
 
     if (routes.length === 0) {
         return (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-8 text-muted-foreground">
                 Маршруты не найдены
             </div>
         );
@@ -136,78 +138,73 @@ const RouteList = ({ endpoint, pilotId = null, showFilters = true }) => {
     return (
         <div>
             {showFilters && (
-                <div className="bg-gray-100 dark:bg-[#030108] p-4 mb-4 rounded-lg">
-                    <div className="flex items-center gap-3 mb-3">
-                        <Button
-                            variant="outlined"
-                            onClick={() => setFiltersOpen((prev) => !prev)}
-                        >
-                            {filtersOpen ? "Скрыть фильтры" : "Показать фильтры"}
-                        </Button>
-                        <Button variant="text" onClick={resetFilters}>
-                            Сбросить
-                        </Button>
-                    </div>
-                    {filtersOpen && (
-                        <div className="flex gap-4 flex-wrap">
-                            <TextField
-                                label="Поиск"
-                                value={filters.q}
-                                onChange={(e) =>
-                                    setFilters(prev => ({ ...prev, q: e.target.value }))
-                                }
-                                size="small"
-                                className="min-w-[200px]"
-                            />
-                            <TextField
-                                label="Тип самолета"
-                                value={filters.aircraft_type}
-                                onChange={(e) =>
-                                    setFilters(prev => ({ ...prev, aircraft_type: e.target.value }))
-                                }
-                                size="small"
-                                className="min-w-[200px]"
-                            />
-                            <TextField
-                                label="Мин. дистанция"
-                                value={filters.distance_min}
-                                onChange={(e) =>
-                                    setFilters(prev => ({ ...prev, distance_min: e.target.value }))
-                                }
-                                size="small"
-                                type="number"
-                                className="min-w-[160px]"
-                            />
-                            <TextField
-                                label="Макс. дистанция"
-                                value={filters.distance_max}
-                                onChange={(e) =>
-                                    setFilters(prev => ({ ...prev, distance_max: e.target.value }))
-                                }
-                                size="small"
-                                type="number"
-                                className="min-w-[160px]"
-                            />
-                            <FormControl size="small" className="min-w-[200px]">
-                                <InputLabel>Сортировка</InputLabel>
-                                <Select
+                <Card className="mb-4">
+                    <CardContent className="p-4 space-y-3">
+                        <div className="flex items-center gap-3">
+                            <Button
+                                variant="outline"
+                                onClick={() => setFiltersOpen((prev) => !prev)}
+                            >
+                                {filtersOpen ? "Скрыть фильтры" : "Показать фильтры"}
+                            </Button>
+                            <Button variant="ghost" onClick={resetFilters}>
+                                Сбросить
+                            </Button>
+                        </div>
+                        {filtersOpen && (
+                            <div className="flex gap-4 flex-wrap">
+                                <Input
+                                    placeholder="Поиск"
+                                    value={filters.q}
+                                    onChange={(e) =>
+                                        setFilters(prev => ({ ...prev, q: e.target.value }))
+                                    }
+                                    className="min-w-[200px]"
+                                />
+                                <Input
+                                    placeholder="Тип самолета"
+                                    value={filters.aircraft_type}
+                                    onChange={(e) =>
+                                        setFilters(prev => ({ ...prev, aircraft_type: e.target.value }))
+                                    }
+                                    className="min-w-[200px]"
+                                />
+                                <Input
+                                    placeholder="Мин. дистанция"
+                                    value={filters.distance_min}
+                                    onChange={(e) =>
+                                        setFilters(prev => ({ ...prev, distance_min: e.target.value }))
+                                    }
+                                    type="number"
+                                    className="min-w-[160px]"
+                                />
+                                <Input
+                                    placeholder="Макс. дистанция"
+                                    value={filters.distance_max}
+                                    onChange={(e) =>
+                                        setFilters(prev => ({ ...prev, distance_max: e.target.value }))
+                                    }
+                                    type="number"
+                                    className="min-w-[160px]"
+                                />
+                                <select
                                     value={filters.order_by}
                                     onChange={(e) =>
                                         setFilters(prev => ({ ...prev, order_by: e.target.value }))
                                     }
-                                    label="Сортировка"
+                                    className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground min-w-[200px]"
                                 >
-                                    <MenuItem value="-created">Новые сначала</MenuItem>
-                                    <MenuItem value="created">Старые сначала</MenuItem>
-                                    <MenuItem value="-flight_date">По дате полета (новые)</MenuItem>
-                                    <MenuItem value="flight_date">По дате полета (старые)</MenuItem>
-                                    <MenuItem value="-distance">По расстоянию (больше)</MenuItem>
-                                    <MenuItem value="distance">По расстоянию (меньше)</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </div>
-                    )}
-                </div>
+                                    <option value="-created">Новые сначала</option>
+                                    <option value="created">Старые сначала</option>
+                                    <option value="-flight_date">По дате полета (новые)</option>
+                                    <option value="flight_date">По дате полета (старые)</option>
+                                    <option value="-distance">По расстоянию (больше)</option>
+                                    <option value="distance">По расстоянию (меньше)</option>
+                                </select>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
             )}
 
             <div>
@@ -223,12 +220,9 @@ const RouteList = ({ endpoint, pilotId = null, showFilters = true }) => {
 
             {nextUrl && (
                 <div className="text-center py-4">
-                    <button
-                        onClick={loadMore}
-                        className="text-purple-500 hover:text-purple-700 dark:text-purple-400 px-4 py-2 rounded-lg border border-purple-500"
-                    >
+                    <Button variant="outline" onClick={loadMore}>
                         Загрузить еще
-                    </button>
+                    </Button>
                 </div>
             )}
         </div>

@@ -3,6 +3,10 @@ import useUserContext from "../../contexts/UserContext";
 import usePageContext from "../../contexts/pageContext";
 import { useEffect } from "react";
 import { ChangePasswordModal } from "../global/Modals";
+import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 
 const validUsernamePattern = /^[\w.@+-]+$/;
 
@@ -102,13 +106,14 @@ const Settings = () => {
     }, [editUsername, username]);
 
     return (
-        <div className="bg-gray-50 w-full p-7 mt-3 border-b-4 dark:bg-[#030108] dark:border-gray-900">
-            <form
-                onSubmit={submitForm}
-                className="flex flex-col gap-7 justify-between"
-                id="tweet-form"
-                encType="multipart/form-data"
-            >
+        <Card className="w-full mt-3">
+            <CardContent className="p-6">
+                <form
+                    onSubmit={submitForm}
+                    className="flex flex-col gap-7 justify-between"
+                    id="tweet-form"
+                    encType="multipart/form-data"
+                >
                 <div className="flex gap-3 flex-col w-full relative">
                     <label
                         htmlFor="profilePicUpdate"
@@ -126,21 +131,23 @@ const Settings = () => {
                         onChange={handleFileChange}
                     />
                     <div className="flex gap-3 absolute right-3">
-                        <button
+                        <Button
                             type="button"
+                            size="sm"
+                            variant="outline"
                             onClick={() => handleEditClick("profilePicUpdate")}
-                            className="text-purple-500  hover:bg-gray-200 hover:dark:bg-gray-900 py-[.2rem] px-1 text-large rounded"
                         >
                             Edit
-                        </button>
+                        </Button>
                         {formValues.profile_pic.file && (
-                            <button
+                            <Button
                                 type="button"
+                                size="sm"
+                                variant="destructive"
                                 onClick={() => clearField("profile_pic")}
-                                className="bg-red-400 text-red-50  hover:dark:bg-gray-900 text-sm px-1 text-large rounded"
                             >
                                 Clear
-                            </button>
+                            </Button>
                         )}
                     </div>
 
@@ -165,10 +172,10 @@ const Settings = () => {
                                         : profile_pic
                                 }
                                 alt={username}
-                                className="rounded-full w-[136px] h-[136px]  border-4 border-purple-500"
+                                className="rounded-full w-[136px] h-[136px] border-4 border-primary"
                             ></img>
                         ) : (
-                            <div className="rounded-full w-[136px] h-[136px] flex items-center justify-center text-white text-5xl border-4 bg-[#bdbdbd]">
+                            <div className="rounded-full w-[136px] h-[136px] flex items-center justify-center text-white text-5xl border-4 border-primary bg-muted">
                                 {username && username.at(0).toUpperCase()}
                             </div>
                         )}
@@ -192,21 +199,23 @@ const Settings = () => {
                     />
 
                     <div className="flex gap-3 absolute right-3">
-                        <button
+                        <Button
                             type="button"
+                            size="sm"
+                            variant="outline"
                             onClick={() => handleEditClick("coverPicUpdate")}
-                            className="text-purple-500  hover:bg-gray-200 hover:dark:bg-gray-900 py-[.2rem] px-1 text-large rounded"
                         >
                             Edit
-                        </button>
+                        </Button>
                         {formValues.cover_pic.file && (
-                            <button
+                            <Button
                                 type="button"
+                                size="sm"
+                                variant="destructive"
                                 onClick={() => clearField("cover_pic")}
-                                className="bg-red-400 text-red-50 text-sm  hover:dark:bg-gray-900 px-1 text-large rounded"
                             >
                                 Clear
-                            </button>
+                            </Button>
                         )}
                     </div>
 
@@ -230,7 +239,7 @@ const Settings = () => {
                                 className="w-4/5 rounded-lg object-cover max-h-[40vh]"
                             ></img>
                         ) : (
-                            <div className="w-4/5 rounded-lg max-h-[40vh] h-40 bg-gray-200 dark:bg-[#0b0b12]" />
+                            <div className="w-4/5 rounded-lg max-h-[40vh] h-40 bg-muted" />
                         )}
                     </div>
                 </div>
@@ -242,8 +251,10 @@ const Settings = () => {
                         Username
                     </label>
                     <div className="flex gap-3 absolute top-0 right-3">
-                        <button
+                        <Button
                             type="button"
+                            size="sm"
+                            variant="outline"
                             onClick={() => {
                                 if (isDemoUser) {
                                     alert("You can't change the username of this account");
@@ -251,27 +262,23 @@ const Settings = () => {
                                 }
                                 setEditUsername((prev) => !prev);
                             }}
-                            className="text-purple-500 hover:bg-gray-200 hover:dark:bg-gray-900 py-[.2rem] px-1 text-large rounded capitalize"
                         >
                             {editUsername ? "cancel" : "edit"}
-                        </button>
+                        </Button>
                     </div>
                     <div className="w-2 h-2"></div>
                     {editUsername ? (
-                        <input
+                        <Input
                             type="text"
                             name="username"
                             placeholder="Username"
                             id="usernameUpdate"
-                            className="border-none p-2 text-gray-900 bg-gray-300 w-full  rounded-lg focus:outline-none text-sm dark:bg-gray-900 dark:text-gray-300"
                             autoFocus
                             onChange={handleChange}
                             value={formValues.username}
                         />
                     ) : (
-                        <div className="border-none p-2 text-gray-900 bg-gray-300 w-full  rounded-lg focus:outline-none text-sm dark:bg-gray-900 dark:text-gray-300">
-                            @{username}
-                        </div>
+                        <Input value={`@${username}`} disabled />
                     )}
                 </div>
                 <div className="flex gap-1 flex-col justify-center relative">
@@ -282,9 +289,10 @@ const Settings = () => {
                         Password
                     </label>
                     <div className="flex gap-3 absolute top-0 right-3">
-                        <button
+                        <Button
                             type="button"
-                            className="text-purple-500 hover:bg-gray-200 hover:dark:bg-gray-900 py-[.2rem] px-1 text-large rounded capitalize"
+                            size="sm"
+                            variant="outline"
                             onClick={() => {
                                 if (isDemoUser) {
                                     alert("You can't update the password of this account");
@@ -294,7 +302,7 @@ const Settings = () => {
                             }}
                         >
                             Change
-                        </button>
+                        </Button>
                     </div>
                 </div>
                 <div className="flex gap-1 flex-col justify-center relative">
@@ -309,7 +317,7 @@ const Settings = () => {
                         id="pilotType"
                         value={formValues.pilot_type}
                         onChange={handleChange}
-                        className="border-none p-2 text-gray-900 bg-gray-300 w-full rounded-lg focus:outline-none text-sm dark:bg-gray-900 dark:text-gray-300"
+                        className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground"
                     >
                         <option value="virtual">Виртуальный пилот</option>
                         <option value="real">Реальный пилот</option>
@@ -323,7 +331,7 @@ const Settings = () => {
                     >
                         Часы налета
                     </label>
-                    <input
+                    <Input
                         type="number"
                         name="flight_hours"
                         id="flightHours"
@@ -332,7 +340,6 @@ const Settings = () => {
                         placeholder="0.0"
                         value={formValues.flight_hours}
                         onChange={handleChange}
-                        className="border-none p-2 text-gray-900 bg-gray-300 w-full rounded-lg focus:outline-none text-sm dark:bg-gray-900 dark:text-gray-300"
                     />
                 </div>
                 <div className="flex gap-1 flex-col justify-center relative">
@@ -342,14 +349,13 @@ const Settings = () => {
                     >
                         Типы самолетов (через запятую)
                     </label>
-                    <input
+                    <Input
                         type="text"
                         name="aircraft_types"
                         id="aircraftTypes"
                         placeholder="Cessna 172, Boeing 737"
                         value={formValues.aircraft_types}
                         onChange={handleChange}
-                        className="border-none p-2 text-gray-900 bg-gray-300 w-full rounded-lg focus:outline-none text-sm dark:bg-gray-900 dark:text-gray-300"
                     />
                 </div>
                 <div className="flex gap-1 flex-col justify-center relative">
@@ -359,14 +365,13 @@ const Settings = () => {
                     >
                         Номер лицензии
                     </label>
-                    <input
+                    <Input
                         type="text"
                         name="license_number"
                         id="licenseNumber"
                         placeholder="PPL-12345"
                         value={formValues.license_number}
                         onChange={handleChange}
-                        className="border-none p-2 text-gray-900 bg-gray-300 w-full rounded-lg focus:outline-none text-sm dark:bg-gray-900 dark:text-gray-300"
                     />
                 </div>
                 <div className="flex gap-1 flex-col justify-center relative">
@@ -376,7 +381,7 @@ const Settings = () => {
                     >
                         Биография
                     </label>
-                    <textarea
+                    <Textarea
                         name="bio"
                         id="bio"
                         rows="4"
@@ -384,25 +389,23 @@ const Settings = () => {
                         placeholder="Расскажите о себе..."
                         value={formValues.bio}
                         onChange={handleChange}
-                        className="border-none p-2 text-gray-900 bg-gray-300 w-full rounded-lg focus:outline-none text-sm dark:bg-gray-900 dark:text-gray-300"
                     />
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                         {formValues.bio?.length || 0}/500
                     </div>
                 </div>
                 <div className="flex items-center justify-end w-full">
-                    <button
-                        className="bg-purple-400 text-purple-50 float-right px-2 h-8 rounded-full  mt-3 w-20"
-                        type="submit"
-                    >
-                        Update
-                    </button>
+                    <Button type="submit">Update</Button>
                 </div>
-            </form>
-            {updatePassword && (
-                <ChangePasswordModal open={updatePassword} close={() => setupdatePassword(false)} />
-            )}
-        </div>
+                </form>
+                {updatePassword && (
+                    <ChangePasswordModal
+                        open={updatePassword}
+                        close={() => setupdatePassword(false)}
+                    />
+                )}
+            </CardContent>
+        </Card>
     );
 };
 

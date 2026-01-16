@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import usePageContext from "../../contexts/pageContext";
 import useUserContext from "../../contexts/UserContext";
-import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import PostCommentCard from "./PostCommentCard";
+import { Button } from "../ui/button";
 
 const PostComments = () => {
     const [{ next, comments }, setCommentsData] = useState({
@@ -39,13 +39,9 @@ const PostComments = () => {
             })}
             {next && (
                 <div className="flex flex-col items-center w-full">
-                    <button
-                        className="text-purple-500 m-10 text-2xl p-1 flex justify-center items-center gap-1"
-                        onClick={retrieveNextComments}
-                    >
-                        more
-                        <KeyboardDoubleArrowDownIcon />
-                    </button>
+                    <Button variant="outline" onClick={retrieveNextComments}>
+                        Показать еще
+                    </Button>
                 </div>
             )}
         </div>

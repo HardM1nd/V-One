@@ -1,8 +1,9 @@
-import Avatar from "@mui/material/Avatar";
 import React from "react";
 import useUserContext from "../../contexts/UserContext";
 import { useLocation } from "react-router-dom";
 import useThemeContext from "../../contexts/themeContext";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Button } from "../ui/button";
 
 const Header = (props) => {
     const {
@@ -15,10 +16,10 @@ const Header = (props) => {
     let cur = location.pathname.split("/").at(1);
     if (cur === "") cur = "home";
     return (
-        <header className="flex items-center justify-center pl-12 sm:pl-2 p-2 h-14 absolute w-full bg-gray-100 border-0 text-gray-900 sm:px-8 dark:bg-black">
+        <header className="flex items-center justify-center pl-12 sm:pl-2 p-2 h-14 absolute w-full bg-background border-0 text-foreground sm:px-8">
             <div className="max max-w-6xl w-full flex justify-between">
                 <div
-                    className={`flex gap-1 text-2xl text-purple-400 items-center`}
+                    className="flex gap-1 text-2xl text-primary items-center"
                     aria-hidden={true}
                 >
                     <h1 className="font-bold italic inline-block capitalize">
@@ -27,7 +28,7 @@ const Header = (props) => {
                 </div>
                 <div className="flex justify-between items-center gap-2 lg:gap-3">
                     <a
-                        className="dark:text-white text-gray-900 text-3xl hover:text-purple-500"
+                        className="text-foreground text-2xl hover:text-primary"
                         href="https://github.com/HardM1nd/V-One"
                         target="_blank"
                         rel="noreferrer"
@@ -39,8 +40,9 @@ const Header = (props) => {
                         </span>
                         <iconify-icon icon="bi:github">Light Theme</iconify-icon>
                     </a>
-                    <button
-                        className="text-purple-400 h-full text-2xl gap-1 justify-center"
+                    <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => setDarkTheme((p) => !p)}
                     >
                         {darkTheme ? (
@@ -48,11 +50,12 @@ const Header = (props) => {
                         ) : (
                             <iconify-icon icon="bi:moon-stars-fill">Dark theme</iconify-icon>
                         )}
-                    </button>
-                    <Avatar src={user && profile_pic} alt={user && username}>
-                        {username && username.at(0).toUpperCase()}
+                    </Button>
+                    <Avatar>
+                        <AvatarImage src={user && profile_pic ? profile_pic : ""} alt={user && username} />
+                        <AvatarFallback>{username && username.at(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
-                    <p className="text-purple-400 text-lg xm:static fixed -top-36 capitalize">
+                    <p className="text-primary text-sm xm:static fixed -top-36 capitalize">
                         {user && username}
                     </p>
                 </div>

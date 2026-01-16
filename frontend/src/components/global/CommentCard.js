@@ -1,6 +1,7 @@
 import React from "react";
-import { Avatar } from "@mui/material";
 import useUserContext from "../../contexts/UserContext";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Card, CardContent } from "../ui/card";
 
 const CommentCard = (props) => {
     const {
@@ -8,29 +9,25 @@ const CommentCard = (props) => {
     } = useUserContext();
     const { content, creator_name, creator_profile_pic, creator_id, created } = props;
     return (
-        <div className="flex gap-2 p-2 bg-gray-50 dark:bg-[#000208] my-2">
-            <div>
-                <Avatar
-                    sx={{ width: "35px", height: "35px" }}
-                    src={creator_profile_pic}
-                    alt={creator_name}
-                >
-                    {creator_name.at(0).toUpperCase()}
+        <Card className="my-2">
+            <CardContent className="p-3 flex gap-2">
+                <Avatar className="h-9 w-9">
+                    <AvatarImage src={creator_profile_pic || ""} alt={creator_name} />
+                    <AvatarFallback>{creator_name.at(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
-            </div>
-            <div className="flex-grow">
-                <div className="flex items-center">
-                    <div className="text-sm capitalize dark:text-white">
-                        {creator_id === user_id ? "You" : creator_name}
+                <div className="flex-grow">
+                    <div className="flex items-center gap-2 text-sm">
+                        <div className="capitalize text-foreground">
+                            {creator_id === user_id ? "You" : creator_name}
+                        </div>
+                        <div className="text-xs text-muted-foreground">• {created}</div>
                     </div>
-                    <div className="text-[.65rem] dark:text-gray-200">
-                        <span className="m-2">.</span>
-                        {created}
+                    <div className="text-sm text-muted-foreground mt-2 text-justify">
+                        {content}
                     </div>
                 </div>
-                <div className="text-[.8rem] text-gray-500 mt-2 text-justify">{content}</div>
-            </div>
-        </div>
+            </CardContent>
+        </Card>
     );
 };
 

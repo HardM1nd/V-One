@@ -3,9 +3,10 @@ import CardContainer from "../global/CardContainer";
 import TweetForm from "../global/TweetForm";
 import usePostActionContext from "../../contexts/PostActionContext";
 import usePageContext from "../../contexts/pageContext";
-import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
 import useUserContext from "../../contexts/UserContext";
 import RouteList from "../Routes/RouteList";
+import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
 
 const Home = () => {
     const { getPosts } = usePostActionContext();
@@ -47,27 +48,23 @@ const Home = () => {
             <TweetForm />
             <CardContainer />
             {getNextUrl() && (
-                <button
-                    className="text-purple-500 m-10 text-3xl p-1 flex justify-center items-center gap-1"
-                    onClick={retrieveNextPost}
-                >
-                    more
-                    <KeyboardDoubleArrowDownIcon />
-                </button>
+                <Button variant="outline" className="mt-6" onClick={retrieveNextPost}>
+                    Показать еще
+                </Button>
             )}
             <div className="w-[599px] max-w-[99%] mt-6">
-                <div className="bg-gray-100 dark:bg-[#030108] p-4 mb-4 rounded-lg">
-                    <h3 className="text-xl font-bold dark:text-gray-100">
-                        🛫 Активность в маршрутах
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                        Последние маршруты пилотов, на которых вы подписаны
-                    </p>
-                </div>
+                <Card className="mb-4">
+                    <CardContent className="p-4">
+                        <h3 className="text-xl font-bold">🛫 Активность в маршрутах</h3>
+                        <p className="text-sm text-muted-foreground">
+                            Последние маршруты пилотов, на которых вы подписаны
+                        </p>
+                    </CardContent>
+                </Card>
                 {user ? (
                     <RouteList endpoint="post/routes/following/" showFilters={false} />
                 ) : (
-                    <div className="text-center text-sm text-gray-500 dark:text-gray-400">
+                    <div className="text-center text-sm text-muted-foreground">
                         Войдите, чтобы видеть маршруты подписок
                     </div>
                 )}

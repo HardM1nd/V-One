@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import usePageContext from "../../contexts/pageContext";
 import usePostActionContext from "../../contexts/PostActionContext";
 import CardContainer from "../global/CardContainer";
-import KeyboardDoubleArrowDownIcon from "@mui/icons-material/KeyboardDoubleArrowDown";
+import { Button } from "../ui/button";
 
 const MediaPostContainer = () => {
     const { setData, getNextItems, getNextUrl } = usePageContext();
@@ -33,13 +33,9 @@ const MediaPostContainer = () => {
         <div ref={container} className="flex flex-col items-center w-full">
             <CardContainer />
             {getNextUrl() && (
-                <button
-                    className="text-purple-500 m-10 text-2xl p-1 flex justify-center items-center gap-1"
-                    onClick={retrieveNextPost}
-                >
-                    more
-                    <KeyboardDoubleArrowDownIcon />
-                </button>
+                <Button variant="outline" className="mt-6" onClick={retrieveNextPost}>
+                    Показать еще
+                </Button>
             )}
         </div>
     );
