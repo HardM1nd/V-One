@@ -77,3 +77,23 @@ const Home = () => {
 };
 
 export default Home;
+
+                        <h3 className="text-xl font-bold">🛫 Активность в маршрутах</h3>
+                        <p className="text-sm text-muted-foreground">
+                            Последние маршруты пилотов, на которых вы подписаны
+                        </p>
+                    </CardContent>
+                </Card>
+                {user ? (
+                    <RouteList endpoint="post/routes/following/" showFilters={false} />
+                ) : (
+                    <div className="text-center text-sm text-muted-foreground">
+                        Войдите, чтобы видеть маршруты подписок
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default Home;

@@ -169,3 +169,25 @@ const RouteMap = ({
 };
 
 export default RouteMap;
+
+                            weight={3}
+                            opacity={0.7}
+                        />
+                    </>
+                )}
+            </MapContainer>
+            {interactive && allowMultiPoint && (
+                <div className="bg-blue-50 dark:bg-blue-900 p-2 text-sm text-center">
+                    Кликните по карте, чтобы добавлять точки маршрута
+                </div>
+            )}
+            {interactive && !allowMultiPoint && !hasCoordinates && (
+                <div className="bg-blue-50 dark:bg-blue-900 p-2 text-sm text-center">
+                    Кликните на карте, чтобы выбрать точку отправления, затем точку назначения
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default RouteMap;

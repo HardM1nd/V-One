@@ -138,3 +138,20 @@ class PostSerializer(serializers.ModelSerializer):
         user = self.context.get("request").user
         validated_data["creator"] = validated_data.get('creator', user)
         return super().create(validated_data)
+
+        creator = post.creator
+        user = self.context.get("request").user
+        if not user or not user.is_authenticated:
+            return False
+        return creator.following.filter(id=user.id).exists()
+
+    def get_comments(self, post):
+        return post.comments.count()
+
+    def get_saves(self, post):
+        return post.saves.count()
+
+    def create(self, validated_data):
+        user = self.context.get("request").user
+        validated_data["creator"] = validated_data.get('creator', user)
+        return super().create(validated_data)

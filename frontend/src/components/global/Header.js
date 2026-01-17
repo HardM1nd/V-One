@@ -76,3 +76,18 @@ const Header = (props) => {
 };
 
 export default Header;
+
+                    <Avatar>
+                        <AvatarImage src={user && profile_pic ? profile_pic : ""} alt={user && username} />
+                        <AvatarFallback>{username && username.at(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <p className="text-primary text-sm xm:static fixed -top-36 capitalize">
+                        {user && username}
+                    </p>
+                </div>
+            </div>
+        </header>
+    );
+};
+
+export default Header;

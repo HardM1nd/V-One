@@ -44,7 +44,10 @@ function UserContextProvider({ children }) {
         }
     });
     
-    const SERVERURL = ["localhost:3000",].includes(window.location.host)
+    // Определение URL сервера: приоритет переменной окружения, затем localhost, затем fallback
+    const SERVERURL = process.env.REACT_APP_API_URL 
+        ? (process.env.REACT_APP_API_URL.endsWith('/') ? process.env.REACT_APP_API_URL : process.env.REACT_APP_API_URL + '/')
+        : ["localhost:3000",].includes(window.location.host)
         ? "http://localhost:8000/"
         : pyAnywhere;
     const [profileData, setProfileData] = useState(defaultProfileData);
@@ -209,6 +212,35 @@ function UserContextProvider({ children }) {
                 onFailure(e);
             });
     };
+
+    const authcontext = {
+        user: user,
+        login: login,
+        axiosInstance: axiosInstance,
+        logout: logout,
+        updateInfo: updateInfo,
+        signup: signup,
+        profileData: profileData,
+        setProfileData: setProfileData,
+        isDemoUser: profileData.username === "DemoUser",
+        fetchUserData: fetchUserData,
+    };
+
+    useEffect(() => {
+        if (tokens && tokens.access) {
+            fetchUserData();
+        }
+    }, [tokens, fetchUserData]);
+
+    return <userContext.Provider value={authcontext}>{children}</userContext.Provider>;
+}
+
+const useUserContext = () => {
+    return useContext(userContext);
+};
+
+export default useUserContext;
+export { userContext, UserContextProvider };
 
     const authcontext = {
         user: user,

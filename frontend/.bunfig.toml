@@ -4,3 +4,11 @@ auto = true
 
 
 
+
+
+# Bun автоматически разрешает peer dependencies конфликты
+auto = true
+
+
+
+

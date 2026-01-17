@@ -112,3 +112,35 @@ const SideNav = (props) => {
 };
 
 export default SideNav;
+
+                            : "text-muted-foreground";
+                    return (
+                        <Link
+                            key={el.icon + el.label}
+                            to={el.href}
+                            className={`w-full flex text-left justify-left transition pl-[22%] items-center h-12 gap-3 rounded-md px-2 hover:bg-accent ${activeClass}`}
+                        >
+                            <span className="text-[1.5rem] ">
+                                <iconify-icon icon={el.icon}></iconify-icon>
+                            </span>
+                            <span
+                                className={`text-[1.05rem] ${
+                                    open ? "scale-1" : "scale-0"
+                                } transition-all duration-200 pl-6 origin-right lg:scale-100`}
+                            >
+                                {el.label}
+                            </span>
+                            {el.key === "notifications" && unreadCount > 0 && (
+                                <Badge className="ml-auto mr-2" variant="default">
+                                    {unreadCount}
+                                </Badge>
+                            )}
+                        </Link>
+                    );
+                })}
+            </nav>
+        </div>
+    );
+};
+
+export default SideNav;

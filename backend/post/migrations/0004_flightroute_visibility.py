@@ -28,3 +28,35 @@ class Migration(migrations.Migration):
 
 
 
+
+
+
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ("post", "0003_flightroute_waypoints"),
+    ]
+
+    operations = [
+        migrations.AddField(
+            model_name="flightroute",
+            name="visibility",
+            field=models.CharField(
+                choices=[
+                    ("public", "Публичный"),
+                    ("followers", "Только подписчики"),
+                    ("private", "Только я"),
+                ],
+                default="public",
+                max_length=20,
+                verbose_name="Доступ",
+            ),
+        ),
+    ]
+
+
+
+

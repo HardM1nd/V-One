@@ -231,3 +231,63 @@ const RouteList = ({ endpoint, pilotId = null, showFilters = true }) => {
 
 export default RouteList;
 
+
+                                    value={filters.distance_min}
+                                    onChange={(e) =>
+                                        setFilters(prev => ({ ...prev, distance_min: e.target.value }))
+                                    }
+                                    type="number"
+                                    className="min-w-[160px]"
+                                />
+                                <Input
+                                    placeholder="Макс. дистанция"
+                                    value={filters.distance_max}
+                                    onChange={(e) =>
+                                        setFilters(prev => ({ ...prev, distance_max: e.target.value }))
+                                    }
+                                    type="number"
+                                    className="min-w-[160px]"
+                                />
+                                <select
+                                    value={filters.order_by}
+                                    onChange={(e) =>
+                                        setFilters(prev => ({ ...prev, order_by: e.target.value }))
+                                    }
+                                    className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground min-w-[200px]"
+                                >
+                                    <option value="-created">Новые сначала</option>
+                                    <option value="created">Старые сначала</option>
+                                    <option value="-flight_date">По дате полета (новые)</option>
+                                    <option value="flight_date">По дате полета (старые)</option>
+                                    <option value="-distance">По расстоянию (больше)</option>
+                                    <option value="distance">По расстоянию (меньше)</option>
+                                </select>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            )}
+
+            <div>
+                {routes.map((route) => (
+                    <RouteCard
+                        key={route.id}
+                        route={route}
+                        onLike={handleLike}
+                        onSave={handleSave}
+                    />
+                ))}
+            </div>
+
+            {nextUrl && (
+                <div className="text-center py-4">
+                    <Button variant="outline" onClick={loadMore}>
+                        Загрузить еще
+                    </Button>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default RouteList;

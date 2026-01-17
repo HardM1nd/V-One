@@ -49,3 +49,7 @@ const PostCommentCard = (props) => {
 };
 
 export default PostCommentCard;
+
+};
+
+export default PostCommentCard;

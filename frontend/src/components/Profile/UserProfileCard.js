@@ -32,3 +32,5 @@ const UserProfileCard = (props) => {
 };
 
 export default UserProfileCard;
+
+export default UserProfileCard;

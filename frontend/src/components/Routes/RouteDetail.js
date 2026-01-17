@@ -401,3 +401,129 @@ const RouteDetail = () => {
 
 export default RouteDetail;
 
+
+                            <iconify-icon icon="bi:airplane-engines" />
+                            <span className="font-semibold">{route.departure}</span>
+                        </div>
+                        <span className="text-muted-foreground text-2xl">→</span>
+                        <div className="flex items-center gap-2 text-emerald-600">
+                            <iconify-icon icon="bi:geo-alt" />
+                            <span className="font-semibold">{route.destination}</span>
+                        </div>
+                    </div>
+
+                    {route.description && (
+                        <div className="mb-4 p-4 bg-muted rounded-lg">
+                            <p className="text-foreground whitespace-pre-wrap">{route.description}</p>
+                        </div>
+                    )}
+
+                    <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+                        {route.aircraft_type && (
+                            <div className="flex items-center gap-2">
+                                <span className="text-muted-foreground">Тип самолета:</span>
+                                <Badge variant="outline">{route.aircraft_type}</Badge>
+                            </div>
+                        )}
+                        {route.visibility_display && (
+                            <div>
+                                <span className="text-muted-foreground">Доступ:</span>
+                                <span className="ml-2">{route.visibility_display}</span>
+                            </div>
+                        )}
+                        {route.flight_date_display && (
+                            <div>
+                                <span className="text-muted-foreground">Дата полета:</span>
+                                <span className="ml-2">{route.flight_date_display}</span>
+                            </div>
+                        )}
+                        {route.flight_duration && (
+                            <div>
+                                <span className="text-muted-foreground">Длительность:</span>
+                                <span className="ml-2">{formatDuration(route.flight_duration)}</span>
+                            </div>
+                        )}
+                        {route.distance && (
+                            <div>
+                                <span className="text-muted-foreground">Расстояние:</span>
+                                <span className="ml-2">{parseFloat(route.distance).toFixed(0)} км</span>
+                            </div>
+                        )}
+                        {!route.distance && calculateDistance() && (
+                            <div>
+                                <span className="text-muted-foreground">Расстояние (по карте):</span>
+                                <span className="ml-2">
+                                    {calculateDistance().toFixed(0)} км
+                                </span>
+                            </div>
+                        )}
+                    </div>
+
+                    {route.route_file && (
+                        <div className="mb-4">
+                            <a
+                                href={route.route_file}
+                                download
+                                className="text-primary hover:underline"
+                            >
+                                📎 Скачать файл маршрута
+                            </a>
+                        </div>
+                    )}
+                    <div className="mb-4 flex flex-wrap gap-3">
+                        <Button variant="outline" onClick={downloadGeoJson} type="button">
+                            🧭 Скачать GeoJSON
+                        </Button>
+                        <Button variant="outline" onClick={copyRouteLink} type="button">
+                            🔗 Скопировать ссылку
+                        </Button>
+                        {buildOsmUrl() && (
+                            <Button asChild variant="outline">
+                                <a href={buildOsmUrl()} target="_blank" rel="noreferrer">
+                                    🗺️ Открыть в OSM
+                                </a>
+                            </Button>
+                        )}
+                    </div>
+
+                    <div className="flex gap-4 text-sm text-muted-foreground mb-4">
+                        <span>❤️ {route.likes_count || 0} лайков</span>
+                        <span>🔖 {route.saves_count || 0} сохранений</span>
+                    </div>
+
+                    {((route.departure_lat && route.departure_lng && route.destination_lat && route.destination_lng) || (route.waypoints && route.waypoints.length > 1)) && (
+                        <div className="mt-6">
+                            <h3 className="text-xl font-semibold mb-3">Карта маршрута</h3>
+                            <RouteMap
+                                departure={route.departure}
+                                destination={route.destination}
+                                departureLat={route.departure_lat}
+                                departureLng={route.departure_lng}
+                                destinationLat={route.destination_lat}
+                                destinationLng={route.destination_lng}
+                                waypoints={route.waypoints || []}
+                                interactive={false}
+                                height="500px"
+                            />
+                            {route.waypoints && route.waypoints.length > 0 && (
+                                <div className="mt-4 bg-muted p-3 rounded-lg">
+                                    <div className="text-sm font-semibold mb-2">Точки маршрута</div>
+                                    <div className="space-y-1 text-sm text-muted-foreground">
+                                        {route.waypoints.map((point, index) => (
+                                            <div key={`wp-${index}`}>
+                                                {index + 1}. {parseFloat(point.lat).toFixed(5)},{" "}
+                                                {parseFloat(point.lng).toFixed(5)}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+        </div>
+    );
+};
+
+export default RouteDetail;

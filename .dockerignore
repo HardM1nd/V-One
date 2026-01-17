@@ -1,0 +1,43 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+README.md
+ENV_SETUP.md
+QUICKSTART.md
+PILOTS_FEATURE.md
+ROUTES_FEATURE.md
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.example
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+.cursor/
+worktrees.json
+route-test.geojson
+

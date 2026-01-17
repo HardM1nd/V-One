@@ -125,3 +125,21 @@ export default function SignUp() {
         </main>
     );
 }
+
+                            placeholder="повторите пароль"
+                        />
+                        <p className="text-sm text-muted-foreground">
+                            Уже есть аккаунт?{" "}
+                            <Link to="/signin" className="text-primary hover:underline">
+                                Войти
+                            </Link>
+                        </p>
+                        <div className="flex justify-end">
+                            <Button type="submit">Зарегистрироваться</Button>
+                        </div>
+                    </form>
+                </CardContent>
+            </Card>
+        </main>
+    );
+}

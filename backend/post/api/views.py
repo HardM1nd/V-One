@@ -187,3 +187,36 @@ class SaveUnsavePostAPIView(APIView):
             post_saves.add(self.request.user)
         data = PostSerializer(post, context={"request": self.request}).data
         return Response(data)
+
+    def post(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+        post_likes = post.likes
+        if post_likes.filter(id=self.request.user.id).exists():
+            post_likes.remove(self.request.user)
+        else:
+            post_likes.add(self.request.user)
+            if post.creator_id != request.user.id:
+                Notification.objects.create(
+                    user=post.creator,
+                    actor=request.user,
+                    type="post_like",
+                    message=f"{request.user.username} поставил лайк вашему посту",
+                    target_type="post",
+                    target_id=post.id,
+                )
+        data = PostSerializer(post, context={"request": self.request}).data
+        return Response(data)
+
+
+class SaveUnsavePostAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+        post_saves = post.saves
+        if post_saves.filter(id=self.request.user.id).exists():
+            post_saves.remove(self.request.user)
+        else:
+            post_saves.add(self.request.user)
+        data = PostSerializer(post, context={"request": self.request}).data
+        return Response(data)

@@ -207,3 +207,15 @@ const Card = (props) => {
 };
 
 export default Card;
+
+                            <iconify-icon icon="bi:save">Сохранить</iconify-icon>
+                            <span>{saves}</span>
+                        </Button>
+                    </nav>
+                </div>
+            </CardContent>
+        </UiCard>
+    );
+};
+
+export default Card;

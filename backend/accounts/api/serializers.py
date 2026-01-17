@@ -145,3 +145,36 @@ class NotificationSerializer(serializers.ModelSerializer):
                 setattr(instance, attr, value)
         instance.save()
         return instance
+
+
+
+class NotificationActorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("id", "username", "profile_pic")
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    actor = NotificationActorSerializer(read_only=True)
+
+    class Meta:
+        model = Notification
+        fields = (
+            "id",
+            "type",
+            "message",
+            "actor",
+            "target_type",
+            "target_id",
+            "is_read",
+            "created",
+        )
+
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            if attr == "password":
+                instance.set_password(value)
+            else:
+                setattr(instance, attr, value)
+        instance.save()
+        return instance

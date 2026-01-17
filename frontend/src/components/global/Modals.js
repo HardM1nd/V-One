@@ -470,3 +470,73 @@ const ChangePasswordModal = ({ open, close }) => {
 };
 
 export { CommentsModal, EditPostModal, ChangePasswordModal };
+
+            return;
+        }
+        axiosInstance
+            .patch("/accounts/profile/update/", {
+                password: newPassword,
+            })
+            .then(() => {
+                alert("Пароль обновлен");
+                close();
+            })
+            .catch(() => alert("Не удалось обновить пароль"));
+    }
+    function handleChange(e) {
+        setPasswords((prev) => ({
+            ...prev,
+            [e.target.name]: e.target.value,
+        }));
+        setPasswordError(!validateUsername(e.target.value));
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={(value) => !value && close()}>
+            <DialogContent className="max-w-lg w-[95vw]">
+                <DialogHeader>
+                    <DialogTitle>Смена пароля</DialogTitle>
+                </DialogHeader>
+                <form
+                    className="flex flex-col gap-3"
+                    id="update-password-form"
+                    onSubmit={handleSubmit}
+                >
+                    {passwordError && <p className="text-sm text-red-500">Некорректный пароль</p>}
+                    <label htmlFor="new-password" className="text-sm">
+                        Новый пароль
+                    </label>
+                    <Input
+                        type="password"
+                        name="newPassword"
+                        id="new-password"
+                        onChange={handleChange}
+                        required
+                        value={newPassword}
+                        placeholder="пароль"
+                    />
+                    <label htmlFor="new-password-confirm" className="text-sm">
+                        Повторите пароль
+                    </label>
+                    <Input
+                        type="password"
+                        value={newPasswordConfirm}
+                        onChange={handleChange}
+                        name="newPasswordConfirm"
+                        id="new-password-confirm"
+                        required
+                        placeholder="повторите пароль"
+                    />
+                    <div className="flex justify-end gap-2 pt-2">
+                        <Button type="button" variant="outline" onClick={close}>
+                            Отмена
+                        </Button>
+                        <Button type="submit">Обновить</Button>
+                    </div>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
+};
+
+export { CommentsModal, EditPostModal, ChangePasswordModal };

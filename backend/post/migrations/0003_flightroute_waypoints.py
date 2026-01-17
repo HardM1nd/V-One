@@ -19,3 +19,26 @@ class Migration(migrations.Migration):
 
 
 
+
+
+
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ("post", "0002_flightroute_departure_lat_flightroute_departure_lng_and_more"),
+    ]
+
+    operations = [
+        migrations.AddField(
+            model_name="flightroute",
+            name="waypoints",
+            field=models.JSONField(blank=True, default=list, null=True, verbose_name="Точки маршрута"),
+        ),
+    ]
+
+
+
+

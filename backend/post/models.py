@@ -139,3 +139,20 @@ class FlightRoute(models.Model):
 
     def __str__(self):
         return f'{self.departure} → {self.destination} by {self.pilot.username}'
+
+        default="public",
+        verbose_name="Доступ",
+    )
+    is_public = models.BooleanField(default=True, verbose_name='Публичный маршрут')
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    likes = models.ManyToManyField(User, related_name="liked_routes", blank=True)
+    saves = models.ManyToManyField(User, related_name="saved_routes", blank=True)
+
+    class Meta:
+        ordering = ['-created']
+        verbose_name = 'Маршрут полета'
+        verbose_name_plural = 'Маршруты полетов'
+
+    def __str__(self):
+        return f'{self.departure} → {self.destination} by {self.pilot.username}'

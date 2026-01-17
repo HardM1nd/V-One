@@ -60,3 +60,18 @@ const CardContainer = (props) => {
 };
 
 export default CardContainer;
+
+                        is_commented={post.is_commented}
+                        is_following_user={post.is_following_user}
+                        is_followed_by_user={post.is_followed_by_user}
+                        created={post.created}
+                        created_at={post.created_at}
+                        isEdited={post.isEdited}
+                    />
+                );
+            })}
+        </>
+    );
+};
+
+export default CardContainer;

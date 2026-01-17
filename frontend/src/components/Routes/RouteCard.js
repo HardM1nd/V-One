@@ -200,3 +200,33 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
 
 export default RouteCard;
 
+
+                            {route.aircraft_type && (
+                                <Badge variant="outline">{route.aircraft_type}</Badge>
+                            )}
+                            {waypointCount > 1 && (
+                                <Badge variant="outline">Точек: {waypointCount}</Badge>
+                            )}
+                            {route.flight_date_display && (
+                                <span>📅 {route.flight_date_display}</span>
+                            )}
+                            {route.flight_duration && (
+                                <span>⏱️ {formatDuration(route.flight_duration)}</span>
+                            )}
+                            {route.distance && (
+                                <span>📏 {parseFloat(route.distance).toFixed(0)} км</span>
+                            )}
+                            {(route.likes_count > 0 || route.saves_count > 0) && (
+                                <span>
+                                    ❤️ {route.likes_count || 0} · 🔖 {route.saves_count || 0}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+    );
+};
+
+export default RouteCard;

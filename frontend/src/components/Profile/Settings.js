@@ -410,3 +410,11 @@ const Settings = () => {
 };
 
 export default Settings;
+
+                )}
+            </CardContent>
+        </Card>
+    );
+};
+
+export default Settings;

@@ -76,3 +76,8 @@ const usePostActionContext = () => {
 };
 
 export default usePostActionContext;
+
+    return useContext(postActionContext);
+};
+
+export default usePostActionContext;

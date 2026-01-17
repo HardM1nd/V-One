@@ -229,3 +229,68 @@ const Pilots = () => {
 
 export default Pilots;
 
+
+                                            <AvatarImage src={pilot.profile_pic || ""} alt={pilot.username} />
+                                            <AvatarFallback>
+                                                {pilot.username?.charAt(0).toUpperCase()}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1">
+                                            <div className="flex items-start justify-between gap-2 mb-2">
+                                                <div className="flex items-center gap-2">
+                                                    <h3 className="text-lg font-semibold">
+                                                        @{pilot.username}
+                                                    </h3>
+                                                    {pilot.pilot_type_display && (
+                                                        <Badge variant={getPilotTypeBadge(pilot.pilot_type)}>
+                                                            {pilot.pilot_type_display}
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                                {user && user.id !== pilot.id && (
+                                                    <Button
+                                                        size="sm"
+                                                        variant={pilot.is_following ? "outline" : "default"}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleFollowToggle(pilot.id);
+                                                        }}
+                                                    >
+                                                        {pilot.is_following ? "Отписаться" : "Подписаться"}
+                                                    </Button>
+                                                )}
+                                            </div>
+                                            {pilot.bio && (
+                                                <p className="text-sm text-muted-foreground mb-2">
+                                                    {pilot.bio}
+                                                </p>
+                                            )}
+                                            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                                                {pilot.flight_hours > 0 && (
+                                                    <span>
+                                                        ✈️ {parseFloat(pilot.flight_hours).toFixed(1)} ч
+                                                    </span>
+                                                )}
+                                                {pilot.aircraft_types_list && pilot.aircraft_types_list.length > 0 && (
+                                                    <span>
+                                                        🛩️ {pilot.aircraft_types_list.slice(0, 2).join(", ")}
+                                                        {pilot.aircraft_types_list.length > 2 && "..."}
+                                                    </span>
+                                                )}
+                                                <span>
+                                                    👥 {pilot.followers} подписчиков
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                )}
+            </Card>
+        </div>
+    );
+};
+
+export default Pilots;

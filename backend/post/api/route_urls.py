@@ -24,4 +24,3 @@ urlpatterns = [
     path('routes/saved/', SavedFlightRoutesAPIView.as_view(), name='saved_routes'),
     path('routes/following/', FollowingFlightRoutesAPIView.as_view(), name='following_routes'),
 ]
-
