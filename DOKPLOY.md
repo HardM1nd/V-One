@@ -29,13 +29,13 @@ DB_PORT=5432
 USE_SQLITE=False
 
 # Frontend
-REACT_APP_API_URL=https://api.your-domain.com
+VITE_API_URL=https://api.your-domain.com
 ```
 
 **Важно:** 
 - `DJANGO_SECRET_KEY` должен быть уникальным и секретным
 - `ALLOWED_HOSTS` должен содержать ваш домен
-- `REACT_APP_API_URL` должен указывать на URL вашего backend API
+- `VITE_API_URL` должен указывать на URL вашего backend API
 
 ### 2. Настройка Dokploy
 
@@ -70,7 +70,7 @@ REACT_APP_API_URL=https://api.your-domain.com
 3. Dockerfile путь: `frontend/Dockerfile.prod`
 4. Контекст сборки: `frontend/`
 5. Build аргументы:
-   - `REACT_APP_API_URL=https://api.your-domain.com`
+   - `VITE_API_URL=https://api.your-domain.com`
 6. Порт: `80`
 
 ## Настройка базы данных
@@ -138,7 +138,7 @@ CORS_ALLOWED_ORIGINS = [
 
 ### Frontend не подключается к Backend
 
-- Проверьте, что `REACT_APP_API_URL` правильно установлен
+- Проверьте, что `VITE_API_URL` правильно установлен
 - Убедитесь, что CORS настроен правильно
 - Проверьте, что backend доступен по указанному URL
 
@@ -160,4 +160,3 @@ CORS_ALLOWED_ORIGINS = [
 Настройте регулярное резервное копирование:
 - База данных PostgreSQL
 - Медиа файлы (volume `backend-media`)
-

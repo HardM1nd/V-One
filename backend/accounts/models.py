@@ -86,3 +86,59 @@ class User(AbstractUser):
         if self.aircraft_types:
             return [t.strip() for t in self.aircraft_types.split(',') if t.strip()]
         return []
+
+
+class Notification(models.Model):
+    """Уведомления для пользователей."""
+
+    NOTIFICATION_TYPES = [
+        ("follow", "Новый подписчик"),
+        ("like", "Лайк"),
+        ("comment", "Комментарий"),
+        ("system", "Системное уведомление"),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="notifications",
+        verbose_name=_("Получатель"),
+    )
+    actor = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="notifications_sent",
+        null=True,
+        blank=True,
+        verbose_name=_("Инициатор"),
+    )
+    type = models.CharField(
+        max_length=20,
+        choices=NOTIFICATION_TYPES,
+        default="system",
+        verbose_name=_("Тип уведомления"),
+    )
+    message = models.TextField(verbose_name=_("Сообщение"))
+    is_read = models.BooleanField(default=False, verbose_name=_("Прочитано"))
+    created = models.DateTimeField(auto_now_add=True, verbose_name=_("Создано"))
+
+    # Универсальная ссылка на объект (пост, пользователь и т.п.)
+    target_type = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True,
+        verbose_name=_("Тип объекта"),
+    )
+    target_id = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name=_("ID объекта"),
+    )
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name = _("Уведомление")
+        verbose_name_plural = _("Уведомления")
+
+    def __str__(self):
+        return f"{self.user.username}: {self.message[:50]}"

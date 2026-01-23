@@ -213,34 +213,3 @@ class NotificationUnreadCountAPIView(APIView):
     def get(self, request):
         count = Notification.objects.filter(user=request.user, is_read=False).count()
         return Response({"unread_count": count})
-
-    permission_classes = [AllowAny]
-    authentication_classes = []
-    
-    def get_queryset(self):
-        queryset = User.objects.all()
-        pilot_type = self.request.query_params.get('pilot_type', None)
-        query = self.request.query_params.get('q', None)
-        
-        if pilot_type:
-            if pilot_type == 'virtual':
-                queryset = queryset.filter(pilot_type__in=['virtual', 'both'])
-            elif pilot_type == 'real':
-                queryset = queryset.filter(pilot_type__in=['real', 'both'])
-            elif pilot_type == 'both':
-                queryset = queryset.filter(pilot_type='both')
-
-        if query:
-            queryset = queryset.filter(
-                models.Q(username__icontains=query)
-                | models.Q(bio__icontains=query)
-                | models.Q(aircraft_types__icontains=query)
-                | models.Q(license_number__icontains=query)
-            )
-        
-        # Сортировка по часам налета (по убыванию)
-        order_by = self.request.query_params.get('order_by', '-flight_hours')
-        if order_by in ['flight_hours', '-flight_hours', 'username', '-username']:
-            queryset = queryset.order_by(order_by)
-        
-        return queryset

@@ -27,5 +27,3 @@ urlpatterns = [
     path("api/post/", include("post.api.route_urls")),
     path("api/v1/user/notifications/unread_count/", unread_notifications_count),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

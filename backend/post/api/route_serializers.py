@@ -102,29 +102,3 @@ class FlightRouteSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             validated_data['pilot'] = request.user
         return super().create(validated_data)
-
-
-            try:
-                value = json.loads(value)
-            except json.JSONDecodeError as exc:
-                raise serializers.ValidationError("Invalid waypoints JSON.") from exc
-        if value is None:
-            return []
-        if not isinstance(value, list):
-            raise serializers.ValidationError("Waypoints must be a list.")
-        return value
-
-    def validate(self, attrs):
-        visibility = attrs.get("visibility")
-        if visibility is None and "is_public" in attrs:
-            visibility = "public" if attrs.get("is_public") else "private"
-            attrs["visibility"] = visibility
-        if visibility is not None:
-            attrs["is_public"] = visibility == "public"
-        return attrs
-
-    def create(self, validated_data):
-        request = self.context.get('request')
-        if request and request.user.is_authenticated:
-            validated_data['pilot'] = request.user
-        return super().create(validated_data)

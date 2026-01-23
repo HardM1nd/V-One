@@ -14,7 +14,7 @@ DB_USER=пользователь_базы
 DB_PASSWORD=пароль_базы
 DB_HOST=хост_базы
 DB_PORT=5432
-REACT_APP_API_URL=https://api.ваш-домен.com
+VITE_API_URL=https://api.ваш-домен.com
 ```
 
 ## Шаг 2: Настройка в Dokploy
@@ -40,7 +40,7 @@ REACT_APP_API_URL=https://api.ваш-домен.com
 - Тип: **Dockerfile**
 - Dockerfile: `frontend/Dockerfile.prod`
 - Контекст: `frontend/`
-- Build аргументы: `REACT_APP_API_URL=https://api.ваш-домен.com`
+- Build аргументы: `VITE_API_URL=https://api.ваш-домен.com`
 - Порт: `80`
 
 ## Шаг 3: Настройка доменов
@@ -66,4 +66,3 @@ CORS_ALLOWED_ORIGINS = [
 Ваше приложение должно быть доступно по указанным доменам.
 
 Для подробной документации см. `DOKPLOY.md`
-
