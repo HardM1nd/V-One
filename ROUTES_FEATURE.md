@@ -68,7 +68,7 @@
 При запуске через Docker миграции создадутся автоматически:
 
 ```bash
-docker-compose exec backend python manage.py makemigrations post
-docker-compose exec backend python manage.py migrate
+docker compose exec backend python manage.py makemigrations post
+docker compose exec backend python manage.py migrate
 ```
 

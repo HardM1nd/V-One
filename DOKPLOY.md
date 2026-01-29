@@ -84,13 +84,13 @@ VITE_API_URL=https://api.your-domain.com
 Миграции применяются автоматически при запуске backend контейнера. Если нужно применить миграции вручную:
 
 ```bash
-docker-compose -f docker-compose.prod.yml exec backend python manage.py migrate
+docker compose -f docker-compose.prod.yml exec backend python manage.py migrate
 ```
 
 ### Создание суперпользователя
 
 ```bash
-docker-compose -f docker-compose.prod.yml exec backend python manage.py createsuperuser
+docker compose -f docker-compose.prod.yml exec backend python manage.py createsuperuser
 ```
 
 ## Настройка доменов и SSL
@@ -132,7 +132,7 @@ CORS_ALLOWED_ORIGINS = [
 
 ### Backend не запускается
 
-- Проверьте логи: `docker-compose -f docker-compose.prod.yml logs backend`
+- Проверьте логи: `docker compose -f docker-compose.prod.yml logs backend`
 - Убедитесь, что все переменные окружения установлены
 - Проверьте подключение к базе данных
 

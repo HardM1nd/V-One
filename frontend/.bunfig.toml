@@ -1,14 +1,3 @@
 [install]
 # Bun автоматически разрешает peer dependencies конфликты
 auto = true
-
-
-
-
-
-# Bun автоматически разрешает peer dependencies конфликты
-auto = true
-
-
-
-

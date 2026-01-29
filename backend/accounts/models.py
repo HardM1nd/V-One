@@ -79,7 +79,14 @@ class User(AbstractUser):
     )
 
     def media_posts(self):
-        return self.posts.exclude(image='')
+        """Возвращает посты пользователя с изображениями"""
+        from django.db.models import Q
+        # Фильтруем посты, у которых есть изображение (не null и не пустая строка)
+        # Используем exclude для исключения пустых значений
+        queryset = self.posts.exclude(
+            Q(image__isnull=True) | Q(image='')
+        )
+        return queryset
     
     def get_aircraft_types_list(self):
         """Возвращает список типов самолетов"""

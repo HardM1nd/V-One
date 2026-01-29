@@ -1,4 +1,44 @@
 services:
+  minio:
+    image: minio/minio:latest
+    container_name: v-one-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin}
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "sh", "-c", "curl -f http://localhost:9000/minio/health/live || exit 1"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      start_period: 10s
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: v-one-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      echo 'Waiting for MinIO to be ready...';
+      sleep 10;
+      echo 'Setting up MinIO alias...';
+      /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-minioadmin} || exit 1;
+      echo 'Creating bucket ${MINIO_BUCKET_NAME:-media}...';
+      /usr/bin/mc mb myminio/${MINIO_BUCKET_NAME:-media} --ignore-existing || true;
+      echo 'Setting bucket to public...';
+      /usr/bin/mc anonymous set public myminio/${MINIO_BUCKET_NAME:-media} || true;
+      echo 'MinIO initialization completed successfully!';
+      exit 0;
+      "
+    restart: "on-failure"
+
   backend:
     build: ./backend
     container_name: v-one-backend
@@ -7,14 +47,30 @@ services:
     volumes:
       - ./backend:/app
       - backend-media:/app/media
+      - backend-static:/app/staticfiles
     environment:
       - DEBUG=True
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-django-insecure-dev-key-change-in-production}
       # Используем SQLite внутри контейнера для локальной разработки
       - USE_SQLITE=True
       - ALLOWED_HOSTS=localhost,127.0.0.1,backend
+      # MinIO настройки
+      - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER:-minioadmin}
+      - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
+      - AWS_STORAGE_BUCKET_NAME=${MINIO_BUCKET_NAME:-media}
+      - AWS_S3_ENDPOINT_URL=http://minio:9000
+      - AWS_S3_PUBLIC_URL=${MINIO_PUBLIC_URL:-http://localhost:9000}
+      - AWS_S3_CUSTOM_DOMAIN=${MINIO_CUSTOM_DOMAIN:-localhost:9000}
+      - AWS_S3_USE_SSL=False
+      - USE_S3=${USE_S3:-True}
+    depends_on:
+      minio:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
     command: >
-      sh -c "python manage.py makemigrations &&
+      sh -c "sleep 5 &&
+             python manage.py makemigrations &&
              python manage.py migrate &&
              python manage.py collectstatic --noinput &&
              python manage.py runserver 0.0.0.0:8000"
@@ -42,11 +98,14 @@ services:
     environment:
       - VITE_API_URL=http://localhost:8000
       - CHOKIDAR_USEPOLLING=true
-    command: sh -c "npm install --legacy-peer-deps && npm run dev -- --host 0.0.0.0 --port 3000"
+    command: sh -c "bun install && bun run dev"
     stdin_open: true
     tty: true
     depends_on:
-      - backend
+      backend:
+        condition: service_started
 
 volumes:
   backend-media:
+  backend-static:
+  minio-data:

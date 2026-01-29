@@ -15,21 +15,50 @@ const Media = () => {
     });
 
     useEffect(() => {
+        if (!userId) {
+            console.log('Media: No userId, skipping fetch');
+            return;
+        }
+        
+        console.log('Media: Fetching posts for userId:', userId);
         axiosInstance
             .get(`/post/user/${userId}/all/?filter=media`)
             .then((response) => {
+                console.log('Media: Full API response:', response.data);
                 const { next, results } = response.data;
-                setData({ next: next, posts: results });
+                console.log('Media: Raw results:', results);
+                
+                // Фильтруем посты, которые действительно имеют изображения
+                const mediaPosts = (results || []).filter(post => {
+                    const hasImage = post.image && post.image.trim() !== '';
+                    if (!hasImage) {
+                        console.log('Media: Filtered out post without image:', post.id, post.image);
+                    }
+                    return hasImage;
+                });
+                
+                console.log('Media: Filtered media posts:', mediaPosts.length, 'from', results?.length || 0, 'total posts');
+                console.log('Media: Posts data:', mediaPosts);
+                setData({ next: next, posts: mediaPosts });
             })
-            .catch(() => alert("Не удалось загрузить посты. Проверьте соединение."));
+            .catch((error) => {
+                console.error('Media: Error loading media posts:', error);
+                console.error('Media: Error details:', error.response?.data || error.message);
+                alert("Не удалось загрузить посты. Проверьте соединение.");
+                setData({ next: null, posts: [] });
+            });
     }, [axiosInstance, userId]);
 
     const retrieveNextPosts = () => {
         const success = (response) => {
+            // Фильтруем новые посты с изображениями
+            const newMediaPosts = (response.data.results || []).filter(post => 
+                post.image && post.image.trim() !== ''
+            );
             setData((prev) => {
                 return {
                     next: response.data.next,
-                    posts: [...prev.posts, ...response.data.results],
+                    posts: [...prev.posts, ...newMediaPosts],
                 };
             });
         };
@@ -63,6 +92,8 @@ const Media = () => {
             return { ...prev, posts: newPosts };
         });
     };
+    console.log('Media: Rendering with', posts?.length || 0, 'posts');
+    
     return (
         <>
             <CardContainer

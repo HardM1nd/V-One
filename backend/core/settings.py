@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "storages",
     "accounts",
     "rest_framework",
     "rest_framework_simplejwt",
@@ -56,6 +57,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    # WhiteNoise только в production, в DEBUG статика обслуживается через Django
+    *([] if DEBUG else ["whitenoise.middleware.WhiteNoiseMiddleware"]),
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -140,7 +143,7 @@ USE_TZ = True
 
 CORS_ALLOWED_ORIGINS = _split_env(
     "CORS_ALLOWED_ORIGINS",
-    "http://localhost:3000,http://127.0.0.1:3000,http://frontend:3000",
+    "http://localhost:3000,http://127.0.0.1:3000,http://frontend:3000,http://localhost:9000,http://127.0.0.1:9000",
 )
 
 CSRF_TRUSTED_ORIGINS = _split_env("CSRF_TRUSTED_ORIGINS")
@@ -155,6 +158,15 @@ CORS_ALLOW_CREDENTIALS = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+# WhiteNoise configuration for serving static files
+# В DEBUG режиме статика обслуживается через Django, WhiteNoise используется только для сборки
+# В production WhiteNoise обслуживает статику через middleware
+if not DEBUG:
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+else:
+    # В DEBUG режиме не используем WhiteNoise storage, только для сборки
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -174,8 +186,38 @@ REST_FRAMEWORK = {
 
 AUTH_USER_MODEL = "accounts.User"
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-MEDIA_URL = "/media/"
+# Media files configuration
+USE_S3 = os.getenv("USE_S3", "False").lower() == "true"
+
+if USE_S3:
+    # MinIO/S3 storage configuration
+    AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID", "minioadmin")
+    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY", "minioadmin")
+    AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME", "media")
+    AWS_S3_ENDPOINT_URL = os.getenv("AWS_S3_ENDPOINT_URL", "http://minio:9000")
+    # Публичный URL для доступа к медиа файлам (без схемы, только хост:порт)
+    AWS_S3_PUBLIC_URL = os.getenv("AWS_S3_PUBLIC_URL", "http://localhost:9000")
+    # Используем CUSTOM_DOMAIN для правильного формирования URL
+    AWS_S3_CUSTOM_DOMAIN = os.getenv("AWS_S3_CUSTOM_DOMAIN", "localhost:9000")
+    AWS_S3_USE_SSL = os.getenv("AWS_S3_USE_SSL", "False").lower() == "true"
+    AWS_S3_USE_SIGNATURES_V2 = True
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = 'public-read'
+    AWS_S3_VERIFY = False
+    AWS_QUERYSTRING_AUTH = False
+    AWS_LOCATION = ''  # Файлы в корне bucket
+    
+    # Storage backends
+    DEFAULT_FILE_STORAGE = "core.storage.MediaStorage"
+    
+    # Media files URL - используем прокси Django для доступа к медиа файлам
+    # Storage.url() переопределяет это значение, поэтому здесь используется прокси
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = ""
+else:
+    # Local file storage
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+    MEDIA_URL = "/media/"
 
 MAX_IMAGE_SIZE = 100 * 1024 * 1024  # 100MB
 

@@ -23,7 +23,7 @@ cp .env.example .env
 ## 2. Запустите проект
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 ## 3. Откройте в браузере
@@ -37,12 +37,12 @@ docker-compose up --build
 Если нужно создать админа:
 
 ```bash
-docker-compose exec backend python manage.py createsuperuser
+docker compose exec backend python manage.py createsuperuser
 ```
 
 ## Остановка
 
 ```bash
-docker-compose down
+docker compose down
 ```
 

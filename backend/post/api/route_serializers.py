@@ -76,6 +76,21 @@ class FlightRouteSerializer(serializers.ModelSerializer):
             return naturalday(route.flight_date)
         return None
 
+    def to_representation(self, instance):
+        """Переопределяем представление для правильного формирования URL файла маршрута"""
+        representation = super().to_representation(instance)
+        
+        # Обрабатываем route_file
+        if instance.route_file:
+            try:
+                representation['route_file'] = instance.route_file.url
+            except Exception:
+                representation['route_file'] = ""
+        else:
+            representation['route_file'] = ""
+        
+        return representation
+
     def validate_waypoints(self, value):
         if isinstance(value, str):
             try:

@@ -5,6 +5,9 @@ module.exports = {
 
     theme: {
         extend: {
+            fontFamily: {
+                sans: ['"SN Pro"', 'sans-serif'],
+            },
             screens: {
                 xm: "440px",
                 xxl: "1500px",

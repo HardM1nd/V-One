@@ -7,9 +7,20 @@ User = get_user_model()
 
 
 class CreatorSerializer(serializers.ModelSerializer):
+    profile_pic = serializers.SerializerMethodField()
+    
     class Meta:
         model = User
         fields = ('id', "username", "email", "profile_pic")
+    
+    def get_profile_pic(self, obj):
+        """Возвращает URL профильного изображения"""
+        if obj.profile_pic:
+            try:
+                return obj.profile_pic.url
+            except Exception:
+                return ""
+        return ""
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -45,7 +56,12 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def get_post_creator_profile(self, comment):
         creator = comment.post.creator
-        return creator.profile_pic.url if creator.profile_pic else None
+        try:
+            if creator.profile_pic:
+                return creator.profile_pic.url
+        except Exception:
+            pass
+        return None
 
     def get_post_creator(self, comment):
         return comment.post.creator.username
@@ -89,6 +105,27 @@ class PostSerializer(serializers.ModelSerializer):
             'is_followed_by_user',
             "isEdited"
         )
+    
+    def to_representation(self, instance):
+        """Переопределяем представление для правильного формирования URL изображения"""
+        representation = super().to_representation(instance)
+        
+        # Обрабатываем image
+        if instance.image and hasattr(instance.image, 'url'):
+            try:
+                image_url = instance.image.url
+                # Проверяем, что URL не пустой
+                if image_url and image_url.strip():
+                    representation['image'] = image_url
+                else:
+                    representation['image'] = ""
+            except (ValueError, AttributeError) as e:
+                # Если файл был удален или недоступен
+                representation['image'] = ""
+        else:
+            representation['image'] = ""
+        
+        return representation
 
     def get_created(self, post):
         return naturaltime(post.created)
@@ -122,23 +159,6 @@ class PostSerializer(serializers.ModelSerializer):
         return user.following.filter(id=creator.id).exists()
 
     def get_is_followed_by_user(self, post):
-        creator = post.creator
-        user = self.context.get("request").user
-        if not user or not user.is_authenticated:
-            return False
-        return creator.following.filter(id=user.id).exists()
-
-    def get_comments(self, post):
-        return post.comments.count()
-
-    def get_saves(self, post):
-        return post.saves.count()
-
-    def create(self, validated_data):
-        user = self.context.get("request").user
-        validated_data["creator"] = validated_data.get('creator', user)
-        return super().create(validated_data)
-
         creator = post.creator
         user = self.context.get("request").user
         if not user or not user.is_authenticated:

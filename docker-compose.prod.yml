@@ -1,4 +1,42 @@
 services:
+  minio:
+    image: minio/minio:latest
+    container_name: v-one-minio-prod
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin}
+      - MINIO_SERVER_URL=${MINIO_PUBLIC_URL:-http://localhost:9000}
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: v-one-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      sleep 10;
+      /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-minioadmin};
+      /usr/bin/mc mb myminio/${MINIO_BUCKET_NAME:-media} --ignore-existing;
+      /usr/bin/mc anonymous set public myminio/${MINIO_BUCKET_NAME:-media};
+      /usr/bin/mc policy set public myminio/${MINIO_BUCKET_NAME:-media};
+      /usr/bin/mc cors set download myminio/${MINIO_BUCKET_NAME:-media} --json '{\"AllowedOrigins\":[\"*\"],\"AllowedMethods\":[\"GET\",\"PUT\",\"POST\",\"DELETE\",\"HEAD\"],\"AllowedHeaders\":[\"*\"],\"ExposeHeaders\":[\"ETag\"],\"MaxAgeSeconds\":3000}';
+      exit 0;
+      "
+    restart: "no"
+
   backend:
     build:
       context: ./backend
@@ -20,6 +58,20 @@ services:
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT:-5432}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1}
+      # MinIO настройки
+      - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER:-minioadmin}
+      - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
+      - AWS_STORAGE_BUCKET_NAME=${MINIO_BUCKET_NAME:-media}
+      - AWS_S3_ENDPOINT_URL=http://minio:9000
+      - AWS_S3_PUBLIC_URL=${MINIO_PUBLIC_URL:-http://localhost:9000}
+      - AWS_S3_CUSTOM_DOMAIN=${MINIO_CUSTOM_DOMAIN:-localhost:9000}
+      - AWS_S3_USE_SSL=False
+      - USE_S3=${USE_S3:-True}
+    depends_on:
+      minio:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
     command: >
       sh -c "python manage.py migrate &&
              python manage.py collectstatic --noinput &&
@@ -52,3 +104,4 @@ services:
 volumes:
   backend-media:
   backend-static:
+  minio-data:

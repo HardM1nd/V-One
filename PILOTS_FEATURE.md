@@ -51,8 +51,8 @@
 При первом запуске через Docker миграции будут созданы автоматически. Если нужно создать вручную:
 
 ```bash
-docker-compose exec backend python manage.py makemigrations accounts
-docker-compose exec backend python manage.py migrate
+docker compose exec backend python manage.py makemigrations accounts
+docker compose exec backend python manage.py migrate
 ```
 
 ## Использование

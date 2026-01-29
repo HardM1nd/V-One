@@ -3,6 +3,7 @@ import useUserContext from "../../contexts/UserContext";
 import usePageContext from "../../contexts/pageContext";
 import { CommentsModal, EditPostModal } from "./Modals";
 import { Link } from "react-router-dom";
+import { MoreVertical, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Card as UiCard, CardContent } from "../ui/card";
@@ -86,7 +87,7 @@ const Card = (props) => {
 
     return (
         <UiCard className="w-[598px] max-w-[95%] mt-4 post-card relative">
-            <CardContent className="p-4 grid grid-cols-[48px,_auto] gap-3">
+            <CardContent className="p-4 grid grid-cols-[48px,_auto] gap-1 space-y-3">
                 <div>
                     <Avatar>
                         <AvatarImage src={avatar || ""} alt={user} />
@@ -97,9 +98,9 @@ const Card = (props) => {
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Link
                             className="text-foreground font-medium hover:text-primary"
-                            to={user_id === creator_id ? "/profile" : `/user/${creator_id}/`}
+                            to={user_id && creator_id && Number(user_id) === Number(creator_id) ? "/profile" : `/user/${creator_id}/`}
                         >
-                            {user_id === creator_id ? "Вы" : user}
+                            {user_id && creator_id && Number(user_id) === Number(creator_id) ? "Вы" : user}
                         </Link>
                         <span>•</span>
                         <span>{formatDateTime(created_at, created)}</span>
@@ -124,9 +125,9 @@ const Card = (props) => {
                             />
                         </div>
                     )}
-                    {user_id === creator_id && (
+                    {user_id && creator_id && Number(user_id) === Number(creator_id) && (
                         <>
-                            <div className="absolute top-3 right-3">
+                            <div className="absolute top-3 right-3 flex items-center gap-1 z-10">
                                 <Button
                                     variant="ghost"
                                     size="icon"
@@ -134,17 +135,22 @@ const Card = (props) => {
                                         e.stopPropagation();
                                         setOpenOptions((prev) => !prev);
                                     }}
+                                    className="text-muted-foreground hover:text-foreground h-8 w-8"
+                                    title="Меню"
                                 >
-                                    <span className="fixed left-[30000000px]">открыть меню</span>
-                                    <iconify-icon icon="simple-line-icons:options-vertical"></iconify-icon>
+                                    <span className="sr-only">открыть меню</span>
+                                    <MoreVertical className="h-4 w-4" />
                                 </Button>
                                 {openOptions ? (
-                                    <div className="right-10 absolute top-0">
+                                    <div className="left-1 absolute top-10 z-20">
                                         <CardOptionsComponent
                                             onClose={() => setOpenOptions(false)}
                                             deletePost={handleDelete}
                                             id={id}
-                                            edit={() => setShowEditPostModal(true)}
+                                            edit={() => {
+                                                setOpenOptions(false);
+                                                setShowEditPostModal(true);
+                                            }}
                                         />
                                     </div>
                                 ) : null}

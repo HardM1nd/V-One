@@ -14,8 +14,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Копирование кода приложения
 COPY . .
 
-# Создание директории для медиа файлов
-RUN mkdir -p media
+# Создание директорий для медиа и статических файлов
+RUN mkdir -p media staticfiles
 
 EXPOSE 8000
 

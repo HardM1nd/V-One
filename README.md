@@ -15,8 +15,7 @@
 - pip или uv для управления зависимостями
 
 ### Frontend
-- Node.js >= 16.x
-- npm или yarn
+- Bun >= 1.0.0
 
 ## Быстрый запуск с Docker
 
@@ -32,16 +31,28 @@ cp .env.example .env
    - `DB_HOST` - хост удаленного сервера с БД
    - `DB_PORT` - порт (обычно 5432)
    - `DJANGO_SECRET_KEY` - секретный ключ Django
+   - `USE_S3` - использовать MinIO для хранения медиа (по умолчанию: `True`)
+   - `MINIO_ROOT_USER` - пользователь MinIO (по умолчанию: `minioadmin`)
+   - `MINIO_ROOT_PASSWORD` - пароль MinIO (по умолчанию: `minioadmin`)
+   - `MINIO_BUCKET_NAME` - имя bucket для медиа файлов (по умолчанию: `media`)
+   - `MINIO_PUBLIC_URL` - публичный URL MinIO (по умолчанию: `http://localhost:9000`)
 
-2. Запустите проект:
+2. Инициализируйте MinIO bucket (опционально, выполняется автоматически):
 ```bash
-docker-compose up --build
+docker compose --profile init up minio-init
 ```
 
-3. Проект будет доступен:
+3. Запустите проект:
+```bash
+docker compose up --build
+```
+
+4. Проект будет доступен:
    - Frontend: `http://localhost:3000`
    - Backend: `http://localhost:8000`
    - Admin панель: `http://localhost:8000/admin`
+   - MinIO Console: `http://localhost:9001` (логин/пароль из MINIO_ROOT_USER/MINIO_ROOT_PASSWORD)
+   - MinIO API: `http://localhost:9000`
 
 ## Установка и запуск без Docker
 
@@ -91,12 +102,12 @@ cd frontend
 
 2. Установите зависимости:
 ```bash
-npm install
+bun install
 ```
 
 3. Запустите сервер:
 ```bash
-npm start
+bun run dev
 ```
 
 ## API Endpoints

@@ -13,8 +13,11 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
         token["user_name"] = user.username
         try:
-            token["profile_pic"] = user.profile_pic.url
-        except:
+            if user.profile_pic:
+                token["profile_pic"] = user.profile_pic.url
+            else:
+                token["profile_pic"] = ""
+        except Exception:
             token["profile_pic"] = ""
 
         return token
@@ -57,6 +60,34 @@ class UserSerializer(serializers.ModelSerializer):
                 "write_only": True,
             },
         }
+    
+    def to_representation(self, instance):
+        """Переопределяем представление для правильного формирования URL медиа файлов"""
+        representation = super().to_representation(instance)
+        
+        # Обрабатываем profile_pic
+        if instance.profile_pic:
+            try:
+                representation['profile_pic'] = instance.profile_pic.url
+            except Exception:
+                representation['profile_pic'] = ""
+        else:
+            representation['profile_pic'] = ""
+        
+        # Обрабатываем cover_pic
+        if instance.cover_pic:
+            try:
+                # Если cover_pic - это строка (default значение), возвращаем пустую строку
+                if isinstance(instance.cover_pic, str) and not hasattr(instance.cover_pic, 'url'):
+                    representation['cover_pic'] = ""
+                else:
+                    representation['cover_pic'] = instance.cover_pic.url
+            except Exception:
+                representation['cover_pic'] = ""
+        else:
+            representation['cover_pic'] = ""
+        
+        return representation
 
     def get_followers(self, user):
         return user.followers.count()
