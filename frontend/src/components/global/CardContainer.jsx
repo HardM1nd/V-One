@@ -7,15 +7,9 @@ const CardContainer = (props) => {
     const {
         data: { posts },
     } = usePageContext();
-    // Приоритет отдаем props.posts, если они переданы (включая пустой массив)
-    // Проверяем явно, переданы ли posts через props
-    const hasPostsProp = 'posts' in props;
-    let results = hasPostsProp ? props.posts : posts;
+    const hasPostsProp = "posts" in props;
+    const results = hasPostsProp ? props.posts : posts;
     const { onLike, onSave, onComment } = props;
-    
-    // Отладка
-    console.log('CardContainer: hasPostsProp=', hasPostsProp, 'props.posts length=', props.posts?.length, 'pageContext posts length=', posts?.length);
-    console.log('CardContainer: Final results length=', results?.length || 0);
     const emptyMessage = props.emptyMessage || "Пока нет постов.";
     const emptyHint =
         props.emptyHint || "Добавьте первый пост, чтобы начать общение.";

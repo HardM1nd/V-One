@@ -149,12 +149,7 @@ const Profile = () => {
       </Card>
       <div className="w-full mx-auto pl-4">
         {currentTab === "posts" && <Posts />}
-        {currentTab === "media" && (
-          <>
-            {console.log('OtherUserDetail: Rendering Media component, userId:', userId)}
-            <Media />
-          </>
-        )}
+        {currentTab === "media" && <Media />}
         {currentTab === "following" && <Following />}
       </div>
     </div>

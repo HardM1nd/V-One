@@ -15,35 +15,15 @@ const Media = () => {
     });
 
     useEffect(() => {
-        if (!userId) {
-            console.log('Media: No userId, skipping fetch');
-            return;
-        }
-        
-        console.log('Media: Fetching posts for userId:', userId);
+        if (!userId) return;
         axiosInstance
             .get(`/post/user/${userId}/all/?filter=media`)
             .then((response) => {
-                console.log('Media: Full API response:', response.data);
                 const { next, results } = response.data;
-                console.log('Media: Raw results:', results);
-                
-                // Фильтруем посты, которые действительно имеют изображения
-                const mediaPosts = (results || []).filter(post => {
-                    const hasImage = post.image && post.image.trim() !== '';
-                    if (!hasImage) {
-                        console.log('Media: Filtered out post without image:', post.id, post.image);
-                    }
-                    return hasImage;
-                });
-                
-                console.log('Media: Filtered media posts:', mediaPosts.length, 'from', results?.length || 0, 'total posts');
-                console.log('Media: Posts data:', mediaPosts);
-                setData({ next: next, posts: mediaPosts });
+                setData({ next: next ?? null, posts: Array.isArray(results) ? results : [] });
             })
             .catch((error) => {
-                console.error('Media: Error loading media posts:', error);
-                console.error('Media: Error details:', error.response?.data || error.message);
+                console.error("Media: failed to load", error?.response?.data ?? error.message);
                 alert("Не удалось загрузить посты. Проверьте соединение.");
                 setData({ next: null, posts: [] });
             });
@@ -51,16 +31,9 @@ const Media = () => {
 
     const retrieveNextPosts = () => {
         const success = (response) => {
-            // Фильтруем новые посты с изображениями
-            const newMediaPosts = (response.data.results || []).filter(post => 
-                post.image && post.image.trim() !== ''
-            );
-            setData((prev) => {
-                return {
-                    next: response.data.next,
-                    posts: [...prev.posts, ...newMediaPosts],
-                };
-            });
+            const nextPage = response.data?.next ?? null;
+            const newResults = Array.isArray(response.data?.results) ? response.data.results : [];
+            setData((prev) => ({ next: nextPage, posts: [...prev.posts, ...newResults] }));
         };
         if (!next) return;
         getNextItems(next, success);
@@ -92,8 +65,7 @@ const Media = () => {
             return { ...prev, posts: newPosts };
         });
     };
-    console.log('Media: Rendering with', posts?.length || 0, 'posts');
-    
+
     return (
         <>
             <CardContainer

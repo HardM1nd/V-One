@@ -7,7 +7,7 @@ import { MoreVertical, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Card as UiCard, CardContent } from "../ui/card";
-import { formatDateTime } from "../../lib/utils";
+import { formatDateTime, getMediaUrl } from "../../lib/utils";
 
 const CardOptionsComponent = ({ deletePost, edit, onClose }) => {
     useEffect(() => {
@@ -90,7 +90,7 @@ const Card = (props) => {
             <CardContent className="p-4 grid grid-cols-[48px,_auto] gap-1 space-y-3">
                 <div>
                     <Avatar>
-                        <AvatarImage src={avatar || ""} alt={user} />
+                        <AvatarImage src={getMediaUrl(avatar || "")} alt={user} />
                         <AvatarFallback>{user?.at(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                 </div>
@@ -118,7 +118,7 @@ const Card = (props) => {
                     {card_image && !imageError && (
                         <div className="pt-1">
                             <img
-                                src={card_image}
+                                src={getMediaUrl(card_image)}
                                 className="max-h-[65vh] w-full rounded-xl object-cover"
                                 alt="пост"
                                 onError={() => setImageError(true)}
