@@ -93,7 +93,7 @@ const SideNav = (props) => {
                 ${!open ? "hidden lg:flex" : "flex"}
             `}
             >
-            <h1 className="font-bold italic">V-one</h1>
+            <h1 className="font-bold">V-one</h1>
             </header>
             <nav className="flex flex-col py-2 flex-grow overflow-y-auto overflow-x-hidden">
             <button
