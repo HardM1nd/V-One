@@ -36,10 +36,10 @@ const Routes = () => {
 
 
     return (
-        <div className="w-[599px] max-w-[99%] mt-1 mx-auto">
+        <div className="w-[599px] max-w-[99%] mt-3 mx-auto">
             <Card className="mb-4">
                 <CardContent className="p-4 space-y-3">
-                    <div className="flex items-center justify-between gap-4 flex-wrap">
+                    <div className="mt-3 flex items-center justify-between gap-4 flex-wrap">
                         <h2 className="text-2xl font-bold">✈️ Маршруты</h2>
                         {user && (
                             <Button onClick={() => setQueryParams({ tab: "create" })}>

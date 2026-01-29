@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
+import { getMediaUrl } from "../../lib/utils";
 
 const RouteDetail = () => {
     const { routeId } = useParams();
@@ -208,16 +209,19 @@ const RouteDetail = () => {
     return (
         <div className="w-[599px] max-w-[99%] mt-1 mx-auto">
             <Card>
-                <CardContent className="p-6">
+                <CardContent className="mt-1 p-6">
                     <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
-                            <Avatar className="h-12 w-12">
-                                <AvatarImage src={route.pilot?.profile_pic || ""} alt={route.pilot?.username} />
+                            <Avatar className="mt-3 h-12 w-12">
+                                <AvatarImage
+                                    src={route.pilot?.profile_pic ? getMediaUrl(route.pilot.profile_pic) : ""}
+                                    alt={route.pilot?.username}
+                                />
                                 <AvatarFallback>
                                     {route.pilot?.username?.charAt(0).toUpperCase()}
                                 </AvatarFallback>
                             </Avatar>
-                            <div>
+                            <div className="mt-3">
                                 <Link
                                     to={`/user/${route.pilot?.id}/`}
                                     className="text-lg font-semibold hover:text-primary"

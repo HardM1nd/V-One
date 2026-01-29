@@ -1,15 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useUserContext from "../../contexts/UserContext";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
+import { getMediaUrl } from "../../lib/utils";
 
 const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
-    const { axiosInstance } = useUserContext();
+    const { axiosInstance, user } = useUserContext();
     const navigate = useNavigate();
-    
+    const [loading, setLoading] = useState(false);
+
+    const isOwner = user && route && user.id === route.pilot?.id;
+
     const handleLike = async (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -18,7 +22,6 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
         } else {
             try {
                 await axiosInstance.post(`post/routes/${route.id}/like/`);
-                // Обновление будет через родительский компонент
             } catch (error) {
                 console.error("Error liking route:", error);
             }
@@ -39,22 +42,29 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
         }
     };
 
-    const formatDuration = (duration) => {
-        if (!duration) return null;
-        // Предполагаем формат "HH:MM:SS" или количество секунд
-        const parts = duration.split(':');
-        if (parts.length === 3) {
-            const hours = parseInt(parts[0]);
-            const minutes = parseInt(parts[1]);
-            if (hours > 0) {
-                return `${hours}ч ${minutes}м`;
-            }
-            return `${minutes}м`;
-        }
-        return duration;
-    };
+    const handleDelete = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
 
-    const waypointCount = Array.isArray(route.waypoints) ? route.waypoints.length : 0;
+        if (!isOwner) {
+            alert("У вас нет прав на удаление этого маршрута");
+            return;
+        }
+
+        if (!window.confirm("Вы уверены, что хотите удалить этот маршрут?")) return;
+
+        try {
+            setLoading(true);
+            await axiosInstance.delete(`post/routes/${route.id}/delete/`);
+            alert("Маршрут удалён");
+            navigate("/routes/?tab=my");
+        } catch (error) {
+            console.error("Ошибка при удалении маршрута:", error);
+            alert("Не удалось удалить маршрут");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleCopyLink = async (e) => {
         e.preventDefault();
@@ -69,6 +79,19 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
         }
     };
 
+    const formatDuration = (duration) => {
+        if (!duration) return null;
+        const parts = duration.split(":");
+        if (parts.length === 3) {
+            const hours = parseInt(parts[0]);
+            const minutes = parseInt(parts[1]);
+            return hours > 0 ? `${hours}ч ${minutes}м` : `${minutes}м`;
+        }
+        return duration;
+    };
+
+    const waypointCount = Array.isArray(route.waypoints) ? route.waypoints.length : 0;
+
     return (
         <Card
             role="button"
@@ -82,13 +105,21 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
             className="transition hover:bg-accent/40 mb-3 cursor-pointer"
         >
             <CardContent className="p-4">
-                <div className="flex items-start gap-4">
-                    <Avatar className="h-12 w-12">
-                        <AvatarImage src={route.pilot?.profile_pic || ""} alt={route.pilot?.username} />
+                <div className="mt-2 flex items-start gap-4">
+                    <Avatar className="mt-5 h-12 w-12">
+                        <AvatarImage
+                            src={
+                                route.pilot?.profile_pic
+                                    ? getMediaUrl(route.pilot.profile_pic)
+                                    : ""
+                            }
+                            alt={route.pilot?.username}
+                        />
                         <AvatarFallback>
                             {route.pilot?.username?.charAt(0).toUpperCase()}
                         </AvatarFallback>
                     </Avatar>
+
                     <div className="flex-1">
                         <div className="flex items-start justify-between mb-2">
                             <div>
@@ -100,14 +131,6 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                                             navigate(`/user/${route.pilot?.id}/`);
                                         }}
                                         className="hover:text-primary cursor-pointer"
-                                        role="link"
-                                        tabIndex={0}
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Enter" || e.key === " ") {
-                                                e.stopPropagation();
-                                                navigate(`/user/${route.pilot?.id}/`);
-                                            }
-                                        }}
                                     >
                                         @{route.pilot?.username}
                                     </span>
@@ -119,6 +142,7 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                                     )}
                                 </div>
                             </div>
+
                             {showActions && (
                                 <div className="flex gap-1">
                                     <Button
@@ -128,8 +152,15 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                                         className={route.is_liked ? "text-red-500" : ""}
                                         onClick={handleLike}
                                     >
-                                        <iconify-icon icon={route.is_liked ? "bi:heart-fill" : "bi:heart"} />
+                                        <iconify-icon
+                                            icon={
+                                                route.is_liked
+                                                    ? "bi:heart-fill"
+                                                    : "bi:heart"
+                                            }
+                                        />
                                     </Button>
+
                                     <Button
                                         variant="ghost"
                                         size="icon"
@@ -137,8 +168,15 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                                         className={route.is_saved ? "text-blue-500" : ""}
                                         onClick={handleSave}
                                     >
-                                        <iconify-icon icon={route.is_saved ? "bi:bookmark-fill" : "bi:bookmark"} />
+                                        <iconify-icon
+                                            icon={
+                                                route.is_saved
+                                                    ? "bi:bookmark-fill"
+                                                    : "bi:bookmark"
+                                            }
+                                        />
                                     </Button>
+
                                     <Button
                                         variant="ghost"
                                         size="icon"
@@ -147,6 +185,19 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                                     >
                                         <iconify-icon icon="bi:link-45deg" />
                                     </Button>
+
+                                    {isOwner && (
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            title="Удалить маршрут"
+                                            onClick={handleDelete}
+                                            disabled={loading}
+                                            className="text-destructive"
+                                        >
+                                            <iconify-icon icon="bi:trash" />
+                                        </Button>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -174,20 +225,28 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                                 <Badge variant="outline">{route.aircraft_type}</Badge>
                             )}
                             {waypointCount > 1 && (
-                                <Badge variant="outline">Точек: {waypointCount}</Badge>
+                                <Badge variant="outline">
+                                    Точек: {waypointCount}
+                                </Badge>
                             )}
                             {route.flight_date_display && (
                                 <span>📅 {route.flight_date_display}</span>
                             )}
                             {route.flight_duration && (
-                                <span>⏱️ {formatDuration(route.flight_duration)}</span>
+                                <span>
+                                    ⏱️ {formatDuration(route.flight_duration)}
+                                </span>
                             )}
                             {route.distance && (
-                                <span>📏 {parseFloat(route.distance).toFixed(0)} км</span>
-                            )}
-                            {(route.likes_count > 0 || route.saves_count > 0) && (
                                 <span>
-                                    ❤️ {route.likes_count || 0} · 🔖 {route.saves_count || 0}
+                                    📏 {parseFloat(route.distance).toFixed(0)} км
+                                </span>
+                            )}
+                            {(route.likes_count > 0 ||
+                                route.saves_count > 0) && (
+                                <span>
+                                    ❤️ {route.likes_count || 0} · 🔖{" "}
+                                    {route.saves_count || 0}
                                 </span>
                             )}
                         </div>

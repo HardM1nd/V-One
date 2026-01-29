@@ -14,7 +14,7 @@ const navElement = [
     {
         key: "pilots",
         label: "Пилоты",
-        icon: "material-symbols:flight-outline",
+        icon: "material-symbols:flight",
         href: "/pilots",
     },
     {
@@ -85,30 +85,32 @@ const SideNav = (props) => {
             }`}
         >
             <header
-                className={`flex bg-muted/60 w-[100%] h-14 lg:scale-[1_!important] transition origin-left duration-500 justify-center gap-4 border-b text-2xl text-primary items-center ${
-                    !open && "scale-0"
-                }`}
+            className={`
+                flex bg-muted/60 w-full h-14 justify-center gap-4
+                border-b border-border dark:border-muted-foreground/20
+                text-2xl text-primary items-center
+                transition-all duration-300
+                ${!open ? "hidden lg:flex" : "flex"}
+            `}
             >
-                <h1 className="font-bold italic">V-one</h1>
+            <h1 className="font-bold italic">V-one</h1>
             </header>
-            <nav className="flex flex-col py-2 flex-grow overflow-y-scroll overflow-x-hidden">
-                <button
-                    className={`lg:hidden transition duration-300 rotate top-3 sm:top-4 text-primary sm:absolute sm:left-auto sm:right-2 ${
-                        open
-                            ? "sm:rotate-[720deg] absolute left-auto right-2"
-                            : "fixed left-4 sm:absolute sm:left-auto sm:right-2"
-                    }`}
-                    onClick={() => setShowSidebar((p) => !p)}
-                    aria-hidden="true"
+            <nav className="flex flex-col py-2 flex-grow overflow-y-auto overflow-x-hidden">
+            <button
+                className={`lg:hidden transition duration-300 top-3 sm:top-4 text-primary absolute
+                    ${open ? "right-2 rotate-[720deg]" : "left-4"}
+                `}
+                onClick={() => setShowSidebar((p) => !p)}
+                aria-hidden="true"
+            >
+                <iconify-icon
+                    icon="charm:menu-hamburger"
+                    rotate={open ? "180deg" : ""}
+                    width="30px"
                 >
-                    <iconify-icon
-                        icon="charm:menu-hamburger"
-                        rotate={open ? "180deg" : ""}
-                        width="30px"
-                    >
-                        Открыть меню
-                    </iconify-icon>
-                </button>
+                    Открыть меню
+                </iconify-icon>
+            </button>
                 {navElement.map((el) => {
                     const activeClass =
                         el.key === cur

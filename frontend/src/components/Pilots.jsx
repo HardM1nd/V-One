@@ -6,6 +6,7 @@ import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
+import { getMediaUrl } from "../lib/utils";
 
 const Pilots = () => {
     const { axiosInstance, user } = useUserContext();
@@ -162,13 +163,16 @@ const Pilots = () => {
                                 className="transition hover:bg-accent/40"
                             >
                                 <CardContent className="p-4">
-                                    <div className="flex items-start gap-4">
-                                        <Avatar className="h-14 w-14">
-                                            <AvatarImage src={pilot.profile_pic || ""} alt={pilot.username} />
-                                            <AvatarFallback>
-                                                {pilot.username?.charAt(0).toUpperCase()}
-                                            </AvatarFallback>
-                                        </Avatar>
+                                    <div className="mt-4 flex items-start gap-4">
+                                <Avatar className="h-14 w-14">
+                                    <AvatarImage
+                                        src={pilot?.profile_pic ? getMediaUrl(pilot.profile_pic) : ""}
+                                        alt={pilot?.username}
+                                    />
+                                    <AvatarFallback>
+                                        {pilot?.username?.charAt(0).toUpperCase()}
+                                    </AvatarFallback>
+                                </Avatar>
                                         <div className="flex-1">
                                             <div className="flex items-start justify-between gap-2 mb-2">
                                                 <div className="flex items-center gap-2">

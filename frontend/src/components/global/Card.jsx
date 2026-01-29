@@ -88,7 +88,7 @@ const Card = (props) => {
     return (
         <UiCard className="w-[598px] max-w-[95%] mt-4 post-card relative">
             <CardContent className="p-4 grid grid-cols-[48px,_auto] gap-1 space-y-3">
-                <div>
+                <div className="mt-4">
                     <Avatar>
                         <AvatarImage src={getMediaUrl(avatar || "")} alt={user} />
                         <AvatarFallback>{user?.at(0).toUpperCase()}</AvatarFallback>

@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
+import { getMediaUrl } from "../../lib/utils";
 
 const Profile = () => {
   const { profileData } = useUserContext();
@@ -57,18 +58,25 @@ const Profile = () => {
         <div className="h-[270px] w-full relative">
           <div className="h-[200px]">
             {showCover ? (
-              <img src={cover_pic} alt="cover" className="w-full h-full object-cover" />
+              <img
+                src={getMediaUrl(cover_pic)}
+                alt="cover"
+                className="w-full h-full object-cover"
+              />
             ) : (
               <div className="w-full h-full bg-muted" />
             )}
           </div>
           <div className="absolute top-1/2 left-2">
-            <Avatar className="h-[136px] w-[136px] border-4 border-primary">
-              <AvatarImage src={profile_pic || ""} alt={username} />
+          <Avatar className="h-[136px] w-[136px] border-4 border-primary">
+              <AvatarImage
+                  src={profile_pic ? getMediaUrl(profile_pic) : ""}
+                  alt={username}
+              />
               <AvatarFallback className="text-4xl">
-                {username && username.at(0).toUpperCase()}
+                  {username && username.at(0).toUpperCase()}
               </AvatarFallback>
-            </Avatar>
+          </Avatar>
           </div>
         </div>
         <CardContent className="p-4 flex flex-col gap-2">

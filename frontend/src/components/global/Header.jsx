@@ -4,6 +4,7 @@ import { useLocation, Link } from "react-router-dom";
 import useThemeContext from "../../contexts/themeContext";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
+import { getMediaUrl } from "../../lib/utils";
 
 const Header = (props) => {
     const {
@@ -103,12 +104,10 @@ const Header = (props) => {
                     <Link to="/profile/" className="cursor-pointer">
                         <Avatar>
                             <AvatarImage
-                                src={user && profile_pic ? profile_pic : ""}
-                                alt={user && username}
+                            src={user && profile_pic ? getMediaUrl(profile_pic) : ""}
+                            alt={user && username
+                            }
                             />
-                            <AvatarFallback>
-                                {username && username.at(0).toUpperCase()}
-                            </AvatarFallback>
                         </Avatar>
                     </Link>
                     <Link to="/profile/" className="cursor-pointer">
