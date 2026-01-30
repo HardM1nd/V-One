@@ -104,10 +104,12 @@ const Header = (props) => {
                     <Link to="/profile/" className="cursor-pointer">
                         <Avatar>
                             <AvatarImage
-                            src={user && profile_pic ? getMediaUrl(profile_pic) : ""}
-                            alt={user && username
-                            }
+                                src={user && profile_pic ? getMediaUrl(profile_pic) : ""}
+                                alt={username}
                             />
+                            <AvatarFallback>
+                                {username?.charAt(0).toUpperCase()}
+                            </AvatarFallback>
                         </Avatar>
                     </Link>
                     <Link to="/profile/" className="cursor-pointer">
@@ -122,4 +124,3 @@ const Header = (props) => {
 };
 
 export default Header;
-
