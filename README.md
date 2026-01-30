@@ -157,3 +157,25 @@ frontend/
 - Для продакшена обязательно установите `DJANGO_SECRET_KEY` в переменных окружения
 - `DEBUG=True` используется только для разработки
 - По умолчанию используется SQLite, для продакшена рекомендуется PostgreSQL
+
+## Демонстрация функционала
+
+### Регистрация
+
+<img width="557" height="364" alt="Screenshot 2026-01-30 201036" src="https://github.com/user-attachments/assets/5eb54462-b869-4ac6-a2a3-b4a013eb8fe8" />
+
+### Публикация постов
+
+<img width="623" height="654" alt="Screenshot 2026-01-30 201940" src="https://github.com/user-attachments/assets/24e05480-d098-48ef-9e6c-6566099476ca" />
+
+### Система уведомлений
+
+<img width="613" height="311" alt="image" src="https://github.com/user-attachments/assets/d5756a06-0cf5-4179-b503-ab3a51a02914" />
+
+### Пользовательские маршруты
+
+<img width="619" height="370" alt="image" src="https://github.com/user-attachments/assets/f232b16e-3077-49eb-b967-66e2ffdb9d69" />
+
+### Система профилей
+
+<img width="622" height="611" alt="image" src="https://github.com/user-attachments/assets/dffd0aa5-9548-4b82-b2ea-d5f97b341025" />
