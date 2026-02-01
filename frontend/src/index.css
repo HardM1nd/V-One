@@ -49,6 +49,30 @@
     --ring: 263 70% 50%;
 }
 
+/* Полоса прокрутки в тёмной теме */
+.dark {
+    scrollbar-color: hsl(217 32% 28%) hsl(222 84% 6%);
+    scrollbar-width: thin;
+}
+
+.dark ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.dark ::-webkit-scrollbar-track {
+    background: hsl(222 84% 6%);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: hsl(217 32% 28%);
+    border-radius: 5px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: hsl(217 32% 35%);
+}
+
 
 
 
