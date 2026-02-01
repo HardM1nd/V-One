@@ -48,8 +48,7 @@ const AirportSearch = ({
         const value = typeof newInputValue === "string" ? newInputValue : event.target.value;
         setInputValue(value);
         onChange(value);
-        
-        // Если введены координаты в формате "lat, lng"
+
         const coordMatch = value.match(/^(-?\d+\.?\d*),\s*(-?\d+\.?\d*)$/);
         if (coordMatch) {
             const lat = parseFloat(coordMatch[1]);

@@ -47,7 +47,7 @@ const Routes = () => {
                             </Button>
                         )}
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex justify-center gap-2">
                         {[
                             { label: "Все", value: "all" },
                             ...(user ? [{ label: "Мои", value: "my" }] : []),

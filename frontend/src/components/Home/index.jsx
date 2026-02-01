@@ -57,7 +57,7 @@ const Home = () => {
             )}
             <div className="w-[599px] max-w-[99%] mt-6">
                 <Card className="mb-4">
-                    <CardContent className="p-4">
+                    <CardContent className="mt-4 p-4">
                         <h3 className="text-xl font-bold">🛫 Активность в маршрутах</h3>
                         <p className="text-sm text-muted-foreground">
                             Последние маршруты пилотов, на которых вы подписаны

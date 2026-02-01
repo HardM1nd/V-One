@@ -142,7 +142,7 @@ const RouteList = ({ endpoint, pilotId = null, showFilters = true }) => {
             {showFilters && (
                 <Card className="mb-4">
                     <CardContent className="p-4 space-y-3">
-                        <div className="mt-3 flex items-center gap-3">
+                        <div className="mt-3 flex justify-center gap-3">
                             <Button
                                 variant="outline"
                                 onClick={() => setFiltersOpen((prev) => !prev)}

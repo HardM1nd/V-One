@@ -90,7 +90,7 @@ const TweetForm = () => {
         };
     });
     return (
-        <Card className="w-[95%] max-w-[598px] mt-3">
+        <Card className="w-[95%] max-w-[598px] mt-4">
             <CardContent className="p-4 grid grid-cols-[48px,_auto] gap-3">
                 <div className="mt-3">
                     <Avatar>

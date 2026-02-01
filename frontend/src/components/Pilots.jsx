@@ -49,8 +49,6 @@ const Pilots = () => {
                 return "secondary";
             case "real":
                 return "success";
-            case "both":
-                return "default";
             default:
                 return "outline";
         }
@@ -81,7 +79,7 @@ const Pilots = () => {
     };
 
     return (
-        <div className="w-[599px] max-w-[99%] mt-1 mx-auto">
+        <div className="w-[599px] max-w-[99%] mt-4 mx-auto">
             <Card className="bg-card p-4">
                 <h2 className="text-2xl font-bold dark:text-gray-100 mb-4">
                     ✈️ Сообщество пилотов
@@ -92,7 +90,7 @@ const Pilots = () => {
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Поиск пилотов"
-                        className="min-w-[200px]"
+                        className="mb-4 min-w-[200px]"
                     />
                     <Button
                         type="button"
@@ -117,14 +115,6 @@ const Pilots = () => {
                         size="sm"
                     >
                         Реальные
-                    </Button>
-                    <Button
-                        type="button"
-                        onClick={() => setFilter("both")}
-                        variant={filter === "both" ? "default" : "outline"}
-                        size="sm"
-                    >
-                        Оба типа
                     </Button>
                 </div>
 
@@ -174,7 +164,7 @@ const Pilots = () => {
                                     </AvatarFallback>
                                 </Avatar>
                                         <div className="flex-1">
-                                            <div className="flex items-start justify-between gap-2 mb-2">
+                                            <div className="flex items-start justify-between gap-2mb-2">
                                                 <div className="flex items-center gap-2">
                                                     <h3 className="text-lg font-semibold">
                                                         @{pilot.username}

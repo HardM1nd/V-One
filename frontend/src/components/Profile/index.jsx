@@ -12,6 +12,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { getMediaUrl } from "../../lib/utils";
+import { Pencil } from "lucide-react";
 
 const Profile = () => {
   const { profileData } = useUserContext();
@@ -39,7 +40,7 @@ const Profile = () => {
     { value: "media", label: "Медиа" },
     { value: "following", label: "Подписки" },
     { value: "routes", label: "Маршруты" },
-    { value: "update", label: "Редактировать" },
+    { value: "update", label: <Pencil className="h-4 w-4" />, iconOnly: true },
   ];
 
   useEffect(() => {
@@ -80,10 +81,10 @@ const Profile = () => {
           </div>
         </div>
         <CardContent className="p-4 flex flex-col gap-2">
-          <p className="capitalize text-lg">@{username}</p>
+          <p className="mt-3 capitalize text-lg">@{username}</p>
           <div className="text-sm text-muted-foreground">в сети с {date_joined}</div>
           {pilot_type_display && (
-            <Badge variant="secondary">✈️ {pilot_type_display}</Badge>
+            <Badge className="w-40 justify-center" variant="secondary">✈️ {pilot_type_display}</Badge>
           )}
           {flight_hours > 0 && (
             <div className="text-sm text-muted-foreground">
@@ -112,7 +113,7 @@ const Profile = () => {
         </CardContent>
       </Card>
       <Card className="sticky top-0 z-10">
-        <CardContent className="p-3 flex flex-wrap gap-2">
+        <CardContent className="mt-4 p-3 flex flex-wrap justify-center gap-2">
           {tabs.map((tab) => (
             <Button
               key={tab.value}
@@ -120,6 +121,7 @@ const Profile = () => {
               size="sm"
               variant={currentTab === tab.value ? "default" : "outline"}
               onClick={() => handleChange(tab.value)}
+              aria-label={tab.value === "update" ? "Редактировать профиль" : undefined}
             >
               {tab.label}
             </Button>

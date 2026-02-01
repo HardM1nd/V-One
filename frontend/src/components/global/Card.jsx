@@ -16,7 +16,7 @@ const CardOptionsComponent = ({ deletePost, edit, onClose }) => {
     }, [onClose]);
 
     return (
-        <div className="flex flex-col items-start rounded-md text-sm w-24 border bg-card shadow">
+        <div className="flex flex-col items-start rounded-md text-sm border bg-card shadow">
             <button
                 className="flex gap-2 justify-between p-2 w-full hover:bg-accent"
                 onClick={edit}
@@ -142,7 +142,7 @@ const Card = (props) => {
                                     <MoreVertical className="h-4 w-4" />
                                 </Button>
                                 {openOptions ? (
-                                    <div className="left-1 absolute top-10 z-20">
+                                    <div className="right-1 absolute top-10 z-20">
                                         <CardOptionsComponent
                                             onClose={() => setOpenOptions(false)}
                                             deletePost={handleDelete}

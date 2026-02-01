@@ -12,8 +12,8 @@ const UserProfileCard = (props) => {
         profileData: { id: userId },
     } = useUserContext();
     return (
-        <Card className="mt-2">
-            <CardContent className="p-3 flex gap-3 items-center">
+        <Card>
+            <CardContent className="mt-3 p-3 flex gap-3 items-center">
             <Avatar>
                 <AvatarImage
                     src={profile_pic ? getMediaUrl(profile_pic) : ""}
