@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import useUserContext from "../../contexts/UserContext";
 import RouteForm from "./RouteForm";
 import RouteMap from "./RouteMap";
@@ -12,6 +12,7 @@ import { getMediaUrl } from "../../lib/utils";
 const RouteDetail = () => {
     const { routeId } = useParams();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const { axiosInstance, user } = useUserContext();
     const [route, setRoute] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -33,6 +34,13 @@ const RouteDetail = () => {
     useEffect(() => {
         fetchRoute();
     }, [fetchRoute]);
+
+    const currentUserId = user?.user_id ?? user?.id;
+    useEffect(() => {
+        if (route && searchParams.get("edit") === "1" && currentUserId != null && Number(route.pilot?.id) === Number(currentUserId)) {
+            setEditing(true);
+        }
+    }, [route, searchParams, currentUserId]);
 
     const handleLike = async () => {
         try {
@@ -180,7 +188,7 @@ const RouteDetail = () => {
         return `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${routeParam}`;
     };
 
-    const isOwner = user && route && user.id === route.pilot?.id;
+    const isOwner = currentUserId != null && route && Number(currentUserId) === Number(route.pilot?.id);
 
     if (loading) {
         return (

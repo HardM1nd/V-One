@@ -48,21 +48,8 @@ services:
       - ./backend:/app
       - backend-media:/app/media
       - backend-static:/app/staticfiles
-    environment:
-      - DEBUG=True
-      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-django-insecure-dev-key-change-in-production}
-      # Используем SQLite внутри контейнера для локальной разработки
-      - USE_SQLITE=True
-      - ALLOWED_HOSTS=localhost,127.0.0.1,backend
-      # MinIO настройки
-      - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER:-minioadmin}
-      - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
-      - AWS_STORAGE_BUCKET_NAME=${MINIO_BUCKET_NAME:-media}
-      - AWS_S3_ENDPOINT_URL=http://minio:9000
-      - AWS_S3_PUBLIC_URL=${MINIO_PUBLIC_URL:-http://localhost:9000}
-      - AWS_S3_CUSTOM_DOMAIN=${MINIO_CUSTOM_DOMAIN:-localhost:9000}
-      - AWS_S3_USE_SSL=False
-      - USE_S3=${USE_S3:-True}
+    env_file: 
+      - .env
     depends_on:
       minio:
         condition: service_healthy

@@ -1,18 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useUserContext from "../../contexts/UserContext";
+import { MoreVertical } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { getMediaUrl } from "../../lib/utils";
 
+const RouteCardOptionsComponent = ({ onEdit, onDelete, onClose }) => {
+    useEffect(() => {
+        window.addEventListener("click", onClose);
+        return () => window.removeEventListener("click", onClose);
+    }, [onClose]);
+
+    return (
+        <div className="flex flex-col items-start rounded-md text-sm border bg-card shadow z-20">
+            <button
+                type="button"
+                className="flex gap-2 justify-between p-2 w-full hover:bg-accent"
+                onClick={onEdit}
+            >
+                <span>Редактировать</span>
+                <iconify-icon icon="material-symbols:edit" />
+            </button>
+            <div className="w-full h-px bg-border" />
+            <button
+                type="button"
+                className="flex gap-2 justify-between p-2 w-full hover:bg-accent text-destructive"
+                onClick={onDelete}
+            >
+                <span>Удалить</span>
+                <iconify-icon icon="material-symbols:delete-rounded" />
+            </button>
+        </div>
+    );
+};
+
 const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
     const { axiosInstance, user } = useUserContext();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [openOptions, setOpenOptions] = useState(false);
 
-    const isOwner = user && route && user.id === route.pilot?.id;
+    const currentUserId = user?.user_id ?? user?.id;
+    const isOwner = currentUserId != null && route && Number(currentUserId) === Number(route.pilot?.id);
 
     const handleLike = async (e) => {
         e.preventDefault();
@@ -64,6 +96,13 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleEdit = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setOpenOptions(false);
+        navigate(`/route/${route.id}?edit=1`);
     };
 
     const handleCopyLink = async (e) => {
@@ -144,7 +183,7 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                             </div>
 
                             {showActions && (
-                                <div className="flex gap-1">
+                                <div className="flex gap-1 relative">
                                     <Button
                                         variant="ghost"
                                         size="icon"
@@ -187,16 +226,31 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                                     </Button>
 
                                     {isOwner && (
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            title="Удалить маршрут"
-                                            onClick={handleDelete}
-                                            disabled={loading}
-                                            className="text-destructive"
-                                        >
-                                            <iconify-icon icon="bi:trash" />
-                                        </Button>
+                                        <>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    setOpenOptions((prev) => !prev);
+                                                }}
+                                                className="text-muted-foreground hover:text-foreground h-8 w-8"
+                                                title="Меню"
+                                            >
+                                                <span className="sr-only">Меню</span>
+                                                <MoreVertical className="h-4 w-4" />
+                                            </Button>
+                                            {openOptions && (
+                                                <div className="absolute right-1 top-12 z-20">
+                                                    <RouteCardOptionsComponent
+                                                        onClose={() => setOpenOptions(false)}
+                                                        onEdit={handleEdit}
+                                                        onDelete={handleDelete}
+                                                    />
+                                                </div>
+                                            )}
+                                        </>
                                     )}
                                 </div>
                             )}
