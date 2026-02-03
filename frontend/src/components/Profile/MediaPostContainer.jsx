@@ -38,7 +38,7 @@ const MediaPostContainer = () => {
                 emptyHint="Добавьте изображение к посту."
             />
             {getNextUrl() && (
-                <Button variant="outline" className="mt-6" onClick={retrieveNextPost}>
+                <Button variant="outline" className="mt-4" onClick={retrieveNextPost}>
                     Показать еще
                 </Button>
             )}

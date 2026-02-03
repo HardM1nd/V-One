@@ -45,7 +45,7 @@ const Explore = () => {
                 emptyHint="Попробуйте обновить страницу чуть позже."
             />
             {getNextUrl() && (
-                <Button variant="outline" className="mt-6" onClick={retrieveNextPost}>
+                <Button variant="outline" className="mt-4" onClick={retrieveNextPost}>
                     Показать еще
                 </Button>
             )}

@@ -37,7 +37,7 @@ const ProfilePostContainer = () => {
                 emptyHint="Создайте первый пост в ленте."
             />
             {getNextUrl() && (
-                <Button variant="outline" className="mt-6" onClick={retrieveNextPost}>
+                <Button variant="outline" className="mt-4" onClick={retrieveNextPost}>
                     Показать еще
                 </Button>
             )}

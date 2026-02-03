@@ -161,7 +161,7 @@ const Notifications = () => {
                             );
                         })}
                         {nextUrl && (
-                            <div className="flex justify-center pt-2">
+                            <div className="mt-4 flex justify-center pt-2">
                                 <Button variant="outline" onClick={loadMore}>
                                     Показать еще
                                 </Button>

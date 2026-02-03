@@ -38,7 +38,7 @@ const Saved = () => {
                 emptyHint="Сохраняйте посты, чтобы вернуться к ним позже."
             />
             {getNextUrl() && (
-                <Button variant="outline" className="mt-6" onClick={retrieveNextPost}>
+                <Button variant="outline" className="mt-4" onClick={retrieveNextPost}>
                     Показать еще
                 </Button>
             )}

@@ -77,7 +77,7 @@ const Media = () => {
                 emptyHint="Здесь появятся посты с изображениями."
             />
             {next && (
-                <div className="flex flex-col items-center w-full">
+                <div className="mt-4 flex flex-col items-center w-full">
                     <Button variant="outline" onClick={retrieveNextPosts}>
                         Показать еще
                     </Button>

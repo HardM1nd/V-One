@@ -223,7 +223,7 @@ const CommentsModal = ({ id, open, close, onComment }) => {
                             );
                         })}
                         {next && (
-                            <div className="flex flex-col items-center w-full">
+                            <div className="mt-4 flex flex-col items-center w-full">
                                 <Button variant="outline" onClick={retrieveNextComments}>
                                     Показать еще
                                 </Button>

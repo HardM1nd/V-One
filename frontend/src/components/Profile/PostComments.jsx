@@ -38,7 +38,7 @@ const PostComments = () => {
                 return <PostCommentCard {...comment} key={comment.id}></PostCommentCard>;
             })}
             {next && (
-                <div className="flex flex-col items-center w-full">
+                <div className="mt-4 flex flex-col items-center w-full">
                     <Button variant="outline" onClick={retrieveNextComments}>
                         Показать еще
                     </Button>
