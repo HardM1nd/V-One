@@ -11,12 +11,12 @@ const CommentForm = ({ handleSubmit }) => {
     } = useUserContext();
     return (
         <Card className="w-full">
-            <CardContent className="p-3 flex gap-2">
+            <CardContent className="mt-4 p-3 flex gap-2">
                 <Avatar>
                     <AvatarImage src={profile_pic || ""} alt={username} />
                     <AvatarFallback>{username && username.at(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
-                <form className="flex-1 flex flex-col focus:outline-0 gap-3" onSubmit={handleSubmit}>
+                <form className="pl-2 flex-1 flex flex-col focus:outline-0 gap-3" onSubmit={handleSubmit}>
                     <label htmlFor="commentText" className="fixed -top-[200000px]">
                         Комментарий
                     </label>
