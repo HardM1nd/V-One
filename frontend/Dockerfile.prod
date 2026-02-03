@@ -4,7 +4,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Install bun
-RUN apk add --no-cache curl unzip && \
+RUN apk add --no-cache bash curl unzip && \
     curl -fsSL https://bun.sh/install | bash && \
     mv /root/.bun/bin/bun /usr/local/bin/bun && \
     chmod +x /usr/local/bin/bun && \
