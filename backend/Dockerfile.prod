@@ -6,20 +6,23 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     postgresql-client \
     gcc \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Копирование файлов зависимостей
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt gunicorn
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt gunicorn
 
 # Копирование кода приложения
 COPY . .
 
-# Создание директории для медиа файлов
-RUN mkdir -p media staticfiles
+# Создание директорий для медиа и статических файлов
+RUN mkdir -p media staticfiles && \
+    chmod -R 755 media staticfiles
 
 EXPOSE 8000
 
 # Команда для production с gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120", "core.wsgi:application"]
-
+# Миграции и collectstatic выполняются через docker-compose command
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "core.wsgi:application"]

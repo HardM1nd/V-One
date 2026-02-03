@@ -4,11 +4,11 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install --legacy-peer-deps
+RUN bun install
 
 COPY . .
 
-RUN npm run build
+RUN bun run build
 
 ### Stage 2: serve static build with nginx
 FROM nginx:alpine
