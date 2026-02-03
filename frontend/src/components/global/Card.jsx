@@ -3,7 +3,7 @@ import useUserContext from "../../contexts/UserContext";
 import usePageContext from "../../contexts/pageContext";
 import { CommentsModal, EditPostModal } from "./Modals";
 import { Link } from "react-router-dom";
-import { MoreVertical, Trash2 } from "lucide-react";
+import { Flag, MoreVertical, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Card as UiCard, CardContent } from "../ui/card";
@@ -38,8 +38,11 @@ const CardOptionsComponent = ({ deletePost, edit, onClose }) => {
 
 const Card = (props) => {
     const {
-        user: { user_id },
+        user: authUser,
+        isAdmin,
+        axiosInstance,
     } = useUserContext();
+    const user_id = authUser?.user_id;
     const [showEditPostModal, setShowEditPostModal] = useState(false);
 
     const {
@@ -63,7 +66,7 @@ const Card = (props) => {
         isEdited,
         onComment,
     } = props;
-    const { likePost, savePost, deletePost } = usePageContext();
+    const { likePost, savePost, deletePost, setData } = usePageContext();
     const [viewComment, setViewComment] = useState(false);
     const [openOptions, setOpenOptions] = useState(false);
     const [imageError, setImageError] = useState(false);
@@ -83,6 +86,44 @@ const Card = (props) => {
         };
         const failure = () => alert("Не удалось выполнить действие");
         deletePost(id, success, failure);
+    };
+
+    const handleAdminDelete = (e) => {
+        e.stopPropagation();
+        const del = window.confirm("Удалить пост?");
+        if (!del) {
+            return;
+        }
+        axiosInstance
+            .delete(`/post/admin/delete/${id}/`)
+            .then((response) => {
+                alert("Пост удален");
+                // Обновляем состояние, удаляя пост из списка
+                setData((prev) => {
+                    const newPosts = prev.posts.filter((post) => post.id !== id);
+                    return { ...prev, posts: newPosts };
+                });
+            })
+            .catch((error) => {
+                alert("Не удалось удалить пост");
+                console.error(error);
+            });
+    };
+
+    const handleReport = (e) => {
+        e.stopPropagation();
+        const ok = window.confirm("Отправить жалобу администратору?");
+        if (!ok) return;
+
+        axiosInstance
+            .post(`/post/${id}/report/`)
+            .then(() => {
+                alert("Жалоба отправлена");
+            })
+            .catch((error) => {
+                alert("Не удалось отправить жалобу");
+                console.error(error);
+            });
     };
 
     return (
@@ -125,9 +166,24 @@ const Card = (props) => {
                             />
                         </div>
                     )}
-                    {user_id && creator_id && Number(user_id) === Number(creator_id) && (
-                        <>
-                            <div className="absolute top-3 right-3 flex items-center gap-1 z-10">
+                    <div className="absolute top-3 right-3 flex items-center gap-1 z-10">
+                        {/* Пожаловаться — для всех пользователей (обычно на чужие посты) */}
+                        {(!user_id || !creator_id || Number(user_id) !== Number(creator_id)) && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handleReport}
+                                className="text-muted-foreground hover:text-foreground h-8 w-8"
+                                title="Пожаловаться"
+                            >
+                                <span className="sr-only">пожаловаться</span>
+                                <Flag className="h-4 w-4" />
+                            </Button>
+                        )}
+
+                        {/* Меню владельца */}
+                        {user_id && creator_id && Number(user_id) === Number(creator_id) ? (
+                            <>
                                 <Button
                                     variant="ghost"
                                     size="icon"
@@ -154,15 +210,29 @@ const Card = (props) => {
                                         />
                                     </div>
                                 ) : null}
-                            </div>
-                            {showEditPostModal && (
-                                <EditPostModal
-                                    id={id}
-                                    onClose={() => setShowEditPostModal(false)}
-                                    open={showEditPostModal}
-                                />
-                            )}
-                        </>
+                            </>
+                        ) : null}
+
+                        {/* Удаление админом чужих постов */}
+                        {isAdmin && (!user_id || !creator_id || Number(user_id) !== Number(creator_id)) && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handleAdminDelete}
+                                className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8"
+                                title="Удалить пост"
+                            >
+                                <span className="sr-only">удалить пост</span>
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        )}
+                    </div>
+                    {showEditPostModal && (
+                        <EditPostModal
+                            id={id}
+                            onClose={() => setShowEditPostModal(false)}
+                            open={showEditPostModal}
+                        />
                     )}
                     <nav className="w-full grid grid-cols-3 gap-2 pt-2 border-t border-border">
                         <Button

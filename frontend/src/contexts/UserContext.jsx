@@ -34,9 +34,10 @@ function UserContextProvider({ children }) {
 
     const [user, setUser] = useState(() => {
         try {
-            return userTokensFromStorage && userTokensFromStorage.access
+            const decoded = userTokensFromStorage && userTokensFromStorage.access
                 ? jwtDecode(userTokensFromStorage.access)
                 : null;
+            return decoded;
         } catch (error) {
             localStorage.removeItem("userTokens");
             return null;
@@ -219,6 +220,7 @@ function UserContextProvider({ children }) {
         profileData,
         setProfileData,
         isDemoUser: profileData.username === "DemoUser",
+        isAdmin: user?.is_staff === true,
         fetchUserData,
     };
 

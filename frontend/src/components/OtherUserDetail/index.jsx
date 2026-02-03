@@ -22,6 +22,7 @@ const Profile = () => {
   const {
     axiosInstance,
     profileData: { id: curId },
+    isAdmin,
   } = useUserContext();
 
   useEffect(() => {
@@ -44,6 +45,7 @@ const Profile = () => {
     aircraft_types_list,
     license_number,
     bio,
+    is_active,
   } = profileData;
   const currentTab = queryParams.get("tab") || "posts";
   const tabs = [
@@ -72,6 +74,26 @@ const Profile = () => {
     followUser(id, success, failure);
   };
 
+  const handleBanUnban = () => {
+    const isCurrentlyBanned = is_active === false;
+    const action = isCurrentlyBanned ? "разбанить" : "забанить";
+    const confirmMessage = `Вы уверены, что хотите ${action} пользователя @${username}?`;
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+    axiosInstance
+      .post(`/accounts/admin/ban/${id}/`)
+      .then((response) => {
+        const { is_banned, user: updatedUser } = response.data;
+        setProfileData((prev) => ({ ...prev, is_active: updatedUser.is_active }));
+        alert(`Пользователь ${is_banned ? "забанен" : "разбанен"}`);
+      })
+      .catch((error) => {
+        alert("Не удалось выполнить действие. Проверьте соединение.");
+        console.error(error);
+      });
+  };
+
   if (curId && curId === id) {
     return <Navigate to="/profile" />;
   }
@@ -97,14 +119,25 @@ const Profile = () => {
               </AvatarFallback>
           </Avatar>
           </div>
-          <Button
-            onClick={handleFollowUnfollow}
-            className="absolute top-4 right-4"
-            variant={is_following ? "outline" : "default"}
-            size="sm"
-          >
-            {is_following ? "Отписаться" : "Подписаться"}
-          </Button>
+          <div className="absolute top-4 right-4 flex gap-2">
+            <Button
+              onClick={handleFollowUnfollow}
+              variant={is_following ? "outline" : "default"}
+              size="sm"
+            >
+              {is_following ? "Отписаться" : "Подписаться"}
+            </Button>
+            {isAdmin && (
+              <Button
+                onClick={handleBanUnban}
+                variant={is_active === false ? "default" : "destructive"}
+                size="sm"
+                title={is_active === false ? "Разбанить пользователя" : "Забанить пользователя"}
+              >
+                {is_active === false ? "Разбанить" : "Забанить"}
+              </Button>
+            )}
+          </div>
         </div>
         <CardContent className="p-4 flex flex-col gap-2">
           <p className="capitalize text-lg">@{username}</p>
@@ -137,7 +170,7 @@ const Profile = () => {
         </CardContent>
       </Card>
       <Card className="sticky top-0 z-10">
-        <CardContent className="p-3 flex flex-wrap gap-2">
+        <CardContent className="mt-3 p-3 flex flex-wrap gap-2">
           {tabs.map((tab) => (
             <Button
               key={tab.value}

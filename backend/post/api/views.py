@@ -11,7 +11,8 @@ from accounts.models import Notification
 from .serializers import PostSerializer, CommentSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from accounts.models import User
 from typing import Any
 
@@ -94,6 +95,59 @@ class PostDeleteAPIView(RetrieveDestroyAPIView):
         user = self.request.user
         qs = self.model.objects.filter(creator=user)
         return qs
+
+
+class AdminPostDeleteAPIView(RetrieveDestroyAPIView):
+    """API endpoint для администраторов для удаления любых постов"""
+    model = Post
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = Post.objects.all()
+
+
+class ReportPostAPIView(APIView):
+    """
+    Пожаловаться на пост.
+
+    Создаёт уведомления всем администраторам (is_staff=True) о возможном нарушении.
+    Доступно всем (в т.ч. неавторизованным); в этом случае actor будет None.
+    """
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+
+        reporter = request.user if request.user and request.user.is_authenticated else None
+        reporter_name = reporter.username if reporter else "Гость"
+
+        snippet = (post.content or "").strip().replace("\n", " ")
+        if len(snippet) > 120:
+            snippet = snippet[:120].rstrip() + "…"
+
+        message = (
+            f"Жалоба на пост #{post.id} от {reporter_name}. "
+            f"Автор поста: @{post.creator.username}. "
+            f"Текст: {snippet}"
+        )
+
+        admins = User.objects.filter(is_staff=True, is_active=True)
+        created_count = 0
+        for admin in admins:
+            Notification.objects.create(
+                user=admin,
+                actor=reporter,
+                type="system",
+                message=message,
+                target_type="post",
+                target_id=post.id,
+            )
+            created_count += 1
+
+        return Response(
+            {"status": "ok", "notified_admins": created_count},
+            status=status.HTTP_200_OK,
+        )
 
 
 class PostCommentsListAPIView(ListAPIView):

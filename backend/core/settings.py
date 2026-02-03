@@ -11,8 +11,10 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 import os
+import logging
 from datetime import timedelta
 from pathlib import Path
+import colorlog
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -221,6 +223,81 @@ else:
 
 MAX_IMAGE_SIZE = 100 * 1024 * 1024  # 100MB
 
+
+# ——— Логирование (красивый вывод в терминал) ———
+class EmojiColoredFormatter(colorlog.ColoredFormatter):
+    """Форматтер с эмодзи для уровней логирования"""
+    
+    EMOJI_MAP = {
+        logging.DEBUG: "🔍",
+        logging.INFO: "✨",
+        logging.WARNING: "⚠️",
+        logging.ERROR: "❌",
+        logging.CRITICAL: "💥",
+    }
+    
+    def format(self, record):
+        # Получаем эмодзи для уровня
+        emoji = self.EMOJI_MAP.get(record.levelno, "📝")
+        # Добавляем эмодзи как атрибут записи для использования в формате
+        record.emoji = emoji
+        # Форматируем сообщение с эмодзи
+        return super().format(record)
+
+
+_VALID_LOG_LEVELS = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
+_django_log_level = os.getenv("DJANGO_LOG_LEVEL", "INFO").strip().upper()
+if _django_log_level not in _VALID_LOG_LEVELS:
+    _django_log_level = "INFO"
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{asctime} │ {levelname:8} │ {name} │ {message}",
+            "style": "{",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+        "colored": {
+            "()": EmojiColoredFormatter,
+            "format": "%(log_color)s%(asctime)s%(reset)s │ %(emoji)s %(log_color)s%(levelname)-8s%(reset)s │ %(cyan)s%(name)s%(reset)s │ %(message)s",
+            "datefmt": "%H:%M:%S",
+            "log_colors": {
+                "DEBUG": "white",
+                "INFO": "green",
+                "WARNING": "yellow",
+                "ERROR": "red",
+                "CRITICAL": "bold_red",
+            },
+            "secondary_log_colors": {},
+            "style": "%",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "colored" if os.getenv("COLORLOG", "True").lower() == "true" else "verbose",
+            "stream": "ext://sys.stdout",
+        },
+    },
+    "root": {
+        "level": "INFO",
+        "handlers": ["console"],
+    },
+    "loggers": {
+        "django": {
+            "level": _django_log_level,
+            "handlers": ["console"],
+            "propagate": False,
+        },
+        "django.server": {
+            "level": "INFO",
+            "handlers": ["console"],
+            "propagate": False,
+        },
+    },
+}
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),

@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
 from .serializers import MyTokenObtainPairSerializer, SignupSerializer, UserSerializer, NotificationSerializer
 
@@ -213,3 +213,31 @@ class NotificationUnreadCountAPIView(APIView):
     def get(self, request):
         count = Notification.objects.filter(user=request.user, is_read=False).count()
         return Response({"unread_count": count})
+
+
+class BanUnbanUserAPIView(APIView):
+    """API endpoint для администраторов для бана/разбана пользователей"""
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def post(self, request, pk):
+        user_to_ban = get_object_or_404(User, pk=pk)
+        
+        # Администратор не может забанить сам себя
+        if user_to_ban.id == request.user.id:
+            return Response(
+                {"error": "Вы не можете забанить сами себя"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Переключаем статус is_active
+        user_to_ban.is_active = not user_to_ban.is_active
+        user_to_ban.save()
+        
+        action = "забанен" if not user_to_ban.is_active else "разбанен"
+        serializer = UserSerializer(user_to_ban)
+        
+        return Response({
+            "message": f"Пользователь {action}",
+            "user": serializer.data,
+            "is_banned": not user_to_ban.is_active
+        })

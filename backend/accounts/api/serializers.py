@@ -12,6 +12,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
         token["user_name"] = user.username
+        token["is_staff"] = user.is_staff
         try:
             if user.profile_pic:
                 token["profile_pic"] = user.profile_pic.url
@@ -51,6 +52,7 @@ class UserSerializer(serializers.ModelSerializer):
             "license_number",
             "bio",
             "is_following",
+            "is_active",
         ]
         extra_kwargs = {
             "date_joined": {

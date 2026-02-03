@@ -13,6 +13,7 @@ from .views import (
     NotificationReadAPIView,
     NotificationReadAllAPIView,
     NotificationUnreadCountAPIView,
+    BanUnbanUserAPIView,
 )
 
 
@@ -43,5 +44,10 @@ urlpatterns = [
         "notifications/unread_count/",
         NotificationUnreadCountAPIView.as_view(),
         name="notification_unread_count",
+    ),
+    path(
+        "admin/ban/<int:pk>/",
+        BanUnbanUserAPIView.as_view(),
+        name="ban_unban_user",
     ),
 ]
