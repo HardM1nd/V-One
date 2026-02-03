@@ -193,31 +193,37 @@ USE_S3 = os.getenv("USE_S3", "False").lower() == "true"
 
 if USE_S3:
     # MinIO/S3 storage configuration
-    AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID", "minioadmin")
-    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY", "minioadmin")
-    AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME", "media")
-    AWS_S3_ENDPOINT_URL = os.getenv("AWS_S3_ENDPOINT_URL", "http://minio:9000")
-    # Публичный URL для доступа к медиа файлам (без схемы, только хост:порт)
+    # Accept both AWS_* and MINIO_* env conventions.
+    AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID") or os.getenv("MINIO_ROOT_USER", "minioadmin")
+    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY") or os.getenv("MINIO_ROOT_PASSWORD", "minioadmin")
+    AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME") or os.getenv("MINIO_BUCKET_NAME", "media")
+    # Some env templates use AWS_S3_URL; treat it as an alias for AWS_S3_ENDPOINT_URL
+    AWS_S3_ENDPOINT_URL = os.getenv("AWS_S3_ENDPOINT_URL") or os.getenv("AWS_S3_URL", "http://minio:9000")
+
+    # Optional public URL/custom domain (mostly for URL generation)
     AWS_S3_PUBLIC_URL = os.getenv("AWS_S3_PUBLIC_URL", "http://localhost:9000")
-    # Используем CUSTOM_DOMAIN для правильного формирования URL
     AWS_S3_CUSTOM_DOMAIN = os.getenv("AWS_S3_CUSTOM_DOMAIN", "localhost:9000")
     AWS_S3_USE_SSL = os.getenv("AWS_S3_USE_SSL", "False").lower() == "true"
-    AWS_S3_USE_SIGNATURES_V2 = True
+
+    # MinIO expects Signature V4; also prefer path-style for local endpoints.
+    AWS_S3_SIGNATURE_VERSION = "s3v4"
+    AWS_S3_ADDRESSING_STYLE = "path"
+    AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "us-east-1")
     AWS_S3_FILE_OVERWRITE = False
-    AWS_DEFAULT_ACL = 'public-read'
+    AWS_DEFAULT_ACL = "public-read"
     AWS_S3_VERIFY = False
     AWS_QUERYSTRING_AUTH = False
-    AWS_LOCATION = ''  # Файлы в корне bucket
-    
-    # Storage backends
-    DEFAULT_FILE_STORAGE = "core.storage.MediaStorage"
-    
-    # Media files URL - используем прокси Django для доступа к медиа файлам
-    # Storage.url() переопределяет это значение, поэтому здесь используется прокси
+    AWS_LOCATION = ""  # Files at bucket root
+
+    # Django 4.2+/5+: configure storage via STORAGES (DEFAULT_FILE_STORAGE is ignored)
+    STORAGES = {
+        "default": {"BACKEND": "core.storage.MediaStorage"},
+        "staticfiles": {"BACKEND": STATICFILES_STORAGE},
+    }
+    DEFAULT_FILE_STORAGE = "core.storage.MediaStorage"  # legacy fallback
     MEDIA_URL = "/media/"
     MEDIA_ROOT = ""
 else:
-    # Local file storage
     MEDIA_ROOT = os.path.join(BASE_DIR, "media")
     MEDIA_URL = "/media/"
 
