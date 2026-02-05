@@ -11,24 +11,31 @@ class MediaStorage(S3Boto3Storage):
     location = ''
     file_overwrite = False
     default_acl = 'public-read'
-    
+
     def url(self, name):
         """
         Return the URL for the file.
-        Always uses Django proxy (/media/...) in DEBUG mode to avoid CORS issues.
-        In production, uses direct MinIO URL if available, otherwise falls back to proxy.
+        По умолчанию ВСЕГДА используем Django‑прокси (/media/...), чтобы:
+        - не требовать публичного доступа к бакету (AWS S3 / MinIO)
+        - не ловить AccessDenied в браузере при неверной политике бакета
+        Прямые ссылки на S3/MinIO включаются только при явном флаге
+        USE_DIRECT_MEDIA_URLS=true в переменных окружения.
         """
         if not name:
             return ''
-        
+
         # Remove leading slash from name if present
         name = name.lstrip('/')
-        
-        # Always use Django proxy in DEBUG mode to avoid CORS issues
-        # This ensures consistent behavior and proper handling of authentication
-        if getattr(settings, 'DEBUG', False):
+
+        debug = getattr(settings, 'DEBUG', False)
+        use_direct = os.getenv('USE_DIRECT_MEDIA_URLS', 'False').lower() == 'true'
+
+        # По умолчанию (и всегда в DEBUG) ходим через Django‑прокси
+        # /media/<path>, который уже сам достанет файл из S3/MinIO с
+        # использованием server-side credential'ов.
+        if debug or not use_direct:
             return f"/media/{name}"
-        
+
         # In production, try to use direct MinIO URL
         public_url = os.getenv('AWS_S3_PUBLIC_URL', getattr(settings, 'AWS_S3_PUBLIC_URL', None))
         bucket_name = os.getenv('AWS_STORAGE_BUCKET_NAME', getattr(settings, 'AWS_STORAGE_BUCKET_NAME', 'media'))
