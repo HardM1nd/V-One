@@ -200,15 +200,25 @@ if USE_S3:
     # Some env templates use AWS_S3_URL; treat it as an alias for AWS_S3_ENDPOINT_URL
     AWS_S3_ENDPOINT_URL = os.getenv("AWS_S3_ENDPOINT_URL") or os.getenv("AWS_S3_URL", "http://minio:9000")
 
-    # Optional public URL/custom domain (mostly for URL generation)
-    AWS_S3_PUBLIC_URL = os.getenv("AWS_S3_PUBLIC_URL", "http://localhost:9000")
-    AWS_S3_CUSTOM_DOMAIN = os.getenv("AWS_S3_CUSTOM_DOMAIN", "localhost:9000")
+    # Optional public URL/custom domain (mostly for URL generation).
+    # IMPORTANT:
+    # - Do NOT default to localhost here, otherwise clients in production
+    #   will receive broken links like http://localhost:9000/... instead of
+    #   the real site/MinIO address.
+    # - If you want to serve files directly from MinIO, set these via env:
+    #     AWS_S3_PUBLIC_URL=https://your-public-minio-host
+    #     AWS_S3_CUSTOM_DOMAIN=your-public-minio-host
+    # - If they are unset/empty, storage falls back to Django `/media/...`
+    #   proxy (see `core.storage.MediaStorage.url`).
+    AWS_S3_PUBLIC_URL = os.getenv("AWS_S3_PUBLIC_URL") or None
+    AWS_S3_CUSTOM_DOMAIN = os.getenv("AWS_S3_CUSTOM_DOMAIN") or None
     AWS_S3_USE_SSL = os.getenv("AWS_S3_USE_SSL", "False").lower() == "true"
 
     # MinIO expects Signature V4; also prefer path-style for local endpoints.
     AWS_S3_SIGNATURE_VERSION = "s3v4"
     AWS_S3_ADDRESSING_STYLE = "path"
-    AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "us-east-1")
+    # Allow overriding region via MINIO_REGION, falling back to AWS_S3_REGION_NAME.
+    AWS_S3_REGION_NAME = os.getenv("MINIO_REGION") or os.getenv("AWS_S3_REGION_NAME", "us-east-1")
     AWS_S3_FILE_OVERWRITE = False
     AWS_DEFAULT_ACL = "public-read"
     AWS_S3_VERIFY = False
