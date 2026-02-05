@@ -2,7 +2,7 @@ import React from "react";
 import useUserContext from "../../contexts/UserContext";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Card, CardContent } from "../ui/card";
-import { formatDateTime } from "../../lib/utils";
+import { formatDateTime, getMediaUrl } from "../../lib/utils";
 
 const CommentCard = (props) => {
     const {
@@ -13,7 +13,10 @@ const CommentCard = (props) => {
         <Card className="my-2">
             <CardContent className="mt-4 p-3 flex gap-2">
                 <Avatar className="h-9 w-9">
-                    <AvatarImage src={creator_profile_pic || ""} alt={creator_name} />
+                    <AvatarImage
+                        src={creator_profile_pic ? getMediaUrl(creator_profile_pic) : ""}
+                        alt={creator_name}
+                    />
                     <AvatarFallback>{creator_name.at(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div className="pl-2 flex-grow">

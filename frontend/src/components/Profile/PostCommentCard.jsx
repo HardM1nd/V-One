@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Card, CardContent } from "../ui/card";
-import { formatDateTime } from "../../lib/utils";
+import { formatDateTime, getMediaUrl } from "../../lib/utils";
 
 const PostCommentCard = (props) => {
     const {
@@ -21,7 +21,10 @@ const PostCommentCard = (props) => {
             <CardContent className="p-4 grid grid-cols-1 gap-2">
                 <div className="flex gap-3 items-center">
                     <Avatar className="h-8 w-8">
-                        <AvatarImage src={post_creator_profile || ""} alt={post_creator} />
+                        <AvatarImage
+                            src={post_creator_profile ? getMediaUrl(post_creator_profile) : ""}
+                            alt={post_creator}
+                        />
                         <AvatarFallback>{post_creator.at(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div className="text-xs">
