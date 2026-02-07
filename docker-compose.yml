@@ -1,46 +1,4 @@
 services:
-  minio:
-    image: minio/minio:latest
-    container_name: v-one-minio
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    volumes:
-      - minio-data:/data
-    environment:
-      # Use AWS_* creds (used by Django) as the MinIO root creds in dev,
-      # so S3 client and MinIO server stay in sync without duplicating vars.
-      - MINIO_ROOT_USER=${AWS_ACCESS_KEY_ID:-minioadmin}
-      - MINIO_ROOT_PASSWORD=${AWS_SECRET_ACCESS_KEY:-minioadmin}
-    command: server /data --console-address ":9001"
-    healthcheck:
-      test: ["CMD", "sh", "-c", "curl -f http://localhost:9000/minio/health/live || exit 1"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
-      start_period: 10s
-
-  minio-init:
-    image: minio/mc:latest
-    container_name: v-one-minio-init
-    depends_on:
-      minio:
-        condition: service_healthy
-    entrypoint: >
-      /bin/sh -c "
-      echo 'Waiting for MinIO to be ready...';
-      sleep 10;
-      echo 'Setting up MinIO alias...';
-      /usr/bin/mc alias set myminio http://minio:9000 ${AWS_ACCESS_KEY_ID:-minioadmin} ${AWS_SECRET_ACCESS_KEY:-minioadmin} || exit 1;
-      echo 'Creating bucket ${MINIO_BUCKET_NAME:-media}...';
-      /usr/bin/mc mb myminio/${MINIO_BUCKET_NAME:-media} --ignore-existing || true;
-      echo 'Setting bucket to public...';
-      /usr/bin/mc anonymous set public myminio/${MINIO_BUCKET_NAME:-media} || true;
-      echo 'MinIO initialization completed successfully!';
-      exit 0;
-      "
-    restart: "on-failure"
-
   backend:
     build: ./backend
     container_name: v-one-backend
@@ -48,15 +6,8 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
-      - backend-media:/app/media
-      - backend-static:/app/staticfiles
     env_file: 
       - .env
-    depends_on:
-      minio:
-        condition: service_healthy
-      minio-init:
-        condition: service_completed_successfully
     command: >
       sh -c "sleep 5 &&
              python manage.py makemigrations &&
@@ -67,8 +18,6 @@ services:
   backend-init:
     build: ./backend
     container_name: v-one-backend-init
-    environment:
-      - USE_SQLITE=True
     command: sh -c "python manage.py migrate || true"
     restart: "no"
     profiles:
@@ -93,8 +42,3 @@ services:
     depends_on:
       backend:
         condition: service_started
-
-volumes:
-  backend-media:
-  backend-static:
-  minio-data:
