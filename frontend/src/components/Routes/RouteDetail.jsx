@@ -13,7 +13,7 @@ const RouteDetail = () => {
     const { routeId } = useParams();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const { axiosInstance, user } = useUserContext();
+    const { axiosInstance, user, isDemoUser } = useUserContext();
     const [route, setRoute] = useState(null);
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
@@ -37,10 +37,10 @@ const RouteDetail = () => {
 
     const currentUserId = user?.user_id ?? user?.id;
     useEffect(() => {
-        if (route && searchParams.get("edit") === "1" && currentUserId != null && Number(route.pilot?.id) === Number(currentUserId)) {
+        if (route && !isDemoUser && searchParams.get("edit") === "1" && currentUserId != null && Number(route.pilot?.id) === Number(currentUserId)) {
             setEditing(true);
         }
-    }, [route, searchParams, currentUserId]);
+    }, [route, searchParams, currentUserId, isDemoUser]);
 
     const handleLike = async () => {
         try {
@@ -188,7 +188,7 @@ const RouteDetail = () => {
         return `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${routeParam}`;
     };
 
-    const isOwner = currentUserId != null && route && Number(currentUserId) === Number(route.pilot?.id);
+    const isOwner = !isDemoUser && currentUserId != null && route && Number(currentUserId) === Number(route.pilot?.id);
 
     if (loading) {
         return (
@@ -200,7 +200,7 @@ const RouteDetail = () => {
 
     if (!route) {
         return (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-8 text-muted-foreground mt-4">
                 Маршрут не найден
             </div>
         );

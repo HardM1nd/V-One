@@ -8,7 +8,8 @@ from rest_framework.generics import (
 )
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
+from accounts.permissions import IsAuthenticatedReadOnlyForDemo
 from django.shortcuts import get_object_or_404
 from django.db import models
 from post.models import FlightRoute
@@ -84,7 +85,7 @@ class FlightRouteListAPIView(ListAPIView):
 class FlightRouteCreateAPIView(CreateAPIView):
     """Создание маршрута полета"""
     serializer_class = FlightRouteSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
 
 
 class FlightRouteRetrieveAPIView(RetrieveAPIView):
@@ -101,7 +102,7 @@ class FlightRouteRetrieveAPIView(RetrieveAPIView):
 class FlightRouteUpdateAPIView(UpdateAPIView):
     """Обновление маршрута"""
     serializer_class = FlightRouteSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
 
     def get_queryset(self):
         # Только свои маршруты
@@ -110,7 +111,7 @@ class FlightRouteUpdateAPIView(UpdateAPIView):
 
 class FlightRouteDeleteAPIView(DestroyAPIView):
     """Удаление маршрута"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
 
     def get_queryset(self):
         # Только свои маршруты
@@ -119,7 +120,8 @@ class FlightRouteDeleteAPIView(DestroyAPIView):
 
 class FlightRouteLikeAPIView(APIView):
     """Лайк/анлайк маршрута"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    allow_read_only_user = True
 
     def post(self, request, pk):
         queryset = apply_visibility_filter(FlightRoute.objects.all(), request.user)
@@ -150,7 +152,8 @@ class FlightRouteLikeAPIView(APIView):
 
 class FlightRouteSaveAPIView(APIView):
     """Сохранение/удаление из сохраненных маршрутов"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    allow_read_only_user = True
 
     def post(self, request, pk):
         queryset = apply_visibility_filter(FlightRoute.objects.all(), request.user)
@@ -182,7 +185,7 @@ class FlightRouteSaveAPIView(APIView):
 class MyFlightRoutesAPIView(ListAPIView):
     """Мои маршруты (включая приватные)"""
     serializer_class = FlightRouteSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
 
     def get_queryset(self):
         queryset = FlightRoute.objects.filter(pilot=self.request.user)
@@ -192,7 +195,7 @@ class MyFlightRoutesAPIView(ListAPIView):
 class SavedFlightRoutesAPIView(ListAPIView):
     """Сохраненные маршруты"""
     serializer_class = FlightRouteSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
 
     def get_queryset(self):
         queryset = apply_visibility_filter(self.request.user.saved_routes.all(), self.request.user)
@@ -202,7 +205,7 @@ class SavedFlightRoutesAPIView(ListAPIView):
 class FollowingFlightRoutesAPIView(ListAPIView):
     """Маршруты пилотов, на которых подписан пользователь"""
     serializer_class = FlightRouteSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
 
     def get_queryset(self):
         following_ids = self.request.user.following.values_list("id", flat=True)

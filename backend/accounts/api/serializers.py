@@ -3,11 +3,29 @@ from typing import Any
 from accounts.models import User, Notification
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.humanize.templatetags.humanize import naturalday
+from django.db.models import Q
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """Выдача JWT по имени пользователя или по email + пароль."""
+
+    def validate(self, attrs):
+        login = (attrs.get("username") or "").strip()
+        password = attrs.get("password")
+        user = User.objects.filter(
+            Q(username=login) | Q(email__iexact=login)
+        ).first()
+        if not user:
+            raise serializers.ValidationError("Неверный логин или пароль.")
+        if not user.check_password(password):
+            raise serializers.ValidationError("Неверный логин или пароль.")
+        if not user.is_active:
+            raise serializers.ValidationError("Аккаунт деактивирован.")
+        attrs["username"] = user.username
+        return super().validate(attrs)
+
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
@@ -53,6 +71,7 @@ class UserSerializer(serializers.ModelSerializer):
             "bio",
             "is_following",
             "is_active",
+            "is_read_only",
         ]
         extra_kwargs = {
             "date_joined": {
@@ -125,7 +144,18 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
+def validate_password_strength(value):
+    """Пароль: минимум 8 символов и хотя бы одна буква."""
+    if len(value) < 8:
+        raise serializers.ValidationError("Пароль должен содержать минимум 8 символов.")
+    if not any(c.isalpha() for c in value):
+        raise serializers.ValidationError("Пароль должен содержать хотя бы одну букву.")
+    return value
+
+
 class SignupSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True)
+
     class Meta:
         model = User
         fields = (
@@ -138,6 +168,9 @@ class SignupSerializer(serializers.ModelSerializer):
                 "write_only": True,
             }
         }
+
+    def validate_password(self, value):
+        return validate_password_strength(value)
 
     def create(self, validated_data):
         password = validated_data.pop("password", None)

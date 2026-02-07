@@ -15,7 +15,7 @@ import { getMediaUrl } from "../../lib/utils";
 import { Pencil } from "lucide-react";
 
 const Profile = () => {
-  const { profileData } = useUserContext();
+  const { profileData, isDemoUser } = useUserContext();
   const [queryParams, setQueryParams] = useSearchParams();
   const handleChange = (value) => {
     setQueryParams({ tab: value });
@@ -34,13 +34,14 @@ const Profile = () => {
     bio,
   } = profileData;
   const currentTab = queryParams.get("tab") || "posts";
+  const effectiveTab = isDemoUser && currentTab === "update" ? "posts" : currentTab;
   const tabs = [
     { value: "posts", label: "Посты" },
     { value: "comments", label: "Комментарии" },
     { value: "media", label: "Медиа" },
     { value: "following", label: "Подписки" },
     { value: "routes", label: "Маршруты" },
-    { value: "update", label: <Pencil className="h-4 w-4" />, iconOnly: true },
+    ...(!isDemoUser ? [{ value: "update", label: <Pencil className="h-4 w-4" />, iconOnly: true }] : []),
   ];
 
   useEffect(() => {
@@ -50,6 +51,12 @@ const Profile = () => {
       document.title = "V-One";
     };
   }, [username]);
+
+  useEffect(() => {
+    if (isDemoUser && currentTab === "update") {
+      setQueryParams({ tab: "posts" }, { replace: true });
+    }
+  }, [isDemoUser, currentTab]);
 
   const showCover = Boolean(cover_pic) && !cover_pic.includes("coverphoto.jpg");
 
@@ -119,7 +126,7 @@ const Profile = () => {
               key={tab.value}
               type="button"
               size="sm"
-              variant={currentTab === tab.value ? "default" : "outline"}
+              variant={effectiveTab === tab.value ? "default" : "outline"}
               onClick={() => handleChange(tab.value)}
               aria-label={tab.value === "update" ? "Редактировать профиль" : undefined}
             >
@@ -129,16 +136,16 @@ const Profile = () => {
         </CardContent>
       </Card>
       <div className="w-full mx-auto">
-        {currentTab === "posts" && <ProfilePostContainer />}
-        {currentTab === "comments" && <PostComments />}
-        {currentTab === "media" && <MediaPostContainer />}
-        {currentTab === "following" && <ProfileUsers />}
-        {currentTab === "routes" && (
+        {effectiveTab === "posts" && <ProfilePostContainer />}
+        {effectiveTab === "comments" && <PostComments />}
+        {effectiveTab === "media" && <MediaPostContainer />}
+        {effectiveTab === "following" && <ProfileUsers />}
+        {effectiveTab === "routes" && (
           <div className="p-4">
             <RouteList endpoint="post/routes/" pilotId={profileData.id} showFilters={false} />
           </div>
         )}
-        {currentTab === "update" && <Settings />}
+        {effectiveTab === "update" && <Settings />}
       </div>
     </div>
   );

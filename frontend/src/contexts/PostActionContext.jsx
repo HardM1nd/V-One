@@ -6,12 +6,16 @@ export const postActionContext = createContext();
 export const PostActionContextProvider = ({ children }) => {
     const { axiosInstance } = useUserContext();
 
-    const createPost = async (formData, onSuccess, onFailure) => {
-        const response = await axiosInstance.post("post/create/", formData);
-        if (response.status >= 200 && response.status < 400) {
-            onSuccess(response);
-        } else {
-            onFailure(response);
+    const createPost = async (formData, onSuccess, onFailure = console.error) => {
+        try {
+            const response = await axiosInstance.post("post/create/", formData);
+            if (response.status >= 200 && response.status < 400) {
+                onSuccess(response);
+            } else {
+                onFailure(response);
+            }
+        } catch (error) {
+            onFailure(error);
         }
     };
 
@@ -55,15 +59,19 @@ export const PostActionContextProvider = ({ children }) => {
         }
     };
 
-    const createComment = async (id, formData, onSuccess, onFailure) => {
-        const response = await axiosInstance.post(
-            `post/${id}/comments/create/`,
-            formData
-        );
-        if (response.status >= 200 && response.status < 400) {
-            onSuccess(response);
-        } else {
-            onFailure(response);
+    const createComment = async (id, formData, onSuccess, onFailure = console.error) => {
+        try {
+            const response = await axiosInstance.post(
+                `post/${id}/comments/create/`,
+                formData
+            );
+            if (response.status >= 200 && response.status < 400) {
+                onSuccess(response);
+            } else {
+                onFailure(response);
+            }
+        } catch (error) {
+            onFailure(error);
         }
     };
 

@@ -131,7 +131,7 @@ const RouteList = ({ endpoint, pilotId = null, showFilters = true }) => {
 
     if (routes.length === 0) {
         return (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-8 text-muted-foreground mt-4">
                 Маршруты не найдены
             </div>
         );

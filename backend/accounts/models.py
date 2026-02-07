@@ -77,6 +77,11 @@ class User(AbstractUser):
         max_length=500,
         verbose_name='Биография'
     )
+    is_read_only = models.BooleanField(
+        default=False,
+        verbose_name='Только чтение (демо)',
+        help_text='Запрет постов, комментариев, редактирования профиля и т.п.',
+    )
 
     def media_posts(self):
         """Возвращает посты пользователя с изображениями"""

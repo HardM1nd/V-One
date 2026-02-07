@@ -6,41 +6,66 @@ import { Card, CardContent } from "../ui/card";
 import { Input } from "../ui/input";
 
 const validUsernamePattern = /^[\w.@+-]+$/;
+const validEmailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validateUsername(username) {
     if (!username || username.at(-1) === " ") return false;
     return Boolean(username.match(validUsernamePattern));
 }
 
+function validateEmail(email) {
+    return email && Boolean(email.match(validEmailPattern));
+}
+
+function validatePassword(password) {
+    if (!password || password.length < 8) return "min_length";
+    if (!/[a-zA-Zа-яА-Я]/.test(password)) return "no_letters";
+    return null;
+}
+
 export default function SignUp() {
     const { user, signup } = useUserContext();
     const [formData, setFormData] = useState({
         username: "",
+        email: "",
         password: "",
         passwordConfirm: "",
     });
     const [usernameError, setUsernameError] = useState(false);
-    const [passwordError, setPasswordError] = useState(false);
+    const [emailError, setEmailError] = useState(false);
+    const [passwordError, setPasswordError] = useState(null); // null | "min_length" | "no_letters" | "mismatch"
+    const [backendError, setBackendError] = useState(null);
 
     function handleSubmit(e) {
         e.preventDefault();
-        if (formData.password !== formData.passwordConfirm) setPasswordError(true);
-        else {
-            signup(formData, (error) => {
-                const data = error.response.data;
-                alert(data.username);
-            });
+        setBackendError(null);
+        const pwdIssue = validatePassword(formData.password);
+        if (pwdIssue) {
+            setPasswordError(pwdIssue);
+            return;
         }
+        if (formData.password !== formData.passwordConfirm) {
+            setPasswordError("mismatch");
+            return;
+        }
+        setPasswordError(null);
+        signup(
+            { username: formData.username, email: formData.email, password: formData.password },
+            (error) => {
+                const data = error?.response?.data || {};
+                const msg = [data.username, data.email, data.password].flat().filter(Boolean).join(" ") || "Ошибка регистрации.";
+                setBackendError(msg);
+            }
+        );
     }
 
     const handleChange = (e) => {
-        setFormData((prev) => ({
-            ...prev,
-            [e.target.name]: e.target.value,
-        }));
-        if (!validateUsername(e.target.value)) {
-            setUsernameError(true);
-        } else setUsernameError(false);
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+        setBackendError(null);
+        if (name === "username") setUsernameError(!validateUsername(value));
+        if (name === "email") setEmailError(value && !validateEmail(value));
+        if (name === "password" || name === "passwordConfirm") setPasswordError(null);
     };
 
     useEffect(() => {
@@ -81,7 +106,31 @@ export default function SignUp() {
                             placeholder="имя пользователя"
                             id="signup-username"
                         />
-                        {passwordError && <p className="text-sm text-red-500">пароли не совпадают</p>}
+                        <label htmlFor="signup-email" className="text-sm text-muted-foreground">
+                            Email
+                        </label>
+                        {emailError && (
+                            <p className="text-sm text-red-500">Введите корректный адрес почты.</p>
+                        )}
+                        <Input
+                            type="email"
+                            name="email"
+                            required
+                            onChange={handleChange}
+                            value={formData.email}
+                            placeholder="email@example.com"
+                            id="signup-email"
+                        />
+                        {backendError && <p className="text-sm text-red-500">{backendError}</p>}
+                        {passwordError === "min_length" && (
+                            <p className="text-sm text-red-500">Пароль должен содержать минимум 8 символов.</p>
+                        )}
+                        {passwordError === "no_letters" && (
+                            <p className="text-sm text-red-500">Пароль должен содержать хотя бы одну букву.</p>
+                        )}
+                        {passwordError === "mismatch" && (
+                            <p className="text-sm text-red-500">Пароли не совпадают.</p>
+                        )}
                         <label htmlFor="signup-password" className="text-sm text-muted-foreground">
                             Пароль
                         </label>

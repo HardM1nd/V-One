@@ -40,7 +40,7 @@ const ImagePreview = ({ src, removeImage, file }) => {
 const CommentsModal = ({ id, open, close, onComment }) => {
     const { getComments } = usePostActionContext();
     const { createComment, getNextItems, setData } = usePageContext();
-    const { axiosInstance, user, profileData } = useUserContext();
+    const { axiosInstance, user, profileData, isDemoUser } = useUserContext();
     const [{ comments, next }, setComments] = useState({
         next: null,
         comments: [],
@@ -60,8 +60,15 @@ const CommentsModal = ({ id, open, close, onComment }) => {
             onComment && onComment(id);
             e.target.content.value = "";
         };
+        const onFailure = (err) => {
+            alert(
+                isDemoUser && err?.response?.status === 403
+                    ? "Демо-аккаунт: публикация недоступна."
+                    : "Не удалось отправить комментарий"
+            );
+        };
         const formData = new FormData(e.target);
-        createComment(id, formData, success);
+        createComment(id, formData, success, onFailure);
     };
 
     useEffect(() => {

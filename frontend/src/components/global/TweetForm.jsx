@@ -34,6 +34,7 @@ const TweetForm = () => {
     const [file, setFile] = useState({ name: "", file: null, sizeKb: 0 });
     const {
         profileData: { username, profile_pic },
+        isDemoUser,
     } = useUserContext();
     const chooseImageFile = (e) => {
         e.preventDefault();
@@ -76,8 +77,15 @@ const TweetForm = () => {
             formElement.image.value = "";
             clearFile();
         };
-        createPost(new FormData(formElement), success, () =>
-            alert("Не удалось отправить пост")
+        createPost(
+            new FormData(formElement),
+            success,
+            (err) =>
+                alert(
+                    isDemoUser && err?.response?.status === 403
+                        ? "Демо-аккаунт: публикация недоступна."
+                        : "Не удалось отправить пост"
+                )
         );
     };
 

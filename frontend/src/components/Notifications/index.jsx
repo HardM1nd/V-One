@@ -105,7 +105,7 @@ const Notifications = () => {
                 {loading ? (
                     <div className="text-center py-8 text-muted-foreground">Загрузка...</div>
                 ) : notifications.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
+                    <div className="text-center py-8 text-muted-foreground mt-4">
                         Уведомлений пока нет
                     </div>
                 ) : (

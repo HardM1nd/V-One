@@ -219,7 +219,7 @@ function UserContextProvider({ children }) {
         signup,
         profileData,
         setProfileData,
-        isDemoUser: profileData.username === "DemoUser",
+        isDemoUser: profileData?.is_read_only === true || profileData?.username === "DemoUser",
         isAdmin: user?.is_staff === true,
         fetchUserData,
     };

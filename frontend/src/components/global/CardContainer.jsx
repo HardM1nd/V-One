@@ -18,7 +18,7 @@ const CardContainer = (props) => {
         return (
             <UiCard className="w-[598px] max-w-[95%] mt-4">
                 <CardContent className="p-6 text-center">
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-sm text-muted-foreground mt-4">
                         {emptyMessage}
                     </div>
                     {emptyHint && (

@@ -12,7 +12,8 @@ from .serializers import PostSerializer, CommentSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
+from rest_framework.permissions import AllowAny, IsAdminUser
+from accounts.permissions import IsAuthenticatedReadOnlyForDemo
 from accounts.models import User
 from typing import Any
 
@@ -65,13 +66,13 @@ class UserPostListAPIView(ListAPIView):
 class PostCreateAPIView(CreateAPIView):
     model = Post
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
 
 
 class PostUpdateAPIView(RetrieveUpdateAPIView):
     model = Post
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
 
     def get_queryset(self):
         user = self.request.user
@@ -89,7 +90,7 @@ class PostRetrieveAPIView(RetrieveAPIView):
 class PostDeleteAPIView(RetrieveDestroyAPIView):
     model = Post
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
 
     def get_queryset(self):
         user = self.request.user
@@ -101,7 +102,7 @@ class AdminPostDeleteAPIView(RetrieveDestroyAPIView):
     """API endpoint для администраторов для удаления любых постов"""
     model = Post
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo, IsAdminUser]
     queryset = Post.objects.all()
 
 
@@ -161,7 +162,7 @@ class PostCommentsListAPIView(ListAPIView):
 
 class CommentsListAPIView(ListAPIView):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
 
     def get_queryset(self):
         user = self.request.user
@@ -171,7 +172,7 @@ class CommentsListAPIView(ListAPIView):
 class CommentCreateApiView(CreateAPIView):
     model = Comment
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
@@ -182,7 +183,7 @@ class CommentCreateApiView(CreateAPIView):
 class CommentDestroyApiView(RetrieveDestroyAPIView):
     model = Comment
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
 
     def get_queryset(self):
         return self.model.objects.filter(creator=self.request.user)
@@ -191,7 +192,7 @@ class CommentDestroyApiView(RetrieveDestroyAPIView):
 class CommentUpdateApiView(RetrieveUpdateAPIView):
     model = Comment
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
 
     def get_queryset(self):
         return self.model.objects.filter(creator=self.request.user)
@@ -200,14 +201,15 @@ class CommentUpdateApiView(RetrieveUpdateAPIView):
 class CommentRetrieveAPIView(RetrieveAPIView):
     model = Comment
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
 
     def get_queryset(self):
         return self.model.objects.filter(creator=self.request.user)
 
 
 class LikeUnlikePostAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    allow_read_only_user = True
 
     def post(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
@@ -230,40 +232,8 @@ class LikeUnlikePostAPIView(APIView):
 
 
 class SaveUnsavePostAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, pk):
-        post = get_object_or_404(Post, pk=pk)
-        post_saves = post.saves
-        if post_saves.filter(id=self.request.user.id).exists():
-            post_saves.remove(self.request.user)
-        else:
-            post_saves.add(self.request.user)
-        data = PostSerializer(post, context={"request": self.request}).data
-        return Response(data)
-
-    def post(self, request, pk):
-        post = get_object_or_404(Post, pk=pk)
-        post_likes = post.likes
-        if post_likes.filter(id=self.request.user.id).exists():
-            post_likes.remove(self.request.user)
-        else:
-            post_likes.add(self.request.user)
-            if post.creator_id != request.user.id:
-                Notification.objects.create(
-                    user=post.creator,
-                    actor=request.user,
-                    type="post_like",
-                    message=f"{request.user.username} поставил лайк вашему посту",
-                    target_type="post",
-                    target_id=post.id,
-                )
-        data = PostSerializer(post, context={"request": self.request}).data
-        return Response(data)
-
-
-class SaveUnsavePostAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    allow_read_only_user = True
 
     def post(self, request, pk):
         post = get_object_or_404(Post, pk=pk)

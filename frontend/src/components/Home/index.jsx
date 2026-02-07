@@ -67,7 +67,7 @@ const Home = () => {
                 {user ? (
                     <RouteList endpoint="post/routes/following/" showFilters={false} />
                 ) : (
-                    <div className="text-center text-sm text-muted-foreground">
+                    <div className="text-center text-sm text-muted-foreground mt-4">
                         Войдите, чтобы видеть маршруты подписок
                     </div>
                 )}

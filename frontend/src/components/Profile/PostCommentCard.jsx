@@ -18,7 +18,7 @@ const PostCommentCard = (props) => {
     } = props;
     return (
         <Card className="mt-4">
-            <CardContent className="p-4 grid grid-cols-1 gap-2">
+            <CardContent className="mt-3 p-4 grid grid-cols-1 gap-2">
                 <div className="flex gap-3 items-center">
                     <Avatar className="h-8 w-8">
                         <AvatarImage
@@ -41,8 +41,8 @@ const PostCommentCard = (props) => {
                     </span>
                 </Link>
                 <p className="text-sm flex flex-col text-foreground">
-                    <span>Вы — {content}</span>
-                    <span className="text-xs text-muted-foreground">
+                    <span>{content}</span>
+                    <span className="mt-2 text-xs text-muted-foreground">
                         Комментарий {formatDateTime(created_at, created)}
                     </span>
                 </p>

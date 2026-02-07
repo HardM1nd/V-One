@@ -12,7 +12,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny, IsAdminUser
+from accounts.permissions import IsAuthenticatedReadOnlyForDemo
 
 from .serializers import MyTokenObtainPairSerializer, SignupSerializer, UserSerializer, NotificationSerializer
 
@@ -101,6 +102,7 @@ class FollowerListAPIView(ListAPIView):
 
 
 class FollowUnfollowUserAPIView(APIView):
+    allow_read_only_user = True
 
     def post(self, request, pk):
         user = request.user
@@ -179,7 +181,7 @@ class PilotListAPIView(ListAPIView):
 
 class NotificationListAPIView(ListAPIView):
     serializer_class = NotificationSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
 
     def get_queryset(self):
         queryset = Notification.objects.filter(user=self.request.user).order_by("-created")
@@ -190,7 +192,8 @@ class NotificationListAPIView(ListAPIView):
 
 
 class NotificationReadAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    allow_read_only_user = True
 
     def post(self, request, pk):
         notification = get_object_or_404(Notification, pk=pk, user=request.user)
@@ -200,7 +203,8 @@ class NotificationReadAPIView(APIView):
 
 
 class NotificationReadAllAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    allow_read_only_user = True
 
     def post(self, request):
         Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
@@ -208,7 +212,7 @@ class NotificationReadAllAPIView(APIView):
 
 
 class NotificationUnreadCountAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo]
 
     def get(self, request):
         count = Notification.objects.filter(user=request.user, is_read=False).count()
@@ -217,7 +221,7 @@ class NotificationUnreadCountAPIView(APIView):
 
 class BanUnbanUserAPIView(APIView):
     """API endpoint для администраторов для бана/разбана пользователей"""
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticatedReadOnlyForDemo, IsAdminUser]
 
     def post(self, request, pk):
         user_to_ban = get_object_or_404(User, pk=pk)

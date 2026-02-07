@@ -48,15 +48,15 @@ export default function SignIn() {
         <main className="w-screen h-screen flex items-center justify-center bg-background">
             <Card className="w-[90vw] max-w-lg">
                 <CardContent className="p-6 space-y-4">
-                    <div className="space-y-1">
+                    <div className="mt-4 space-y-1">
                         <h1 className="text-2xl font-semibold">Вход в V-One</h1>
                         <p className="text-sm text-muted-foreground">
                             Добро пожаловать! Войдите в аккаунт.
                         </p>
                     </div>
                     <form onSubmit={(e) => handleSubmit(e)} className="w-full flex flex-col gap-3">
-                        <label htmlFor="signup-username" className="text-sm text-muted-foreground">
-                            Имя пользователя
+                        <label htmlFor="signin-login" className="text-sm text-muted-foreground">
+                            Логин
                         </label>
                         <Input
                             type="text"
@@ -65,8 +65,9 @@ export default function SignIn() {
                             required
                             value={formData.username}
                             onChange={handleChange}
-                            placeholder="имя пользователя"
-                            id="signup-username"
+                            placeholder="имя пользователя или email"
+                            id="signin-login"
+                            autoComplete="username"
                         />
                         <label htmlFor="signup-password" className="text-sm text-muted-foreground">
                             Пароль

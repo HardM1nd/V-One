@@ -134,7 +134,7 @@ const Pilots = () => {
                 {loading ? (
                     <div className="text-center py-8 text-muted-foreground">Загрузка...</div>
                 ) : pilots.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
+                    <div className="text-center py-8 text-muted-foreground mt-4">
                         Пилоты не найдены
                     </div>
                 ) : (
