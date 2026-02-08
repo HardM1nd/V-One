@@ -15,12 +15,15 @@ export function formatDateTime(value, fallback = "") {
     }).format(date);
 }
 
-/** Базовый URL бэкенда (без /api) для медиа и статики */
+/** Базовый URL бэкенда (без /api) для медиа — совпадает с API (удалённое хранилище в проде) */
 function getBackendBaseUrl() {
     const env = import.meta.env.VITE_API_URL || "";
     if (env) return env.replace(/\/api\/?$/, "").replace(/\/$/, "") || env;
-    if (typeof window !== "undefined") return `${window.location.protocol}//${window.location.hostname}:8000`;
-    return "";
+    if (typeof window === "undefined") return "";
+    if (/localhost|127\.0\.0\.1/.test(window.location.host)) {
+        return `${window.location.protocol}//${window.location.hostname}:8000`;
+    }
+    return "https://ogayanfe.pythonanywhere.com";
 }
 
 /**

@@ -90,15 +90,14 @@ const SideNav = (props) => {
                 border-b border-border dark:border-muted-foreground/20
                 text-2xl text-primary items-center
                 transition-all duration-300
-                ${!open ? "hidden lg:flex" : "flex"}
             `}
             >
             <h1 className="font-bold">V-one</h1>
             </header>
             <nav className="flex flex-col py-2 flex-grow overflow-y-auto overflow-x-hidden">
             <button
-                className={`lg:hidden transition duration-300 top-3 sm:top-4 text-primary absolute
-                    ${open ? "right-2 rotate-[720deg]" : "left-4"}
+                className={`lg:hidden transition duration-1000 top-3 sm:top-4 text-primary absolute
+                    ${open ? "right-2 rotate-[360deg]" : "left-2"}
                 `}
                 onClick={() => setShowSidebar((p) => !p)}
                 aria-hidden="true"

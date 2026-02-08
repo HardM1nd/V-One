@@ -143,6 +143,18 @@ class ProfileUpdateAPIView(UpdateAPIView):
     def get_object(self):
         return get_object_or_404(self.model, id=self.request.user.id)
 
+    def perform_update(self, serializer):
+        serializer.save()
+        user = self.get_object()
+        clear_profile = str(self.request.data.get("clear_profile_pic", "")).strip().lower() in ("1", "true")
+        clear_cover = str(self.request.data.get("clear_cover_pic", "")).strip().lower() in ("1", "true")
+        if clear_profile:
+            user.profile_pic = None
+        if clear_cover:
+            user.cover_pic = None
+        if clear_profile or clear_cover:
+            user.save(update_fields=["profile_pic", "cover_pic"])
+
 
 class PilotListAPIView(ListAPIView):
     """Список пилотов с фильтрацией по типу"""

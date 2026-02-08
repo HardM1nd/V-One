@@ -1,7 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import useUserContext from "../../contexts/UserContext";
 import usePageContext from "../../contexts/pageContext";
-import { useEffect } from "react";
+import {
+    saveProfileEditFile,
+    getProfileEditFile,
+    clearProfileEditFile,
+    clearAllProfileEditDrafts,
+} from "../../lib/profileEditDraftStorage";
+import { getMediaUrl } from "../../lib/utils";
 import { ChangePasswordModal } from "../global/Modals";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
@@ -16,7 +22,7 @@ function validateUsername(username) {
 }
 
 const Settings = () => {
-    const { profileData, updateInfo, isDemoUser } = useUserContext();
+    const { profileData, updateInfo, fetchUserData, isDemoUser } = useUserContext();
     const { maxFileSizeKb } = usePageContext();
     const { 
         profile_pic, 
@@ -34,6 +40,7 @@ const Settings = () => {
     };
     const showCover = Boolean(cover_pic) && !cover_pic.includes("coverphoto.jpg");
     const [editUsername, setEditUsername] = useState(false);
+    const fileBlobsRef = useRef({ profile_pic: null, cover_pic: null });
     const [formValues, setFormValues] = useState({
         username: username,
         pilot_type: pilot_type,
@@ -44,17 +51,77 @@ const Settings = () => {
         ...defaultFileValues,
     });
     const [updatePassword, setupdatePassword] = useState(false);
+    /** Флаги «удалено в форме» — скрываем превью серверного фото, пока пользователь не выберет новое */
+    const [removedPics, setRemovedPics] = useState({ profile_pic: false, cover_pic: false });
+
+    useEffect(() => {
+        let mounted = true;
+        const restore = async () => {
+            try {
+                const [profileData, coverData] = await Promise.all([
+                    getProfileEditFile("profile_pic"),
+                    getProfileEditFile("cover_pic"),
+                ]);
+                if (!mounted) return;
+                setFormValues((prev) => {
+                    const next = { ...prev };
+                    if (profileData?.blob) {
+                        try {
+                            const prevUrl = next.profile_pic?.file;
+                            if (typeof prevUrl === "string" && prevUrl.startsWith("blob:")) {
+                                URL.revokeObjectURL(prevUrl);
+                            }
+                            next.profile_pic = {
+                                file: URL.createObjectURL(profileData.blob),
+                                name: profileData.fileName,
+                                sizeKb: profileData.sizeKb,
+                            };
+                            fileBlobsRef.current.profile_pic = profileData.blob;
+                        } catch (_) {}
+                    }
+                    if (coverData?.blob) {
+                        try {
+                            const prevUrl = next.cover_pic?.file;
+                            if (typeof prevUrl === "string" && prevUrl.startsWith("blob:")) {
+                                URL.revokeObjectURL(prevUrl);
+                            }
+                            next.cover_pic = {
+                                file: URL.createObjectURL(coverData.blob),
+                                name: coverData.fileName,
+                                sizeKb: coverData.sizeKb,
+                            };
+                            fileBlobsRef.current.cover_pic = coverData.blob;
+                        } catch (_) {}
+                    }
+                    return next;
+                });
+            } catch (_) {}
+        };
+        restore();
+        return () => { mounted = false; };
+    }, []);
+
     const clearField = (field) => {
         const fieldFileIdMapping = {
             profile_pic: "profilePicUpdate",
             cover_pic: "coverPicUpdate",
         };
         setFormValues((prev) => {
+            const prevUrl = prev[field]?.file;
+            if (typeof prevUrl === "string" && prevUrl.startsWith("blob:")) {
+                URL.revokeObjectURL(prevUrl);
+            }
             return { ...prev, [field]: defaultFileValues[field] };
         });
+        fileBlobsRef.current[field] = null;
+        setRemovedPics((prev) => ({ ...prev, [field]: true }));
+        clearProfileEditFile(field).catch(() => {});
         const fieldId = fieldFileIdMapping[field];
-        document.getElementById(fieldId).value = "";
-        document.getElementById(fieldId).disabled = true;
+        const el = document.getElementById(fieldId);
+        if (el) {
+            el.value = "";
+            el.disabled = true;
+        }
     };
     const handleEditClick = (name) => {
         document.querySelector(`#${name}`).click();
@@ -67,18 +134,26 @@ const Settings = () => {
         });
     };
 
-    const handleFileChange = (e) => {
-        const file = URL.createObjectURL(e.target.files[0]);
-        setFormValues((prev) => {
-            return {
-                ...prev,
-                [e.target.name]: {
-                    file: file,
-                    sizeKb: Math.round(e.target.files[0].size / 1024),
-                    name: e.target.value.split("\\").pop(),
-                },
-            };
-        });
+    const handleFileChange = async (e) => {
+        const inputFile = e.target.files[0];
+        if (!inputFile) return;
+        const name = e.target.name;
+        const prevUrl = formValues[name]?.file;
+        if (typeof prevUrl === "string" && prevUrl.startsWith("blob:")) {
+            URL.revokeObjectURL(prevUrl);
+        }
+        const file = URL.createObjectURL(inputFile);
+        const sizeKb = Math.round(inputFile.size / 1024);
+        const fileName = e.target.value.split("\\").pop();
+        fileBlobsRef.current[name] = inputFile;
+        try {
+            await saveProfileEditFile(name, inputFile);
+        } catch (_) {}
+        setRemovedPics((prev) => ({ ...prev, [name]: false }));
+        setFormValues((prev) => ({
+            ...prev,
+            [name]: { file, sizeKb, name: fileName },
+        }));
     };
 
     const submitForm = (e) => {
@@ -88,17 +163,41 @@ const Settings = () => {
             return;
         }
         const formElement = e.target;
+        const formData = new FormData(formElement);
+        if (fileBlobsRef.current.profile_pic) {
+            formData.delete("profile_pic");
+            const pic = fileBlobsRef.current.profile_pic;
+            formData.append("profile_pic", pic, pic.name || formValues.profile_pic.name || "profile_pic");
+        } else if (removedPics.profile_pic) {
+            formData.append("clear_profile_pic", "1");
+        }
+        if (fileBlobsRef.current.cover_pic) {
+            formData.delete("cover_pic");
+            const pic = fileBlobsRef.current.cover_pic;
+            formData.append("cover_pic", pic, pic.name || formValues.cover_pic.name || "cover_pic");
+        } else if (removedPics.cover_pic) {
+            formData.append("clear_cover_pic", "1");
+        }
         const success = () => {
+            [formValues.profile_pic?.file, formValues.cover_pic?.file].forEach((url) => {
+                if (typeof url === "string" && url.startsWith("blob:")) URL.revokeObjectURL(url);
+            });
+            clearAllProfileEditDrafts().catch(() => {});
+            fileBlobsRef.current.profile_pic = null;
+            fileBlobsRef.current.cover_pic = null;
+            setRemovedPics({ profile_pic: false, cover_pic: false });
+            setFormValues((prev) => ({ ...prev, ...defaultFileValues }));
+            fetchUserData();
             alert("Изменения применятся после обновления страницы");
         };
 
-        const failure = (e) => {
-            const errorMessages = e.response.data;
-            const field = Object.keys(errorMessages)[0];
-            alert(errorMessages[field][0]);
+        const failure = (err) => {
+            const errorMessages = err.response?.data;
+            const field = errorMessages && Object.keys(errorMessages)[0];
+            alert(field ? errorMessages[field][0] : "Ошибка сохранения");
         };
 
-        updateInfo(new FormData(formElement), success, failure);
+        updateInfo(formData, success, failure);
     };
 
     useEffect(() => {
@@ -107,7 +206,7 @@ const Settings = () => {
 
     return (
         <Card className="w-full mt-3">
-            <CardContent className="p-6">
+            <CardContent className="mt-4 p-6">
                 <form
                     onSubmit={submitForm}
                     className="flex flex-col gap-7 justify-between"
@@ -139,14 +238,14 @@ const Settings = () => {
                         >
                             Редактировать
                         </Button>
-                        {formValues.profile_pic.file && (
+                        {(formValues.profile_pic.file || (profile_pic && !removedPics.profile_pic)) && (
                             <Button
                                 type="button"
                                 size="sm"
                                 variant="destructive"
                                 onClick={() => clearField("profile_pic")}
                             >
-                            Очистить
+                                Очистить
                             </Button>
                         )}
                     </div>
@@ -164,12 +263,12 @@ const Settings = () => {
                         </div>
                     )}
                     <div className="w-full flex items-center justify-center">
-                        {formValues.profile_pic.file || profile_pic ? (
+                        {formValues.profile_pic.file || (profile_pic && !removedPics.profile_pic) ? (
                             <img
                                 src={
                                     formValues.profile_pic.file
                                         ? formValues.profile_pic.file
-                                        : profile_pic
+                                        : getMediaUrl(profile_pic)
                                 }
                                 alt={username}
                                 className="rounded-full w-[136px] h-[136px] border-4 border-primary"
@@ -207,14 +306,14 @@ const Settings = () => {
                         >
                             Редактировать
                         </Button>
-                        {formValues.cover_pic.file && (
+                        {(formValues.cover_pic.file || (showCover && !removedPics.cover_pic)) && (
                             <Button
                                 type="button"
                                 size="sm"
                                 variant="destructive"
                                 onClick={() => clearField("cover_pic")}
                             >
-                            Очистить
+                                Очистить
                             </Button>
                         )}
                     </div>
@@ -232,9 +331,9 @@ const Settings = () => {
                         </div>
                     )}
                     <div className="w-full flex items-center justify-center p-2 rounded">
-                        {formValues.cover_pic.file || showCover ? (
+                        {formValues.cover_pic.file || (showCover && !removedPics.cover_pic) ? (
                             <img
-                                src={formValues.cover_pic.file ? formValues.cover_pic.file : cover_pic}
+                                src={formValues.cover_pic.file ? formValues.cover_pic.file : getMediaUrl(cover_pic)}
                                 alt="Обложка профиля"
                                 className="w-4/5 rounded-lg object-cover max-h-[40vh]"
                             ></img>
