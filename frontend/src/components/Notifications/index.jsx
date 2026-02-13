@@ -83,19 +83,21 @@ const Notifications = () => {
     };
 
     return (
-        <div className="w-[599px] max-w-[99%] mt-1 mx-auto">
-            <Card className="p-4">
+        <div className="w-[599px] max-w-[99%] mt-1 mx-auto px-2 sm:px-0">
+            <Card className="p-3 sm:p-4 overflow-hidden">
                 <CardHeader className="px-0 pt-0">
-                    <div className="flex items-center justify-between gap-4">
-                        <h2 className="text-2xl font-bold">🔔 Уведомления</h2>
-                        <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
+                        <h2 className="text-xl sm:text-2xl font-bold">🔔 Уведомления</h2>
+                        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                             <Button
                                 variant={unreadOnly ? "default" : "outline"}
                                 onClick={() => setUnreadOnly((prev) => !prev)}
+                                size="sm"
+                                className="text-xs sm:text-sm"
                             >
                                 {unreadOnly ? "Все" : "Непрочитанные"}
                             </Button>
-                            <Button variant="outline" onClick={markAllRead}>
+                            <Button variant="outline" onClick={markAllRead} size="sm" className="text-xs sm:text-sm">
                                 Прочитать все
                             </Button>
                         </div>
@@ -115,23 +117,23 @@ const Notifications = () => {
                             return (
                                 <Card
                                     key={notification.id}
-                                    className={`p-4 rounded-lg ${
+                                    className={`p-3 sm:p-4 rounded-lg overflow-hidden ${
                                         notification.is_read
                                             ? "bg-card"
                                             : "bg-primary/10"
                                     }`}
                                 >
-                                    <CardContent className="p-4">
-                                        <div className="flex items-start justify-between gap-4">
-                                            <div className="flex-1 space-y-1">
-                                                <div className="text-sm text-foreground">
+                                    <CardContent className="p-0">
+                                        <div className="flex items-start justify-between gap-2 sm:gap-4">
+                                            <div className="flex-1 min-w-0 space-y-1">
+                                                <div className="text-sm text-foreground break-words">
                                                     {notification.message || "Новое уведомление"}
                                                 </div>
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                                                     {link && (
                                                         <Link
                                                             to={link}
-                                                            className="text-sm text-primary hover:underline"
+                                                            className="text-xs sm:text-sm text-primary hover:underline whitespace-nowrap"
                                                             onClick={() => {
                                                                 if (!notification.is_read) {
                                                                     markRead(notification.id);
@@ -142,7 +144,7 @@ const Notifications = () => {
                                                         </Link>
                                                     )}
                                                     {!notification.is_read && (
-                                                        <Badge variant="secondary">Новое</Badge>
+                                                        <Badge variant="secondary" className="text-xs whitespace-nowrap">Новое</Badge>
                                                     )}
                                                 </div>
                                             </div>
@@ -151,6 +153,7 @@ const Notifications = () => {
                                                     size="sm"
                                                     variant="outline"
                                                     onClick={() => markRead(notification.id)}
+                                                    className="flex-shrink-0 text-xs sm:text-sm px-2 sm:px-3"
                                                 >
                                                     Прочитано
                                                 </Button>

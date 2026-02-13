@@ -1,24 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Input } from "../ui/input";
 
-// Популярные аэропорты России и мира (можно расширить или подключить API)
-const POPULAR_AIRPORTS = [
-    { name: "Москва (Шереметьево)", code: "UUEE", lat: 55.9736, lng: 37.4147 },
-    { name: "Москва (Домодедово)", code: "UUDD", lat: 55.4143, lng: 37.8995 },
-    { name: "Санкт-Петербург (Пулково)", code: "ULLI", lat: 59.8003, lng: 30.2625 },
-    { name: "Екатеринбург (Кольцово)", code: "USSS", lat: 56.7431, lng: 60.8028 },
-    { name: "Новосибирск (Толмачево)", code: "UNNT", lat: 55.0126, lng: 82.6507 },
-    { name: "Сочи", code: "URSS", lat: 43.4499, lng: 39.9566 },
-    { name: "Краснодар", code: "URKK", lat: 45.0347, lng: 39.1706 },
-    { name: "Казань", code: "UWKD", lat: 55.6062, lng: 49.2787 },
-    { name: "Лондон (Хитроу)", code: "EGLL", lat: 51.4700, lng: -0.4543 },
-    { name: "Париж (Шарль де Голль)", code: "LFPG", lat: 49.0097, lng: 2.5479 },
-    { name: "Франкфурт", code: "EDDF", lat: 50.0379, lng: 8.5622 },
-    { name: "Дубай", code: "OMDB", lat: 25.2532, lng: 55.3657 },
-    { name: "Нью-Йорк (JFK)", code: "KJFK", lat: 40.6413, lng: -73.7781 },
-    { name: "Лос-Анджелес", code: "KLAX", lat: 33.9425, lng: -118.4081 },
-];
-
 const AirportSearch = ({ 
     label, 
     value, 
@@ -72,7 +54,6 @@ const AirportSearch = ({
             <Input
                 value={inputValue}
                 onChange={handleInputChange}
-                placeholder="Например: Москва (Шереметьево) или 55.9736, 37.4147"
                 onFocus={() => setShowOptions(true)}
                 onBlur={() => setTimeout(() => setShowOptions(false), 150)}
             />

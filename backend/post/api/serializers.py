@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from post.models import Post, Comment
+from post.models import Post, Comment, PostImage
 from django.contrib.humanize.templatetags.humanize import naturaltime
 
 User = get_user_model()
@@ -110,20 +110,39 @@ class PostSerializer(serializers.ModelSerializer):
         """Переопределяем представление для правильного формирования URL изображения"""
         representation = super().to_representation(instance)
         
-        # Обрабатываем image
+        # Собираем все изображения поста (из PostImage и старое поле image для обратной совместимости)
+        images = []
+        
+        # Добавляем изображения из PostImage
+        for post_image in instance.images.all():
+            try:
+                if post_image.image and hasattr(post_image.image, 'url'):
+                    image_url = post_image.image.url
+                    if image_url and image_url.strip():
+                        images.append(image_url)
+            except (ValueError, AttributeError):
+                pass
+        
+        # Если есть старое поле image (для обратной совместимости), добавляем его первым
         if instance.image and hasattr(instance.image, 'url'):
             try:
                 image_url = instance.image.url
-                # Проверяем, что URL не пустой
                 if image_url and image_url.strip():
-                    representation['image'] = image_url
-                else:
-                    representation['image'] = ""
-            except (ValueError, AttributeError) as e:
-                # Если файл был удален или недоступен
-                representation['image'] = ""
-        else:
+                    # Добавляем в начало, если его еще нет в списке
+                    if image_url not in images:
+                        images.insert(0, image_url)
+            except (ValueError, AttributeError):
+                pass
+        
+        # Возвращаем массив изображений (или одно изображение для обратной совместимости)
+        if len(images) == 0:
             representation['image'] = ""
+        elif len(images) == 1:
+            # Для обратной совместимости: если одно изображение, возвращаем строку
+            representation['image'] = images[0]
+        else:
+            # Если несколько изображений, возвращаем массив
+            representation['image'] = images
         
         return representation
 
@@ -174,4 +193,24 @@ class PostSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context.get("request").user
         validated_data["creator"] = validated_data.get('creator', user)
-        return super().create(validated_data)
+        
+        # Получаем файлы из request.FILES
+        request = self.context.get("request")
+        files = request.FILES.getlist('image') if request else []
+        
+        # Сохраняем первое изображение в старое поле image для обратной совместимости
+        if files:
+            validated_data['image'] = files[0]
+        
+        # Создаем пост
+        post = super().create(validated_data)
+        
+        # Сохраняем все остальные изображения в PostImage
+        for index, file in enumerate(files[1:], start=1):
+            PostImage.objects.create(
+                post=post,
+                image=file,
+                order=index
+            )
+        
+        return post

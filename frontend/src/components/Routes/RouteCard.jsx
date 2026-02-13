@@ -141,11 +141,11 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                     navigate(`/route/${route.id}`);
                 }
             }}
-            className="transition hover:bg-accent/40 mb-3 cursor-pointer"
+            className="transition hover:bg-accent/40 mb-3 ml-0 sm:ml-4 cursor-pointer overflow-hidden"
         >
-            <CardContent className="p-4">
-                <div className="mt-2 flex items-start gap-4">
-                    <Avatar className="mt-5 h-12 w-12">
+            <CardContent className="p-3 sm:p-4">
+                <div className="mt-2 flex items-start gap-2 sm:gap-4">
+                    <Avatar className="mt-5 h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
                         <AvatarImage
                             src={
                                 route.pilot?.profile_pic
@@ -159,36 +159,30 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                         </AvatarFallback>
                     </Avatar>
 
-                    <div className="flex-1">
-                        <div className="flex items-start justify-between mb-2">
-                            <div>
-                                <h3 className="text-lg font-semibold mb-1">{route.title}</h3>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between mb-2 gap-2">
+                            <div className="min-w-0 flex-1">
+                                <h3 className="text-base sm:text-lg font-semibold m-1 break-words">{route.title}</h3>
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                     <span
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             navigate(`/user/${route.pilot?.id}/`);
                                         }}
-                                        className="hover:text-primary cursor-pointer"
+                                        className="hover:text-primary cursor-pointer truncate"
                                     >
                                         @{route.pilot?.username}
                                     </span>
-                                    {route.created_display && (
-                                        <>
-                                            <span>•</span>
-                                            <span>{route.created_display}</span>
-                                        </>
-                                    )}
                                 </div>
                             </div>
 
                             {showActions && (
-                                <div className="flex gap-1 relative">
+                                <div className="flex gap-0.5 sm:gap-1 relative flex-shrink-0">
                                     <Button
                                         variant="ghost"
                                         size="icon"
                                         title="Лайк"
-                                        className={route.is_liked ? "text-red-500" : ""}
+                                        className={`${route.is_liked ? "text-red-500" : ""} h-8 w-8 sm:h-10 sm:w-10`}
                                         onClick={handleLike}
                                     >
                                         <iconify-icon
@@ -204,7 +198,7 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                                         variant="ghost"
                                         size="icon"
                                         title="Сохранить"
-                                        className={route.is_saved ? "text-blue-500" : ""}
+                                        className={`${route.is_saved ? "text-blue-500" : ""} h-8 w-8 sm:h-10 sm:w-10`}
                                         onClick={handleSave}
                                     >
                                         <iconify-icon
@@ -220,6 +214,7 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                                         variant="ghost"
                                         size="icon"
                                         title="Скопировать ссылку"
+                                        className="h-8 w-8 sm:h-10 sm:w-10"
                                         onClick={handleCopyLink}
                                     >
                                         <iconify-icon icon="bi:link-45deg" />
@@ -235,7 +230,7 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                                                     e.stopPropagation();
                                                     setOpenOptions((prev) => !prev);
                                                 }}
-                                                className="text-muted-foreground hover:text-foreground h-8 w-8"
+                                                className="text-muted-foreground hover:text-foreground h-8 w-8 sm:h-10 sm:w-10"
                                                 title="Меню"
                                             >
                                                 <span className="sr-only">Меню</span>
@@ -269,36 +264,36 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                         </div>
 
                         {route.description && (
-                            <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                            <p className="text-sm text-muted-foreground mb-2 line-clamp-2 break-words">
                                 {route.description}
                             </p>
                         )}
 
-                        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs text-muted-foreground">
                             {route.aircraft_type && (
-                                <Badge variant="outline">{route.aircraft_type}</Badge>
+                                <Badge variant="outline" className="whitespace-nowrap text-xs">{route.aircraft_type}</Badge>
                             )}
                             {waypointCount > 1 && (
-                                <Badge variant="outline">
+                                <Badge variant="outline" className="whitespace-nowrap text-xs">
                                     Точек: {waypointCount}
                                 </Badge>
                             )}
                             {route.flight_date_display && (
-                                <span>📅 {route.flight_date_display}</span>
+                                <span className="whitespace-nowrap">📅 {route.flight_date_display}</span>
                             )}
                             {route.flight_duration && (
-                                <span>
+                                <span className="whitespace-nowrap">
                                     ⏱️ {formatDuration(route.flight_duration)}
                                 </span>
                             )}
                             {route.distance && (
-                                <span>
+                                <span className="whitespace-nowrap">
                                     📏 {parseFloat(route.distance).toFixed(0)} км
                                 </span>
                             )}
                             {(route.likes_count > 0 ||
                                 route.saves_count > 0) && (
-                                <span>
+                                <span className="whitespace-nowrap">
                                     ❤️ {route.likes_count || 0} · 🔖{" "}
                                     {route.saves_count || 0}
                                 </span>

@@ -92,7 +92,9 @@ const SideNav = (props) => {
                 transition-all duration-300
             `}
             >
-            <h1 className="font-bold">V-one</h1>
+            <h1 className={`font-bold transition-all duration-200 origin-right ${
+                open ? "scale-1" : "scale-0"
+            } lg:scale-100`}>V-one</h1>
             </header>
             <nav className="flex flex-col py-2 flex-grow overflow-y-auto overflow-x-hidden">
             <button

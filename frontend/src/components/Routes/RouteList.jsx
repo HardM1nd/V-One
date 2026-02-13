@@ -211,14 +211,8 @@ const RouteList = ({ endpoint, pilotId = null, showFilters = true }) => {
                                     }
                                     className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground min-w-[200px]"
                                 >
-                                    <option value="-created">Новые сначала</option>
-                                    <option value="created">Старые сначала</option>
-                                    <option value="-flight_date">
-                                        По дате полета (новые)
-                                    </option>
-                                    <option value="flight_date">
-                                        По дате полета (старые)
-                                    </option>
+                                    <option value="-created">Сначала новые</option>
+                                    <option value="created">Сначала старые</option>
                                     <option value="-distance">
                                         По расстоянию (больше)
                                     </option>

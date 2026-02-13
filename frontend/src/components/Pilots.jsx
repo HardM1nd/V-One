@@ -66,10 +66,10 @@ const Pilots = () => {
                 prev.map((pilot) =>
                     pilot.id === pilotId
                         ? {
-                              ...pilot,
-                              is_following: followed,
-                              followers: Math.max(0, (pilot.followers || 0) + (followed ? 1 : -1)),
-                          }
+                            ...pilot,
+                            is_following: followed,
+                            followers: Math.max(0, (pilot.followers || 0) + (followed ? 1 : -1)),
+                        }
                         : pilot
                 )
             );
@@ -78,57 +78,61 @@ const Pilots = () => {
         }
     };
 
+    const truncateUsername = (username, maxLength = 5) => {
+        if (username.length <= maxLength) return username;
+        return username.substring(0, maxLength) + "...";
+    };
+
     return (
-        <div className="w-[599px] max-w-[99%] mt-4 mx-auto">
-            <Card className="bg-card p-4">
-                <h2 className="text-2xl font-bold dark:text-gray-100 mb-4">
+        <div className="w-full max-w-[599px] mt-4 mx-auto px-2 sm:px-0">
+            <Card className="bg-card p-3 sm:p-4">
+                <h2 className="text-xl sm:text-2xl font-bold dark:text-gray-100 mb-4">
                     ✈️ Сообщество пилотов
                 </h2>
-                
-                <div className="flex flex-wrap gap-2 mb-3">
+
+                <div className="flex flex-col sm:flex-row justify-center items-center flex-wrap gap-2 mb-3">
                     <Input
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Поиск пилотов"
-                        className="mb-4 min-w-[200px]"
+                        className="w-full sm:min-w-[200px] mb-2 sm:mb-0"
                     />
-                    <Button
-                        type="button"
-                        onClick={() => setFilter("all")}
-                        variant={filter === "all" ? "default" : "outline"}
-                        size="sm"
-                    >
-                        Все
-                    </Button>
-                    <Button
-                        type="button"
-                        onClick={() => setFilter("virtual")}
-                        variant={filter === "virtual" ? "default" : "outline"}
-                        size="sm"
-                    >
-                        Виртуальные
-                    </Button>
-                    <Button
-                        type="button"
-                        onClick={() => setFilter("real")}
-                        variant={filter === "real" ? "default" : "outline"}
-                        size="sm"
-                    >
-                        Реальные
-                    </Button>
-                </div>
-
-                <div className="flex gap-2 mb-4">
+                    <div className="flex flex-wrap justify-center gap-2 w-full sm:w-auto">
                     <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
-                        className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground"
-                    >
-                        <option value="-flight_hours">По часам налета (убывание)</option>
-                        <option value="flight_hours">По часам налета (возрастание)</option>
-                        <option value="username">По имени (А-Я)</option>
-                        <option value="-username">По имени (Я-А)</option>
-                    </select>
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground mb-2 w-full sm:w-auto"
+                        >
+                            <option value="-flight_hours">По часам налета (убывание)</option>
+                            <option value="flight_hours">По часам налета (возрастание)</option>
+                            <option value="username">По имени (А-Я)</option>
+                            <option value="-username">По имени (Я-А)</option>
+                        </select>
+                        <Button
+                            type="button"
+                            onClick={() => setFilter("all")}
+                            variant={filter === "all" ? "default" : "outline"}
+                            size="sm"
+                        >
+                            Все
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={() => setFilter("virtual")}
+                            variant={filter === "virtual" ? "default" : "outline"}
+                            size="sm"
+                        >
+                            Виртуальные
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={() => setFilter("real")}
+                            variant={filter === "real" ? "default" : "outline"}
+                            size="sm"
+                        >
+                            Реальные
+                        </Button>
+                    </div>
                 </div>
 
                 {loading ? (
@@ -150,30 +154,25 @@ const Pilots = () => {
                                     }
                                 }}
                                 key={pilot.id}
-                                className="transition hover:bg-accent/40"
+                                className="transition hover:bg-accent/40 overflow-hidden"
                             >
-                                <CardContent className="p-4">
-                                    <div className="mt-4 flex items-start gap-4">
-                                <Avatar className="h-14 w-14">
-                                    <AvatarImage
-                                        src={pilot?.profile_pic ? getMediaUrl(pilot.profile_pic) : ""}
-                                        alt={pilot?.username}
-                                    />
-                                    <AvatarFallback>
-                                        {pilot?.username?.charAt(0).toUpperCase()}
-                                    </AvatarFallback>
-                                </Avatar>
-                                        <div className="flex-1">
-                                            <div className="flex items-start justify-between gap-2mb-2">
-                                                <div className="flex items-center gap-2">
-                                                    <h3 className="text-lg font-semibold">
+                                <CardContent className="p-3 mt-3 sm:p-4">
+                                    <div className="mt-2 sm:mt-4 flex items-start gap-2 sm:gap-4">
+                                        <Avatar className="h-12 w-12 sm:h-14 sm:w-14 flex-shrink-0">
+                                            <AvatarImage
+                                                src={pilot?.profile_pic ? getMediaUrl(pilot.profile_pic) : ""}
+                                                alt={pilot?.username}
+                                            />
+                                            <AvatarFallback>
+                                                {pilot?.username?.charAt(0).toUpperCase()}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-start justify-between gap-2 mb-2">
+                                                <div className="flex items-center gap-2 min-w-0 flex-1">
+                                                    <h3 className="text-base sm:text-lg font-semibold break-words truncate">
                                                         @{pilot.username}
                                                     </h3>
-                                                    {pilot.pilot_type_display && (
-                                                        <Badge variant={getPilotTypeBadge(pilot.pilot_type)}>
-                                                            {pilot.pilot_type_display}
-                                                        </Badge>
-                                                    )}
                                                 </div>
                                                 {user && user.id !== pilot.id && (
                                                     <Button
@@ -183,29 +182,35 @@ const Pilots = () => {
                                                             e.stopPropagation();
                                                             handleFollowToggle(pilot.id);
                                                         }}
+                                                        className="flex-shrink-0 text-xs sm:text-sm px-2 sm:px-3"
                                                     >
                                                         {pilot.is_following ? "Отписаться" : "Подписаться"}
                                                     </Button>
                                                 )}
                                             </div>
                                             {pilot.bio && (
-                                                <p className="text-sm text-muted-foreground mb-2">
+                                                <p className="text-sm text-muted-foreground mb-2 break-words">
                                                     {pilot.bio}
                                                 </p>
                                             )}
-                                            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                                            <div className="flex flex-wrap justify-start gap-1.5 sm:gap-2 md:gap-4 mt-2 text-xs sm:text-sm text-muted-foreground">
+                                                {pilot.pilot_type_display && (
+                                                    <Badge variant={getPilotTypeBadge(pilot.pilot_type)} className="text-xs whitespace-nowrap">
+                                                        {pilot.pilot_type_display}
+                                                    </Badge>
+                                                )}
                                                 {pilot.flight_hours > 0 && (
-                                                    <span>
+                                                    <span className="whitespace-nowrap">
                                                         ✈️ {parseFloat(pilot.flight_hours).toFixed(1)} ч
                                                     </span>
                                                 )}
                                                 {pilot.aircraft_types_list && pilot.aircraft_types_list.length > 0 && (
-                                                    <span>
+                                                    <span className="break-words">
                                                         🛩️ {pilot.aircraft_types_list.slice(0, 2).join(", ")}
                                                         {pilot.aircraft_types_list.length > 2 && "..."}
                                                     </span>
                                                 )}
-                                                <span>
+                                                <span className="whitespace-nowrap">
                                                     👥 {pilot.followers} подписчиков
                                                 </span>
                                             </div>

@@ -8,21 +8,29 @@ import { Card, CardContent } from "../ui/card";
 import { Textarea } from "../ui/textarea";
 import { getMediaUrl } from "../../lib/utils";
 
-const ImagePreview = ({ file, removeImage }) => {
+const ImagePreview = ({ file, removeImage, index }) => {
     return (
-        <div className="w-full float-right relative mt-3">
+        <div className="relative group">
             <img
-                src={file}
-                alt="превью выбранного файла"
-                className="w-full rounded-lg object-cover max-h-[50vh]"
+                src={file.preview}
+                alt={`превью изображения ${index + 1}`}
+                className="w-full h-full rounded-lg object-cover"
             ></img>
             <button
-                className="w-full h-full p-3  rounded-lg lg:text-2xl absolute top-0 left-0 bg-gray-900 opacity-0 hover:opacity-80 text-white transition-all"
+                className="absolute top-2 right-2 p-1 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 text-white transition-opacity hover:bg-black/80"
                 onClick={removeImage}
                 type="button"
+                aria-label={`Удалить изображение ${index + 1}`}
             >
-                Удалить изображение
+                <iconify-icon icon="mdi:close" width="20px"></iconify-icon>
             </button>
+            {file.sizeKb > 0 && (
+                <div className={`absolute bottom-2 left-2 text-xs px-2 py-1 rounded ${
+                    file.sizeKb > 500 ? "bg-red-600/80 text-white" : "bg-black/60 text-white"
+                }`}>
+                    {file.sizeKb} КБ
+                </div>
+            )}
         </div>
     );
 };
@@ -31,7 +39,7 @@ const TweetForm = () => {
     const { setData, maxFileSizeKb } = usePageContext();
     const { createPost } = usePostActionContext();
     const [previewImage, setPreviewImage] = useState(true);
-    const [file, setFile] = useState({ name: "", file: null, sizeKb: 0 });
+    const [files, setFiles] = useState([]);
     const {
         profileData: { username, profile_pic },
         isDemoUser,
@@ -43,42 +51,71 @@ const TweetForm = () => {
 
     const fileInputRef = useRef();
 
-    const clearFile = (e) => {
-        if (e) {
-            e.preventDefault();
-            const remove = window.confirm(`Clear ${file.name} from form?`);
-            if (!remove) return;
-        }
+    const addFiles = (newFiles) => {
+        const fileArray = Array.from(newFiles || []);
+        const validFiles = fileArray
+            .map((file) => {
+                const sizeKb = Math.round(file.size / 1024);
+                if (sizeKb > maxFileSizeKb) {
+                    alert(`Файл ${file.name} слишком большой. Максимум ${maxFileSizeKb} КБ. Ваш файл: ${sizeKb} КБ`);
+                    return null;
+                }
+                return {
+                    file: file,
+                    preview: URL.createObjectURL(file),
+                    name: file.name,
+                    sizeKb: sizeKb,
+                };
+            })
+            .filter(Boolean);
+        
+        setFiles((prev) => [...prev, ...validFiles]);
+    };
+
+    const removeFile = (index) => {
+        const fileToRemove = files[index];
+        URL.revokeObjectURL(fileToRemove.preview);
+        setFiles((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    const clearAllFiles = () => {
+        files.forEach((file) => URL.revokeObjectURL(file.preview));
+        setFiles([]);
         if (fileInputRef.current) {
             fileInputRef.current.value = null;
         }
-        setFile({
-            name: "",
-            file: null,
-            sizeKb: 0,
-        });
     };
 
     const submitForm = (e) => {
         e.preventDefault();
-        if (file.sizeKb > maxFileSizeKb) {
+        
+        // Проверка размера файлов
+        const oversizedFiles = files.filter((f) => f.sizeKb > maxFileSizeKb);
+        if (oversizedFiles.length > 0) {
             alert(
-                `Файл слишком большой. Максимум ${maxFileSizeKb} КБ. Ваш файл: ${file.sizeKb} КБ`
+                `Некоторые файлы слишком большие. Максимум ${maxFileSizeKb} КБ.`
             );
             return;
         }
+
         const formElement = e.target;
+        const formData = new FormData(formElement);
+        
+        // Добавляем все файлы в FormData
+        files.forEach((fileObj, index) => {
+            formData.append(`image`, fileObj.file);
+        });
+
         const success = (r) => {
             setData((prev) => ({
                 ...prev,
                 posts: [r.data, ...(prev.posts || [])],
             }));
             formElement.content.value = "";
-            formElement.image.value = "";
-            clearFile();
+            clearAllFiles();
         };
         createPost(
-            new FormData(formElement),
+            formData,
             success,
             (err) =>
                 alert(
@@ -97,6 +134,15 @@ const TweetForm = () => {
             formElement.removeEventListener("submit", submitForm);
         };
     });
+    useEffect(() => {
+        return () => {
+            files.forEach((fileObj) => {
+                if (fileObj.preview) {
+                    URL.revokeObjectURL(fileObj.preview);
+                }
+            });
+        };
+    }, []);
     return (
         <Card className="w-[95%] max-w-[598px] mt-4">
             <CardContent className="p-4 grid grid-cols-[48px,_auto] gap-3">
@@ -138,63 +184,77 @@ const TweetForm = () => {
                             id="post-image-field"
                             className="fixed -top-[10000px]"
                             ref={fileInputRef}
+                            multiple
                             onChange={(e) => {
-                                if (!e.target.files || !e.target.files[0]) return;
-                                const objUrl = URL.createObjectURL(e.target.files[0]);
-                                setFile({
-                                    file: objUrl,
-                                    sizeKb: Math.round(e.target.files[0].size / 1024),
-                                    name: e.target.value.split("\\").pop(),
-                                });
+                                if (!e.target.files || e.target.files.length === 0) return;
+                                addFiles(e.target.files);
+                                e.target.value = ""; // Сбрасываем input для возможности повторного выбора тех же файлов
                             }}
                         />
                         <div className="text-xs text-muted-foreground">
-                            Файл: {file.name || "не выбран"}
+                            Выбрано изображений: {files.length}
                         </div>
 
-                        {file.file && (
-                            <div
-                                className={`text-xs ${
-                                    file.sizeKb > maxFileSizeKb
-                                        ? "text-red-600 dark:text-red-400"
-                                        : "text-emerald-600 dark:text-emerald-300"
-                                }`}
-                            >
-                                Размер: {file.sizeKb} КБ / {maxFileSizeKb} КБ (
-                                {file.sizeKb <= maxFileSizeKb ? "Ок" : "Слишком большой"})
+                        {files.length > 0 && (
+                            <div className="text-xs text-muted-foreground">
+                                Общий размер: {files.reduce((sum, f) => sum + f.sizeKb, 0)} КБ / {maxFileSizeKb * files.length} КБ
                             </div>
                         )}
 
-                        {previewImage && file.file && (
-                            <ImagePreview
-                                file={file.file}
-                                removeImage={(e) => clearFile(e)}
-                            />
+                        {previewImage && files.length > 0 && (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-3">
+                                {files.map((fileObj, index) => (
+                                    <ImagePreview
+                                        key={index}
+                                        file={fileObj}
+                                        removeImage={() => removeFile(index)}
+                                        index={index}
+                                    />
+                                ))}
+                            </div>
                         )}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                         <Button type="button" variant="outline" onClick={chooseImageFile}>
                             <iconify-icon icon="bi:image">Выбрать изображение</iconify-icon>
                         </Button>
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            disabled={!file.file}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                setPreviewImage((prev) => !prev);
-                            }}
-                        >
-                                <iconify-icon
-                                icon={
-                                    previewImage
-                                        ? "ant-design:eye-invisible-filled"
-                                        : "icon-park-outline:preview-open"
-                                }
+                        {files.length > 0 && (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    setPreviewImage((prev) => !prev);
+                                }}
                             >
-                                    Показать превью
-                            </iconify-icon>
-                        </Button>
+                                <iconify-icon
+                                    icon={
+                                        previewImage
+                                            ? "ant-design:eye-invisible-filled"
+                                            : "icon-park-outline:preview-open"
+                                    }
+                                >
+                                    {previewImage ? "Скрыть превью" : "Показать превью"}
+                                </iconify-icon>
+                            </Button>
+                        )}
+                        {files.length > 0 && (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    if (window.confirm("Удалить все изображения?")) {
+                                        clearAllFiles();
+                                    }
+                                }}
+                                className="text-destructive hover:text-destructive"
+                            >
+                                <iconify-icon icon="mdi:delete-outline" width="18px">
+                                    Очистить все
+                                </iconify-icon>
+                            </Button>
+                        )}
                         <Button className="ml-auto" type="submit">
                             Опубликовать
                         </Button>

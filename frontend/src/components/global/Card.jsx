@@ -3,7 +3,7 @@ import useUserContext from "../../contexts/UserContext";
 import usePageContext from "../../contexts/pageContext";
 import { CommentsModal, EditPostModal } from "./Modals";
 import { Link } from "react-router-dom";
-import { Flag, MoreVertical, Trash2 } from "lucide-react";
+import { Flag, MoreVertical, Trash2, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Card as UiCard, CardContent } from "../ui/card";
@@ -70,10 +70,40 @@ const Card = (props) => {
     const [viewComment, setViewComment] = useState(false);
     const [openOptions, setOpenOptions] = useState(false);
     const [imageError, setImageError] = useState(false);
+    const [showImageModal, setShowImageModal] = useState(false);
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+    // Нормализуем изображения: поддерживаем как одно изображение, так и массив
+    const images = React.useMemo(() => {
+        if (!card_image) return [];
+        if (Array.isArray(card_image)) {
+            return card_image.filter(Boolean);
+        }
+        return [card_image];
+    }, [card_image]);
 
     useEffect(() => {
         setImageError(false);
     }, [card_image]);
+
+    // Обработка клавиатурной навигации в модальном окне
+    useEffect(() => {
+        if (!showImageModal || images.length <= 1) return;
+
+        const handleKeyDown = (e) => {
+            if (e.key === "ArrowLeft" && selectedImageIndex > 0) {
+                setSelectedImageIndex((prev) => prev - 1);
+            } else if (e.key === "ArrowRight" && selectedImageIndex < images.length - 1) {
+                setSelectedImageIndex((prev) => prev + 1);
+            } else if (e.key === "Escape") {
+                setShowImageModal(false);
+                setSelectedImageIndex(0);
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [showImageModal, selectedImageIndex, images.length]);
 
     const handleDelete = (e) => {
         const del = window.confirm("Удалить пост?");
@@ -136,38 +166,133 @@ const Card = (props) => {
                     </Avatar>
                 </div>
                 <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Link
-                            className="text-foreground font-medium hover:text-primary"
-                            to={user_id && creator_id && Number(user_id) === Number(creator_id) ? "/profile" : `/user/${creator_id}/`}
-                        >
-                            {user_id && creator_id && Number(user_id) === Number(creator_id) ? "Вы" : user}
-                        </Link>
-                        <span>•</span>
-                        <span>{formatDateTime(created_at, created)}</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-sm text-muted-foreground pr-12 sm:pr-0">
+                        <div className="flex items-center gap-2">
+                            <Link
+                                className="text-foreground font-medium hover:text-primary"
+                                to={user_id && creator_id && Number(user_id) === Number(creator_id) ? "/profile" : `/user/${creator_id}/`}
+                            >
+                                {user_id && creator_id && Number(user_id) === Number(creator_id) ? "Вы" : user}
+                            </Link>
+                            <span>•</span>
+                            <span>{formatDateTime(created_at, created)}</span>
+                        </div>
                         {id !== creator_id && is_following_user && (
-                            <>
-                                <span>•</span>
+                            <div className="flex items-center gap-2">
+                                <span className="hidden sm:inline">•</span>
                                 <span>в подписках</span>
-                            </>
+                            </div>
                         )}
                     </div>
                     <div className="text-sm text-foreground">
                         {isEdited ? "Изменено: " : ""}
                         {card_content}
                     </div>
-                    {card_image && !imageError && (
+                    {images.length > 0 && !imageError && (
                         <div className="pt-1">
-                            <img
-                                src={getMediaUrl(card_image)}
-                                className="max-h-[65vh] w-full rounded-xl object-cover"
-                                alt="пост"
-                                onError={() => setImageError(true)}
-                            />
+                            {images.length === 1 ? (
+                                <div className="w-full">
+                                    <img
+                                        src={getMediaUrl(images[0])}
+                                        className="max-h-[65vh] w-full rounded-xl object-cover cursor-pointer"
+                                        alt="пост"
+                                        onError={() => setImageError(true)}
+                                        onClick={() => {
+                                            setSelectedImageIndex(0);
+                                            setShowImageModal(true);
+                                        }}
+                                    />
+                                </div>
+                            ) : images.length === 2 ? (
+                                <div className="grid grid-cols-2 gap-1 rounded-xl overflow-hidden">
+                                    {images.map((img, idx) => (
+                                        <img
+                                            key={idx}
+                                            src={getMediaUrl(img)}
+                                            className="w-full h-[300px] sm:h-[400px] object-cover cursor-pointer"
+                                            alt={`пост ${idx + 1}`}
+                                            onError={() => setImageError(true)}
+                                            onClick={() => {
+                                                setSelectedImageIndex(idx);
+                                                setShowImageModal(true);
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            ) : images.length === 3 ? (
+                                <div className="grid grid-cols-2 gap-1 rounded-xl overflow-hidden">
+                                    <img
+                                        src={getMediaUrl(images[0])}
+                                        className="w-full h-[400px] sm:h-[500px] row-span-2 object-cover cursor-pointer"
+                                        alt="пост 1"
+                                        onError={() => setImageError(true)}
+                                        onClick={() => {
+                                            setSelectedImageIndex(0);
+                                            setShowImageModal(true);
+                                        }}
+                                    />
+                                    {images.slice(1).map((img, idx) => (
+                                        <img
+                                            key={idx + 1}
+                                            src={getMediaUrl(img)}
+                                            className="w-full h-[195px] sm:h-[245px] object-cover cursor-pointer"
+                                            alt={`пост ${idx + 2}`}
+                                            onError={() => setImageError(true)}
+                                            onClick={() => {
+                                                setSelectedImageIndex(idx + 1);
+                                                setShowImageModal(true);
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            ) : images.length === 4 ? (
+                                <div className="grid grid-cols-2 gap-1 rounded-xl overflow-hidden">
+                                    {images.map((img, idx) => (
+                                        <img
+                                            key={idx}
+                                            src={getMediaUrl(img)}
+                                            className="w-full h-[300px] sm:h-[400px] object-cover cursor-pointer"
+                                            alt={`пост ${idx + 1}`}
+                                            onError={() => setImageError(true)}
+                                            onClick={() => {
+                                                setSelectedImageIndex(idx);
+                                                setShowImageModal(true);
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-2 gap-1 rounded-xl overflow-hidden">
+                                    {images.slice(0, 4).map((img, idx) => (
+                                        <div key={idx} className="relative">
+                                            <img
+                                                src={getMediaUrl(img)}
+                                                className="w-full h-[300px] sm:h-[400px] object-cover cursor-pointer"
+                                                alt={`пост ${idx + 1}`}
+                                                onError={() => setImageError(true)}
+                                                onClick={() => {
+                                                    setSelectedImageIndex(idx);
+                                                    setShowImageModal(true);
+                                                }}
+                                            />
+                                            {idx === 3 && images.length > 4 && (
+                                                <div
+                                                    className="absolute inset-0 bg-black/60 flex items-center justify-center cursor-pointer text-white text-2xl font-bold"
+                                                    onClick={() => {
+                                                        setSelectedImageIndex(3);
+                                                        setShowImageModal(true);
+                                                    }}
+                                                >
+                                                    +{images.length - 4}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     )}
-                    <div className="absolute top-3 right-3 flex items-center gap-1 z-10">
-                        {/* Пожаловаться — для всех пользователей (обычно на чужие посты) */}
+                    <div className="absolute top-4 right-3 flex items-center gap-1 z-10">
                         {(!user_id || !creator_id || Number(user_id) !== Number(creator_id)) && (
                             <Button
                                 variant="ghost"
@@ -181,7 +306,6 @@ const Card = (props) => {
                             </Button>
                         )}
 
-                        {/* Меню владельца */}
                         {user_id && creator_id && Number(user_id) === Number(creator_id) ? (
                             <>
                                 <Button
@@ -213,7 +337,6 @@ const Card = (props) => {
                             </>
                         ) : null}
 
-                        {/* Удаление админом чужих постов */}
                         {isAdmin && (!user_id || !creator_id || Number(user_id) !== Number(creator_id)) && (
                             <Button
                                 variant="ghost"
@@ -233,6 +356,73 @@ const Card = (props) => {
                             onClose={() => setShowEditPostModal(false)}
                             open={showEditPostModal}
                         />
+                    )}
+                    {showImageModal && images.length > 0 && (
+                        <div
+                            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
+                            onClick={() => {
+                                setShowImageModal(false);
+                                setSelectedImageIndex(0);
+                            }}
+                        >
+                            <div className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center w-full h-full">
+                                {/* Кнопка закрытия */}
+                                <button
+                                    className="absolute top-4 right-4 z-20 text-white hover:text-gray-300 transition-colors bg-black/50 rounded-full p-2 hover:bg-black/70"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowImageModal(false);
+                                        setSelectedImageIndex(0);
+                                    }}
+                                    aria-label="Закрыть"
+                                >
+                                    <X className="h-6 w-6" />
+                                </button>
+
+                                {/* Навигация влево */}
+                                {images.length > 1 && selectedImageIndex > 0 && (
+                                    <button
+                                        className="absolute left-4 text-white hover:text-gray-300 transition-colors bg-black/50 rounded-full p-3 hover:bg-black/70"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedImageIndex((prev) => Math.max(0, prev - 1));
+                                        }}
+                                        aria-label="Предыдущее изображение"
+                                    >
+                                        <iconify-icon icon="mdi:chevron-left" width="24px"></iconify-icon>
+                                    </button>
+                                )}
+
+                                {/* Навигация вправо */}
+                                {images.length > 1 && selectedImageIndex < images.length - 1 && (
+                                    <button
+                                        className="absolute right-4 z-20 text-white hover:text-gray-300 transition-colors bg-black/50 rounded-full p-3 hover:bg-black/70"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedImageIndex((prev) => Math.min(images.length - 1, prev + 1));
+                                        }}
+                                        aria-label="Следующее изображение"
+                                    >
+                                        <iconify-icon icon="mdi:chevron-right" width="24px"></iconify-icon>
+                                    </button>
+                                )}
+
+                                {/* Счетчик изображений */}
+                                {images.length > 1 && (
+                                    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 text-white bg-black/50 rounded-full px-4 py-2 text-sm">
+                                        {selectedImageIndex + 1} / {images.length}
+                                    </div>
+                                )}
+
+                                {/* Изображение */}
+                                <img
+                                    src={getMediaUrl(images[selectedImageIndex])}
+                                    className="max-w-full max-h-[90vh] object-contain rounded-lg"
+                                    alt={`пост ${selectedImageIndex + 1}`}
+                                    onClick={(e) => e.stopPropagation()}
+                                />
+                            </div>
+                        </div>
                     )}
                     <nav className="w-full grid grid-cols-3 gap-2 pt-2 border-t border-border">
                         <Button

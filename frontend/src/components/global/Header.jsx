@@ -28,19 +28,19 @@ const Header = (props) => {
     };
     const pageTitle = titleMap[cur] || cur;
     return (
-        <header className="flex items-center justify-center pl-12 sm:pl-2 p-2 h-14 absolute w-full bg-background border-0 text-foreground sm:px-8">
-            <div className="max max-w-6xl w-full flex justify-between">
+        <header className="flex items-center justify-center pl-12 sm:pl-2 p-1.5 sm:p-2 h-14 absolute w-full bg-background border-0 text-foreground sm:px-8 overflow-hidden">
+            <div className="max max-w-6xl w-full flex justify-between items-center min-w-0">
                 <div
-                    className="flex gap-1 text-2xl text-primary items-center pl-10 sm:pl-10"
+                    className="flex gap-1 text-lg sm:text-xl md:text-2xl text-primary items-center pl-8 sm:pl-10 min-w-0 flex-shrink"
                     aria-hidden={true}
                 >
-                    <h1 className="font-bold inline-block capitalize">
+                    <h1 className="font-bold inline-block capitalize truncate">
                         {isError ? "v-one" : pageTitle}
                     </h1>
                 </div>
-                <div className="flex justify-between items-center gap-2 lg:gap-3">
+                <div className="flex justify-between items-center gap-1 sm:gap-2 lg:gap-3 flex-shrink-0">
                     <a
-                        className="text-foreground text-2xl hover:text-primary"
+                        className="text-foreground hover:text-primary flex-shrink-0"
                         href="https://github.com/HardM1nd/V-One"
                         target="_blank"
                         rel="noreferrer"
@@ -49,7 +49,7 @@ const Header = (props) => {
                         <span className="sr-only">Код на GitHub</span>
                         <svg
                             viewBox="0 0 24 24"
-                            className="h-9 w-9"
+                            className="h-7 w-7 sm:h-8 sm:w-8 md:h-9 md:w-9"
                             aria-hidden="true"
                             focusable="false"
                         >
@@ -64,11 +64,12 @@ const Header = (props) => {
                         size="icon"
                         onClick={() => setDarkTheme((p) => !p)}
                         aria-label={darkTheme ? "Переключить на светлую тему" : "Переключить на темную тему"}
+                        className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 flex-shrink-0"
                     >
                         {darkTheme ? (
                             <svg
                                 viewBox="0 0 24 24"
-                                className="h-6 w-6"
+                                className="h-5 w-5 sm:h-6 sm:w-6"
                                 fill="none"
                                 stroke="currentColor"
                                 strokeWidth="2"
@@ -89,7 +90,7 @@ const Header = (props) => {
                         ) : (
                             <svg
                                 viewBox="0 0 24 24"
-                                className="h-6 w-6"
+                                className="h-5 w-5 sm:h-6 sm:w-6"
                                 fill="none"
                                 stroke="currentColor"
                                 strokeWidth="2"
@@ -101,22 +102,26 @@ const Header = (props) => {
                             </svg>
                         )}
                     </Button>
-                    <Link to="/profile/" className="cursor-pointer">
-                        <Avatar>
-                            <AvatarImage
-                                src={user && profile_pic ? getMediaUrl(profile_pic) : ""}
-                                alt={username}
-                            />
-                            <AvatarFallback>
-                                {username?.charAt(0).toUpperCase()}
-                            </AvatarFallback>
-                        </Avatar>
-                    </Link>
-                    <Link to="/profile/" className="cursor-pointer">
-                        <p className="text-primary font-bold xm:static fixed -top-36 capitalize">
-                        {user && username}
-                        </p>
-                    </Link>
+                    {user && (
+                        <>
+                            <Link to="/profile/" className="cursor-pointer flex-shrink-0">
+                                <Avatar className="h-7 w-7 sm:h-8 sm:w-8 md:h-9 md:w-9">
+                                    <AvatarImage
+                                        src={profile_pic ? getMediaUrl(profile_pic) : ""}
+                                        alt={username}
+                                    />
+                                    <AvatarFallback>
+                                        {username?.charAt(0).toUpperCase()}
+                                    </AvatarFallback>
+                                </Avatar>
+                            </Link>
+                            <Link to="/profile/" className="cursor-pointer hidden sm:block min-w-0">
+                                <p className="text-primary font-bold capitalize truncate text-xs sm:text-sm md:text-base">
+                                    {username}
+                                </p>
+                            </Link>
+                        </>
+                    )}
                 </div>
             </div>
         </header>
