@@ -101,7 +101,7 @@ const Pilots = () => {
                     <select
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value)}
-                            className="rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground mb-2 w-full sm:w-auto"
+                            className="rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground mb-2 w-full"
                         >
                             <option value="-flight_hours">По часам налета (убывание)</option>
                             <option value="flight_hours">По часам налета (возрастание)</option>
@@ -156,8 +156,8 @@ const Pilots = () => {
                                 key={pilot.id}
                                 className="transition hover:bg-accent/40 overflow-hidden"
                             >
-                                <CardContent className="p-3 mt-3 sm:p-4">
-                                    <div className="mt-2 sm:mt-4 flex items-start gap-2 sm:gap-4">
+                                <CardContent className="mt-3">
+                                    <div className="mt-2 flex items-start gap-2 sm:gap-4">
                                         <Avatar className="h-12 w-12 sm:h-14 sm:w-14 flex-shrink-0">
                                             <AvatarImage
                                                 src={pilot?.profile_pic ? getMediaUrl(pilot.profile_pic) : ""}
@@ -168,7 +168,7 @@ const Pilots = () => {
                                             </AvatarFallback>
                                         </Avatar>
                                         <div className="flex-1 min-w-0">
-                                            <div className="flex items-start justify-between gap-2 mb-2">
+                                            <div className="flex items-start justify-between gap-2">
                                                 <div className="flex items-center gap-2 min-w-0 flex-1">
                                                     <h3 className="text-base sm:text-lg font-semibold break-words truncate">
                                                         @{pilot.username}
@@ -182,7 +182,7 @@ const Pilots = () => {
                                                             e.stopPropagation();
                                                             handleFollowToggle(pilot.id);
                                                         }}
-                                                        className="flex-shrink-0 text-xs sm:text-sm px-2 sm:px-3"
+                                                        className="flex-shrink-0 text-xs sm:text-sm px-2"
                                                     >
                                                         {pilot.is_following ? "Отписаться" : "Подписаться"}
                                                     </Button>

@@ -75,11 +75,6 @@ const AirportSearch = ({
                     ))}
                 </div>
             )}
-            {lat && lng && (
-                <div className="text-xs text-muted-foreground mt-1">
-                    Координаты: {parseFloat(lat).toFixed(6)}, {parseFloat(lng).toFixed(6)}
-                </div>
-            )}
         </div>
     );
 };

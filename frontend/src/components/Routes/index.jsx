@@ -37,7 +37,7 @@ const Routes = () => {
         <div className="w-[599px] max-w-[95%] mt-3 mx-auto">
             <Card className="mb-4">
                 <CardContent className="space-y-3">
-                    <div className="mt-3 flex items-center gap-4 flex-wrap">
+                    <div className="mt-3 flex justify-between gap-4 flex-wrap">
                         <h2 className="text-2xl font-bold">✈️ Маршруты</h2>
                         {user && (
                             <Button onClick={() => setQueryParams({ tab: "create" })}>
@@ -45,7 +45,7 @@ const Routes = () => {
                             </Button>
                         )}
                     </div>
-                    <div className="mt-3 flex justify-between gap-4 flex-wrap">
+                    <div className="mt-3 flex justify-center gap-4 flex-wrap">
                         {[
                             { label: "Все", value: "all" },
                             ...(user ? [{ label: "Подписки", value: "following" }] : []),

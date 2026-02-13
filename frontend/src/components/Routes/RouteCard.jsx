@@ -143,7 +143,7 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
             }}
             className="transition hover:bg-accent/40 mb-3 ml-0 sm:ml-4 cursor-pointer overflow-hidden"
         >
-            <CardContent className="p-3 sm:p-4">
+            <CardContent className="p-3">
                 <div className="mt-2 flex items-start gap-2 sm:gap-4">
                     <Avatar className="mt-5 h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
                         <AvatarImage
