@@ -20,8 +20,6 @@ const defaultProfileData = {
     follower: "",
 };
 
-const pyAnywhere = "https://ogayanfe.pythonanywhere.com/";
-
 function UserContextProvider({ children }) {
     const userTokensFromStorage = (() => {
         try {
@@ -44,18 +42,12 @@ function UserContextProvider({ children }) {
         }
     });
 
-    const envApiUrl = import.meta.env.VITE_API_URL;
-    const fallbackUrl =
-        typeof window !== "undefined" && window.location
-            ? `${window.location.protocol}//${window.location.hostname}:8000/`
-            : pyAnywhere;
+    const envApiUrl = import.meta.env.VITE_API_URL || "";
     const SERVERURL = envApiUrl
         ? envApiUrl.endsWith("/")
             ? envApiUrl
             : envApiUrl + "/"
-        : ["localhost:3000"].includes(window.location.host)
-        ? "http://localhost:8000/"
-        : fallbackUrl;
+        : "";
 
     const [profileData, setProfileData] = useState(defaultProfileData);
     const [tokens, setTokens] = useState(userTokensFromStorage);
