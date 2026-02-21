@@ -10,7 +10,8 @@ const ProfilePostContainer = () => {
     const container = useRef();
     useEffect(() => {
         const success = (response) => {
-            setData({ next: response.data.next, posts: response.data.results });
+            const raw = response.data?.results;
+            setData({ next: response.data?.next ?? null, posts: Array.isArray(raw) ? raw : [] });
         };
         getPosts("user", success, () => alert("Не удалось загрузить посты"));
         return () => setData({ next: null, posts: [] });
@@ -18,12 +19,12 @@ const ProfilePostContainer = () => {
 
     const retrieveNextPost = () => {
         const success = (response) => {
-            setData((prev) => {
-                return {
-                    next: response.data.next,
-                    posts: [...prev.posts, ...response.data.results],
-                };
-            });
+            const raw = response.data?.results;
+            const newPosts = Array.isArray(raw) ? raw : [];
+            setData((prev) => ({
+                next: response.data?.next ?? null,
+                posts: [...prev.posts, ...newPosts],
+            }));
         };
         const nextUrl = getNextUrl();
         if (!nextUrl) return;

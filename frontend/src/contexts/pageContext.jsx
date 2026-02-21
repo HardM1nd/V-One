@@ -15,8 +15,9 @@ export const PageContextProvider = ({ children }) => {
     const likePost = (id, success) => {
         const _success = (response) => {
             setData((prev) => {
+                const posts = Array.isArray(prev.posts) ? prev.posts : [];
                 const update = response.data;
-                let newPost = prev.posts.map((post) => (post.id === update.id ? update : post));
+                const newPost = posts.map((post) => (post.id === update.id ? update : post));
                 return { ...prev, posts: newPost };
             });
         };
@@ -26,8 +27,9 @@ export const PageContextProvider = ({ children }) => {
     const savePost = (id, success) => {
         const _success = (response) => {
             setData((prev) => {
+                const posts = Array.isArray(prev.posts) ? prev.posts : [];
                 const update = response.data;
-                let newPost = prev.posts.map((post) => (post.id === update.id ? update : post));
+                const newPost = posts.map((post) => (post.id === update.id ? update : post));
                 return { ...prev, posts: newPost };
             });
         };
@@ -38,7 +40,8 @@ export const PageContextProvider = ({ children }) => {
         const success = (response) => {
             onSuccess(response);
             setData((prev) => {
-                const newPosts = prev.posts.map((post) => {
+                const posts = Array.isArray(prev.posts) ? prev.posts : [];
+                const newPosts = posts.map((post) => {
                     return post.id === id
                         ? { ...post, comments: post.comments + 1, is_commented: true }
                         : post;
@@ -88,8 +91,9 @@ export const PageContextProvider = ({ children }) => {
             .then((response) => {
                 const updatedData = response.data;
                 setData((prev) => {
-                    const posts = prev.posts.map((post) => (post.id === id ? updatedData : post));
-                    return { ...prev, posts: posts };
+                    const posts = Array.isArray(prev.posts) ? prev.posts : [];
+                    const newPosts = posts.map((post) => (post.id === id ? updatedData : post));
+                    return { ...prev, posts: newPosts };
                 });
                 onSuccess(response);
             })

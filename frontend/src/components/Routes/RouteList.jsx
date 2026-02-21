@@ -56,7 +56,8 @@ const RouteList = ({ endpoint, pilotId = null, showFilters = true }) => {
                 }
 
                 const response = await axiosInstance.get(requestUrl, { params });
-                const data = response.data.results || response.data;
+                const rawData = response.data.results ?? response.data;
+                const data = Array.isArray(rawData) ? rawData : [];
 
                 if (url) {
                     setRoutes((prev) => [...prev, ...data]);

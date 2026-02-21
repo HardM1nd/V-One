@@ -19,7 +19,8 @@ const Notifications = () => {
             const response = await axiosInstance.get(requestUrl, {
                 params: url ? undefined : { unread: unreadOnly ? "1" : "" },
             });
-            const data = response.data.results || response.data;
+            const rawData = response.data.results ?? response.data;
+            const data = Array.isArray(rawData) ? rawData : [];
             if (url) {
                 setNotifications((prev) => [...prev, ...data]);
             } else {

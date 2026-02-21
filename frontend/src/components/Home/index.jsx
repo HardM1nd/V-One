@@ -16,7 +16,8 @@ const Home = () => {
 
     useEffect(() => {
         const success = (r) => {
-            setData({ next: r.data.next, posts: r.data.results });
+            const raw = r.data?.results;
+            setData({ next: r.data?.next ?? null, posts: Array.isArray(raw) ? raw : [] });
         };
         getPosts("", success, () => alert("Не удалось загрузить ленту"));
         return () => {
@@ -33,9 +34,11 @@ const Home = () => {
 
     const retrieveNextPost = () => {
         const success = (response) => {
+            const raw = response.data?.results;
+            const newPosts = Array.isArray(raw) ? raw : [];
             setData((prev) => ({
-                next: response.data.next,
-                posts: [...prev.posts, ...response.data.results],
+                next: response.data?.next ?? null,
+                posts: [...prev.posts, ...newPosts],
             }));
         };
         const nextUrl = getNextUrl();

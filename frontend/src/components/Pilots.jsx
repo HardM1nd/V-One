@@ -31,7 +31,8 @@ const Pilots = () => {
                 params.q = query;
             }
             const response = await axiosInstance.get("accounts/pilots/", { params });
-            setPilots(response.data.results || response.data);
+            const raw = response.data.results ?? response.data;
+            setPilots(Array.isArray(raw) ? raw : []);
         } catch (error) {
             console.error("Error fetching pilots:", error);
         } finally {

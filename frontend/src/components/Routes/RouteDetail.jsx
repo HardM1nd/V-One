@@ -114,7 +114,7 @@ const RouteDetail = () => {
     };
 
     const getRoutePoints = () => {
-        if (route?.waypoints && route.waypoints.length > 1) {
+        if (route?.waypoints && Array.isArray(route.waypoints) && route.waypoints.length > 1) {
             return route.waypoints.map(point => ({
                 lat: parseFloat(point.lat),
                 lng: parseFloat(point.lng),
@@ -390,7 +390,7 @@ const RouteDetail = () => {
                                 interactive={false}
                                 height="500px"
                             />
-                            {route.waypoints && route.waypoints.length > 0 && (
+                            {Array.isArray(route.waypoints) && route.waypoints.length > 0 && (
                                 <div className="mt-4 bg-muted p-3 rounded-lg">
                                     <div className="text-sm font-semibold mb-2">Точки маршрута</div>
                                     <div className="space-y-1 text-sm text-muted-foreground">

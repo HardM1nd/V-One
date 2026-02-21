@@ -21,14 +21,14 @@ services:
       - DB_PORT=${DB_PORT:-5432}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1}
       # MinIO / S3 (удалённое хранилище https://s3-ef-minio.jkproduction.pro, бакет V-One)
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-${MINIO_ROOT_USER:-minioadmin}}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-${MINIO_ROOT_PASSWORD:-minioadmin}}
-      - AWS_STORAGE_BUCKET_NAME=${AWS_STORAGE_BUCKET_NAME:-${MINIO_BUCKET_NAME:-V-One}}
-      - AWS_S3_ENDPOINT_URL=${AWS_S3_ENDPOINT_URL:-http://minio:9000}
+      - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER:-minioadmin}
+      - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
+      - AWS_STORAGE_BUCKET_NAME=${MINIO_BUCKET_NAME:-media}
+      - AWS_S3_ENDPOINT_URL=http://minio:9000
       - MINIO_REGION=${MINIO_REGION:-us-east-1}
-      - AWS_S3_PUBLIC_URL=${AWS_S3_PUBLIC_URL:-}
-      - AWS_S3_CUSTOM_DOMAIN=${AWS_S3_CUSTOM_DOMAIN:-}
-      - AWS_S3_USE_SSL=${AWS_S3_USE_SSL:-False}
+      - AWS_S3_PUBLIC_URL=${MINIO_PUBLIC_URL:-}
+      - AWS_S3_CUSTOM_DOMAIN=${MINIO_CUSTOM_DOMAIN:-}
+      - AWS_S3_USE_SSL=False
       - USE_S3=${USE_S3:-True}
     command: >
       sh -c "python manage.py migrate &&

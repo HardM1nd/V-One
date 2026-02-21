@@ -8,7 +8,8 @@ const CardContainer = (props) => {
         data: { posts },
     } = usePageContext();
     const hasPostsProp = "posts" in props;
-    const results = hasPostsProp ? props.posts : posts;
+    const rawResults = hasPostsProp ? props.posts : posts;
+    const results = Array.isArray(rawResults) ? rawResults : [];
     const { onLike, onSave, onComment } = props;
     const emptyMessage = props.emptyMessage || "Пока нет постов.";
     const emptyHint =

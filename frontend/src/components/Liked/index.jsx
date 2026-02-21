@@ -10,7 +10,8 @@ const Liked = () => {
     const container = useRef();
     useEffect(() => {
         const success = (r) => {
-            setData({ next: r.data.next, posts: r.data.results });
+            const raw = r.data?.results;
+            setData({ next: r.data?.next ?? null, posts: Array.isArray(raw) ? raw : [] });
         };
         getPosts("liked", success, () => alert("Не удалось загрузить лайкнутые посты"));
         return () => {
@@ -27,12 +28,12 @@ const Liked = () => {
 
     const retrieveNextPost = () => {
         const success = (response) => {
-            setData((prev) => {
-                return {
-                    next: response.data.next,
-                    posts: [...prev.posts, ...response.data.results],
-                };
-            });
+            const raw = response.data?.results;
+            const newPosts = Array.isArray(raw) ? raw : [];
+            setData((prev) => ({
+                next: response.data?.next ?? null,
+                posts: [...prev.posts, ...newPosts],
+            }));
         };
         const nextUrl = getNextUrl();
         if (!nextUrl) return;

@@ -19,7 +19,7 @@ const Posts = () => {
             .get(`/post/user/${userId}/all/`)
             .then((response) => {
                 const { next, results } = response.data;
-                setData({ next: next, posts: results });
+                setData({ next: next ?? null, posts: Array.isArray(results) ? results : [] });
             })
             .catch(() => alert("Не удалось загрузить посты. Проверьте соединение."));
     }, [axiosInstance, userId]);
@@ -53,12 +53,12 @@ const Posts = () => {
 
     const retrieveNextPosts = () => {
         const success = (response) => {
-            setData((prev) => {
-                return {
-                    next: response.data.next,
-                    posts: [...prev.posts, ...response.data.results],
-                };
-            });
+            const raw = response.data?.results;
+            const newPosts = Array.isArray(raw) ? raw : [];
+            setData((prev) => ({
+                next: response.data?.next ?? null,
+                posts: [...prev.posts, ...newPosts],
+            }));
         };
         if (!next) return;
         getNextItems(next, success);

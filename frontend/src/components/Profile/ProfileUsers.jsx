@@ -17,9 +17,10 @@ const ProfileUsers = () => {
         axiosInstance
             .get(`/accounts/${user_id}/following/`)
             .then((response) => {
+                const raw = response.data.results;
                 setFollowers({
                     next: response.data.next,
-                    followers: response.data.results,
+                    followers: Array.isArray(raw) ? raw : [],
                 });
             })
             .catch(() => alert("Не удалось загрузить подписки"));
