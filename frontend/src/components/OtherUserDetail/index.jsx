@@ -103,7 +103,7 @@ const Profile = () => {
         <div className="h-[270px] w-full relative">
           <div className="h-[200px]">
             {showCover ? (
-              <img src={cover_pic} alt="cover" className="w-full h-full object-cover" />
+              <img src={getMediaUrl(cover_pic)} alt="cover" className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full bg-muted" />
             )}

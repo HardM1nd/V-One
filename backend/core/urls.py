@@ -79,6 +79,7 @@ if use_s3:
             bucket_name = os.getenv('AWS_STORAGE_BUCKET_NAME', getattr(settings, 'AWS_STORAGE_BUCKET_NAME', 'media'))
             access_key = os.getenv('AWS_ACCESS_KEY_ID', getattr(settings, 'AWS_ACCESS_KEY_ID', 'minioadmin'))
             secret_key = os.getenv('AWS_SECRET_ACCESS_KEY', getattr(settings, 'AWS_SECRET_ACCESS_KEY', 'minioadmin'))
+            use_ssl = os.getenv('AWS_S3_USE_SSL', str(getattr(settings, 'AWS_S3_USE_SSL', False))).lower() == 'true'
             
             # Создаем boto3 client для MinIO
             s3_client = boto3.client(
@@ -87,7 +88,7 @@ if use_s3:
                 aws_access_key_id=access_key,
                 aws_secret_access_key=secret_key,
                 config=Config(signature_version='s3v4'),
-                use_ssl=False,
+                use_ssl=use_ssl,
                 verify=False
             )
             
