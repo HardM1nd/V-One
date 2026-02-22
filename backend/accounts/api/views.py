@@ -1,6 +1,8 @@
 from accounts.models import User, Notification
 from django.db import models
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from datetime import timedelta
 from rest_framework import status
 from rest_framework.generics import (
     CreateAPIView,
@@ -14,6 +16,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny, IsAdminUser
 from accounts.permissions import IsAuthenticatedReadOnlyForDemo
+from post.models import Post, Comment
 
 from .serializers import MyTokenObtainPairSerializer, SignupSerializer, UserSerializer, NotificationSerializer
 
@@ -235,6 +238,56 @@ class BanUnbanUserAPIView(APIView):
     """API endpoint для администраторов для бана/разбана пользователей"""
     permission_classes = [IsAuthenticatedReadOnlyForDemo, IsAdminUser]
 
+    def _delete_user_messages(self, user, delete_period):
+        """
+        Удаляет сообщения пользователя (посты и комментарии) за указанный период.
+        
+        delete_period может быть:
+        - 'none': не удалять
+        - 'hour': последний час
+        - 'day': последние сутки
+        - 'week': последняя неделя
+        - 'month': последний месяц
+        - 'all': за все время
+        """
+        if delete_period == 'none':
+            return {'posts_deleted': 0, 'comments_deleted': 0}
+        
+        now = timezone.now()
+        
+        # Определяем временную границу
+        if delete_period == 'hour':
+            cutoff_time = now - timedelta(hours=1)
+        elif delete_period == 'day':
+            cutoff_time = now - timedelta(days=1)
+        elif delete_period == 'week':
+            cutoff_time = now - timedelta(weeks=1)
+        elif delete_period == 'month':
+            cutoff_time = now - timedelta(days=30)
+        elif delete_period == 'all':
+            cutoff_time = None
+        else:
+            return {'posts_deleted': 0, 'comments_deleted': 0}
+        
+        # Удаляем комментарии пользователя
+        comments_query = Comment.objects.filter(creator=user)
+        if cutoff_time:
+            comments_query = comments_query.filter(created__gte=cutoff_time)
+        comments_count = comments_query.count()
+        comments_query.delete()
+        
+        # Удаляем посты пользователя
+        posts_query = Post.objects.filter(creator=user)
+        if cutoff_time:
+            posts_query = posts_query.filter(created__gte=cutoff_time)
+        posts_count = posts_query.count()
+        posts_query.delete()
+        
+        return {
+            'posts_deleted': posts_count,
+            'comments_deleted': comments_count
+        }
+
     def post(self, request, pk):
         user_to_ban = get_object_or_404(User, pk=pk)
         
@@ -245,15 +298,30 @@ class BanUnbanUserAPIView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
         
+        # Получаем параметр удаления сообщений (только при блокировке)
+        delete_period = request.data.get('delete_period', 'none')
+        is_currently_banned = not user_to_ban.is_active
+        
         # Переключаем статус is_active
         user_to_ban.is_active = not user_to_ban.is_active
         user_to_ban.save()
         
+        # Удаляем сообщения только при блокировке (не при разблокировке)
+        deletion_info = {'posts_deleted': 0, 'comments_deleted': 0}
+        if not user_to_ban.is_active and not is_currently_banned and delete_period != 'none':
+            deletion_info = self._delete_user_messages(user_to_ban, delete_period)
+        
         action = "забанен" if not user_to_ban.is_active else "разбанен"
         serializer = UserSerializer(user_to_ban)
         
-        return Response({
+        response_data = {
             "message": f"Пользователь {action}",
             "user": serializer.data,
             "is_banned": not user_to_ban.is_active
-        })
+        }
+        
+        # Добавляем информацию об удалении только если были удалены сообщения
+        if deletion_info['posts_deleted'] > 0 or deletion_info['comments_deleted'] > 0:
+            response_data['deletion_info'] = deletion_info
+        
+        return Response(response_data)

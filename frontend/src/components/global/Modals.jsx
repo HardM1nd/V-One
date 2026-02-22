@@ -31,7 +31,7 @@ const ImagePreview = ({ src, removeImage, file }) => {
         );
     }
     return (
-        <div className="w-full h-48 rounded-md bg-white text-gray-700 dark:text-gray-200 flex items-center text-3xl justify-center dark:bg-[#03060e]">
+        <div className="w-full h-48 rounded-md bg-muted text-gray-700 dark:text-gray-200 flex items-center text-3xl justify-center">
             Файл не выбран
         </div>
     );

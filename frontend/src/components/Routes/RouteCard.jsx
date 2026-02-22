@@ -141,7 +141,7 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                     navigate(`/route/${route.id}`);
                 }
             }}
-            className="transition hover:bg-accent/40 mb-3 ml-0 sm:ml-4 cursor-pointer overflow-hidden"
+            className="transition hover:bg-accent/40 mb-3 cursor-pointer overflow-hidden"
         >
             <CardContent className="p-3">
                 <div className="mt-2 flex items-start gap-2 sm:gap-4">
@@ -171,7 +171,7 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                                         }}
                                         className="hover:text-primary cursor-pointer truncate"
                                     >
-                                        @{route.pilot?.username}
+                                        {route.pilot?.username}
                                     </span>
                                 </div>
                             </div>

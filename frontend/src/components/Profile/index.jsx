@@ -46,7 +46,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (!username) return;
-    document.title = `V-One | Профиль @${username}`;
+    document.title = `V-One | Профиль ${username}`;
     return function () {
       document.title = "V-One";
     };
@@ -61,7 +61,7 @@ const Profile = () => {
   const showCover = Boolean(cover_pic) && !cover_pic.includes("coverphoto.jpg");
 
   return (
-    <div className="w-[599px] max-w-[99%] mt-1 mx-auto space-y-4">
+    <div className="w-[599px] max-w-[99%] mx-auto space-y-4">
       <Card>
         <div className="h-[270px] w-full relative">
           <div className="h-[200px]">
@@ -88,8 +88,8 @@ const Profile = () => {
           </div>
         </div>
         <CardContent className="p-4 flex flex-col gap-2">
-          <p className="mt-3 capitalize text-lg">@{username}</p>
-          <div className="text-sm text-muted-foreground">в сети с {date_joined}</div>
+          <p className="mt-4 capitalize text-lg">{username}</p>
+          <div className="text-sm text-muted-foreground">зарегистрирован {date_joined}</div>
           {pilot_type_display && (
             <Badge className="w-40 justify-center" variant="secondary">✈️ {pilot_type_display}</Badge>
           )}

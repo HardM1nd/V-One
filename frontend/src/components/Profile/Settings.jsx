@@ -377,7 +377,7 @@ const Settings = () => {
                             value={formValues.username}
                         />
                     ) : (
-                        <Input value={`@${username}`} disabled />
+                        <Input value={`${username}`} disabled />
                     )}
                 </div>
                 <div className="flex gap-1 flex-col justify-center relative">

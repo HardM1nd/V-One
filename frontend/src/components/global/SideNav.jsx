@@ -42,20 +42,22 @@ const navElement = [
         icon: "healthicons:ui-user-profile",
         href: "/profile",
     },
-    { key: "logout", label: "Выход", icon: "oi:account-logout", href: "/logout" },
 ];
 
 const SideNav = (props) => {
     const { setShowSidebar, open } = props;
-    const { axiosInstance, user, fetchUserData } = useUserContext();
+    const { axiosInstance, user, profileData, fetchUserData } = useUserContext();
     const [unreadCount, setUnreadCount] = useState(0);
 
     const location = useLocation();
     let cur = location.pathname.split("/").at(1);
     if (cur.length === 0) cur = "home";
 
+    // Only call auth-only API after session is verified (profile loaded); avoids 401 with stale/invalid token
+    const sessionVerified = Boolean(user && profileData?.username);
+
     const fetchUnread = useCallback(async () => {
-        if (!user) {
+        if (!sessionVerified) {
             setUnreadCount(0);
             return;
         }
@@ -65,9 +67,12 @@ const SideNav = (props) => {
             );
             setUnreadCount(response.data.unread_count || 0);
         } catch (error) {
-            console.error("Error fetching unread count:", error);
+            if (error.response?.status !== 401) {
+                console.error("Error fetching unread count:", error);
+            }
+            setUnreadCount(0);
         }
-    }, [axiosInstance, user]);
+    }, [axiosInstance, sessionVerified]);
 
     useEffect(() => {
         fetchUnread();
@@ -80,7 +85,7 @@ const SideNav = (props) => {
 
     return (
         <div
-            className={`w-full h-full transition-all duration-300 relative flex flex-col bg-background border-border ${
+            className={`w-full h-full transition-all duration-300 relative flex flex-col bg-background border-border rounded-lg ${
                 open ? "border-r" : "sm:border-r"
             }`}
         >
@@ -89,7 +94,7 @@ const SideNav = (props) => {
                 flex bg-muted/60 w-full h-14 justify-center gap-4
                 border-b border-border dark:border-muted-foreground/20
                 text-2xl text-primary items-center
-                transition-all duration-300
+                transition-all duration-300 rounded-r-lg
             `}
             >
             <h1 className={`font-bold transition-all duration-200 origin-right ${
@@ -121,15 +126,15 @@ const SideNav = (props) => {
                         <Link
                             key={el.icon + el.label}
                             to={el.href}
-                            className={`w-full flex text-left justify-left transition pl-[22%] items-center h-12 gap-3 rounded-md px-2 hover:bg-accent ${activeClass}`}
+                            className={`w-full flex transition pl-[22%] items-center h-12 gap-3 rounded-r-lg px-2 hover:bg-accent ${activeClass}`}
                         >
-                            <span className="text-[1.5rem] ">
+                            <span className="text-[1.5rem] flex items-center justify-center ">
                                 <iconify-icon icon={el.icon}></iconify-icon>
                             </span>
                             <span
                                 className={`text-[1.05rem] ${
                                     open ? "scale-1" : "scale-0"
-                                } transition-all duration-200 pl-6 origin-right lg:scale-100`}
+                                } transition-all duration-200 pl-3 origin-right lg:scale-100`}
                             >
                                 {el.label}
                             </span>

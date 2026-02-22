@@ -32,9 +32,12 @@ function UserContextProvider({ children }) {
 
     const [user, setUser] = useState(() => {
         try {
-            const decoded = userTokensFromStorage && userTokensFromStorage.access
-                ? jwtDecode(userTokensFromStorage.access)
-                : null;
+            if (!userTokensFromStorage?.access) return null;
+            const decoded = jwtDecode(userTokensFromStorage.access);
+            if (decoded.exp != null && decoded.exp * 1000 < Date.now()) {
+                localStorage.removeItem("userTokens");
+                return null;
+            }
             return decoded;
         } catch (error) {
             localStorage.removeItem("userTokens");
@@ -50,7 +53,18 @@ function UserContextProvider({ children }) {
         : "";
 
     const [profileData, setProfileData] = useState(defaultProfileData);
-    const [tokens, setTokens] = useState(userTokensFromStorage);
+    const [tokens, setTokens] = useState(() => {
+        if (!userTokensFromStorage?.access) return null;
+        try {
+            const decoded = jwtDecode(userTokensFromStorage.access);
+            if (decoded.exp != null && decoded.exp * 1000 < Date.now()) {
+                return null;
+            }
+        } catch {
+            return null;
+        }
+        return userTokensFromStorage;
+    });
     const tokensRef = useRef(tokens);
 
     useEffect(() => {

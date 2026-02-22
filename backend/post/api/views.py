@@ -128,7 +128,7 @@ class ReportPostAPIView(APIView):
 
         message = (
             f"Жалоба на пост #{post.id} от {reporter_name}. "
-            f"Автор поста: @{post.creator.username}. "
+            f"Автор поста: {post.creator.username}. "
             f"Текст: {snippet}"
         )
 

@@ -66,7 +66,12 @@ const RouteList = ({ endpoint, pilotId = null, showFilters = true }) => {
                 }
                 setNextUrl(response.data.next || null);
             } catch (error) {
-                console.error("Error fetching routes:", error);
+                if (error.response?.status === 401) {
+                    setRoutes([]);
+                    setNextUrl(null);
+                } else {
+                    console.error("Error fetching routes:", error);
+                }
             } finally {
                 setLoading(false);
             }

@@ -5,6 +5,7 @@ import usePageContext from "../../contexts/pageContext";
 import Posts from "./Posts";
 import Media from "./Media";
 import Following from "./Following";
+import BlockUserModal from "./BlockUserModal";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -16,6 +17,7 @@ const Profile = () => {
   const { followUser } = usePageContext();
   const [profileData, setProfileData] = useState({});
   const [queryParams, setQueryParams] = useSearchParams();
+  const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
   const handleChange = (value) => {
     setQueryParams({ tab: value });
   };
@@ -57,7 +59,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (!username) return;
-    document.title = `V-One | Профиль @${username}`;
+    document.title = `V-One | Профиль ${username}`;
     return function () {
       document.title = "V-One";
     };
@@ -75,23 +77,30 @@ const Profile = () => {
   };
 
   const handleBanUnban = () => {
-    const isCurrentlyBanned = is_active === false;
-    const action = isCurrentlyBanned ? "разбанить" : "забанить";
-    const confirmMessage = `Вы уверены, что хотите ${action} пользователя @${username}?`;
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
-    axiosInstance
-      .post(`/accounts/admin/ban/${id}/`)
-      .then((response) => {
-        const { is_banned, user: updatedUser } = response.data;
-        setProfileData((prev) => ({ ...prev, is_active: updatedUser.is_active }));
-        alert(`Пользователь ${is_banned ? "забанен" : "разбанен"}`);
-      })
-      .catch((error) => {
-        alert("Не удалось выполнить действие. Проверьте соединение.");
-        console.error(error);
+    setIsBlockModalOpen(true);
+  };
+
+  const handleConfirmBlock = async (deletePeriod) => {
+    try {
+      const response = await axiosInstance.post(`/accounts/admin/ban/${id}/`, {
+        delete_period: deletePeriod,
       });
+      const { is_banned, user: updatedUser, deletion_info } = response.data;
+      setProfileData((prev) => ({ ...prev, is_active: updatedUser.is_active }));
+      
+      let message = `Пользователь ${is_banned ? "забанен" : "разбанен"}`;
+      if (deletion_info) {
+        const { posts_deleted, comments_deleted } = deletion_info;
+        if (posts_deleted > 0 || comments_deleted > 0) {
+          message += `. Удалено: ${posts_deleted} постов, ${comments_deleted} комментариев`;
+        }
+      }
+      alert(message);
+    } catch (error) {
+      alert("Не удалось выполнить действие. Проверьте соединение.");
+      console.error(error);
+      throw error;
+    }
   };
 
   if (curId && curId === id) {
@@ -140,9 +149,11 @@ const Profile = () => {
           </div>
         </div>
         <CardContent className="p-4 flex flex-col gap-2">
-          <p className="capitalize text-lg">@{username}</p>
-          <div className="text-sm text-muted-foreground">в сети с {date_joined}</div>
-          {pilot_type_display && <Badge variant="secondary">✈️ {pilot_type_display}</Badge>}
+          <p className="capitalize text-lg mt-4">{username}</p>
+          <div className="text-sm text-muted-foreground">зарегистрирован {date_joined}</div>
+          {pilot_type_display && (
+            <Badge className="w-40 justify-center" variant="secondary">✈️ {pilot_type_display}</Badge>
+          )}
           {flight_hours > 0 && (
             <div className="text-sm text-muted-foreground">
               Налет: {parseFloat(flight_hours).toFixed(1)} часов
@@ -189,6 +200,13 @@ const Profile = () => {
         {currentTab === "media" && <Media />}
         {currentTab === "following" && <Following />}
       </div>
+      <BlockUserModal
+        open={isBlockModalOpen}
+        onClose={() => setIsBlockModalOpen(false)}
+        onConfirm={handleConfirmBlock}
+        username={username}
+        isCurrentlyBanned={is_active === false}
+      />
     </div>
   );
 };

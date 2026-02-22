@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import RouteList from "./RouteList";
 import RouteForm from "./RouteForm";
@@ -8,9 +8,19 @@ import { Card, CardContent } from "../ui/card";
 
 const Routes = () => {
     const [queryParams, setQueryParams] = useSearchParams();
-    const { user } = useUserContext();
+    const { user, profileData } = useUserContext();
     const currentTab = queryParams.get("tab") || "all";
     const [refreshKey, setRefreshKey] = useState(0);
+
+    // Use verified session (profile loaded) for auth-only tabs to avoid 401 with stale/invalid token
+    const sessionVerified = Boolean(user && profileData?.username);
+
+    // Switch to "all" when session not verified but URL has auth-only tab
+    useEffect(() => {
+        if (!sessionVerified && (currentTab === "following" || currentTab === "saved")) {
+            setQueryParams({ tab: "all" });
+        }
+    }, [sessionVerified, currentTab, setQueryParams]);
 
     const handleTabChange = (newValue) => {
         setQueryParams({ tab: newValue });
@@ -22,6 +32,9 @@ const Routes = () => {
     };
 
     const getEndpoint = () => {
+        if (!sessionVerified && (currentTab === "following" || currentTab === "saved")) {
+            return "post/routes/";
+        }
         switch (currentTab) {
             case "following":
                 return "post/routes/following/";

@@ -9,9 +9,9 @@ const ErrorPage = () => {
         return <Navigate to="signin" />;
     }
     return (
-        <div className="dark:bg-[#030106]">
+        <div className="bg-background">
             <Header isError={true} />
-            <main className="flex-col gap-4 text-3xl dark:text-gray-300 xl:text-4xl flex items-center justify-center h-screen dark:border-white border-t-4">
+            <main className="flex-col gap-4 text-3xl dark:text-gray-300 xl:text-4xl flex items-center justify-center h-screen dark:border-white border-t-4 bg-background">
                 <h1 className="text-center capitalize">Страница не найдена</h1>
                 <span className="text-center capitalize">404</span>
                 <Link

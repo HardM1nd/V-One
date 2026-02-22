@@ -234,7 +234,7 @@ const RouteDetail = () => {
                                     to={`/user/${route.pilot?.id}/`}
                                     className="text-lg font-semibold hover:text-primary"
                                 >
-                                    @{route.pilot?.username}
+                                    {route.pilot?.username}
                                 </Link>
                                 {route.created_display && (
                                     <div className="text-sm text-muted-foreground">
