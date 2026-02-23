@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "post",
     "django_cleanup.apps.CleanupConfig",
+    "admin_api",
 ]
 
 MIDDLEWARE = [
@@ -65,6 +66,8 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "admin_api.middleware.SiteClosedForPublicMiddleware",
+    "admin_api.middleware.UserActionLogMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]

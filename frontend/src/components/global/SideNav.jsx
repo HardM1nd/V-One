@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import useUserContext from "../../contexts/UserContext";
 import { Badge } from "../ui/badge";
@@ -48,6 +48,7 @@ const SideNav = (props) => {
     const { setShowSidebar, open } = props;
     const { axiosInstance, user, profileData, fetchUserData } = useUserContext();
     const [unreadCount, setUnreadCount] = useState(0);
+    const [navConfig, setNavConfig] = useState([]);
 
     const location = useLocation();
     let cur = location.pathname.split("/").at(1);
@@ -83,6 +84,42 @@ const SideNav = (props) => {
         };
     }, [fetchUnread, fetchUserData]);
 
+    // Конфигурация навигации из backend (admin/navigation/public/)
+    useEffect(() => {
+        const loadNav = async () => {
+            try {
+                const res = await axiosInstance.get("admin/navigation/public/");
+                setNavConfig(res.data || []);
+            } catch (error) {
+                // Если конфигурация недоступна, тихо используем дефолтный набор
+                console.warn("Не удалось загрузить конфигурацию навигации:", error);
+            }
+        };
+        loadNav();
+    }, [axiosInstance]);
+
+    const effectiveNav = useMemo(() => {
+        if (!navConfig || navConfig.length === 0) return navElement;
+        const configByKey = {};
+        navConfig.forEach((item) => {
+            configByKey[item.key] = item;
+        });
+        return navElement
+            .filter((el) => {
+                const cfg = configByKey[el.key];
+                if (!cfg) return true;
+                return cfg.is_visible_for_users && cfg.is_enabled;
+            })
+            .map((el) => {
+                const cfg = configByKey[el.key];
+                if (!cfg) return el;
+                return {
+                    ...el,
+                    label: cfg.label || el.label,
+                };
+            });
+    }, [navConfig]);
+
     return (
         <div
             className={`w-full h-full transition-all duration-300 relative flex flex-col bg-background border-border rounded-lg ${
@@ -117,7 +154,7 @@ const SideNav = (props) => {
                     Открыть меню
                 </iconify-icon>
             </button>
-                {navElement.map((el) => {
+                {effectiveNav.map((el) => {
                     const activeClass =
                         el.key === cur
                             ? "text-primary bg-accent/60"

@@ -171,7 +171,7 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                                         }}
                                         className="hover:text-primary cursor-pointer truncate"
                                     >
-                                        {route.pilot?.username}
+                                        @{route.pilot?.username}
                                     </span>
                                 </div>
                             </div>

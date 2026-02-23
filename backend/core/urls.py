@@ -130,10 +130,11 @@ if use_s3:
     ]
 
 urlpatterns = media_urlpatterns + [
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
     path("api/accounts/", include("accounts.api.urls")),
     path("api/post/", include("post.api.urls")),
     path("api/post/", include("post.api.route_urls")),
+    path("api/admin/", include("admin_api.urls")),
     path("api/v1/user/notifications/unread_count/", unread_notifications_count),
 ]
 
