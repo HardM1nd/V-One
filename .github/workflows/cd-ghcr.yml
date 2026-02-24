@@ -98,7 +98,7 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             cd ${{ secrets.DEPLOY_WORKDIR }}
-            git fetch origin
+            git fetch origin main
             git checkout main
-            git pull origin main
+            git reset --hard origin/main
             docker compose -f docker-compose.prod.yml up -d --build
