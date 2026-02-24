@@ -79,9 +79,26 @@ jobs:
           file: ./frontend/Dockerfile.prod
           push: true
           build-args: |
-            VITE_API_URL=${{ (vars.VITE_API_URL != '' && vars.VITE_API_URL) || 'http://localhost:8000' }}
+            VITE_API_URL=${{ vars.VITE_API_URL }}
           tags: ${{ steps.meta_frontend.outputs.tags }}
           labels: ${{ steps.meta_frontend.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Deploy to production server over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd ${{ secrets.DEPLOY_WORKDIR }}
+            git fetch origin
+            git checkout main
+            git pull origin main
+            docker compose -f docker-compose.prod.yml up -d --build

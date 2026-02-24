@@ -84,3 +84,8 @@ body {
     background: hsl(217 32% 35%);
 }
 
+html.dark,
+html.dark body,
+html.dark #root {
+    background-color: hsl(var(--background));
+}
