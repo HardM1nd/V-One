@@ -1,5 +1,5 @@
 # Multi-stage build for production
-FROM node:20-alpine AS builder
+FROM mirror.gcr.io/library/node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -29,7 +29,7 @@ ENV VITE_MEDIA_URL=$VITE_MEDIA_URL
 # Build application
 RUN bun run build
 
-FROM nginx:alpine
+FROM mirror.gcr.io/library/nginx:alpine
 
 RUN apk add --no-cache wget
 
