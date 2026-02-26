@@ -1,5 +1,5 @@
 # Multi-stage build for production
-FROM public.ecr.aws/docker/library/node:20-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -29,7 +29,7 @@ ENV VITE_MEDIA_URL=$VITE_MEDIA_URL
 # Build application
 RUN bun run build
 
-FROM public.ecr.aws/docker/library/nginx:alpine
+FROM nginx:alpine
 
 RUN apk add --no-cache wget
 
