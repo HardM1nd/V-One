@@ -48,6 +48,7 @@ services:
       args:
         - VITE_API_URL=${VITE_API_URL:-}
         - VITE_MEDIA_URL=${VITE_MEDIA_URL:-}
+        - NGINX_BACKEND_URL=${NGINX_BACKEND_URL:-http://backend:8000}
     container_name: v-one-frontend-prod
     restart: unless-stopped
     ports:
