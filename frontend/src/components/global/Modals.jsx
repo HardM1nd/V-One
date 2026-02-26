@@ -10,13 +10,15 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Card, CardContent } from "../ui/card";
+import { getMediaUrl } from "../../lib/utils";
 
 const ImagePreview = ({ src, removeImage, file }) => {
     if (src || file.file) {
+        const previewSrc = file.file ? file.file : src ? getMediaUrl(src) : "";
         return (
             <div className="w-full float-right relative mt-3">
                 <img
-                    src={file.file ? file.file : src}
+                    src={previewSrc}
                     alt="превью выбранного файла"
                     className="w-full rounded-lg object-cover max-h-[50vh]"
                 ></img>
@@ -304,7 +306,7 @@ const EditPostModal = ({ id, open, onClose }) => {
                     </DialogHeader>
                     <div className="grid grid-cols-[48px,_auto] gap-3">
                         <Avatar>
-                            <AvatarImage src={profile_pic || ""} alt={username} />
+                            <AvatarImage src={profile_pic ? getMediaUrl(profile_pic) : ""} alt={username} />
                             <AvatarFallback>{username && username.at(0).toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <form

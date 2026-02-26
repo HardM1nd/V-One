@@ -47,6 +47,7 @@ services:
       dockerfile: Dockerfile.prod
       args:
         - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
+        - VITE_MEDIA_URL=${VITE_MEDIA_URL:-}
     container_name: v-one-frontend-prod
     restart: unless-stopped
     ports:

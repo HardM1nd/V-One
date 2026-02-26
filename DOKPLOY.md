@@ -30,12 +30,14 @@ USE_SQLITE=False
 
 # Frontend
 VITE_API_URL=https://api.your-domain.com
+VITE_MEDIA_URL=https://minio.your-domain.com
 ```
 
 **Важно:** 
 - `DJANGO_SECRET_KEY` должен быть уникальным и секретным
 - `ALLOWED_HOSTS` должен содержать ваш домен
 - `VITE_API_URL` должен указывать на URL вашего backend API
+- `VITE_MEDIA_URL` должен указывать на публичный URL MinIO (или CDN), чтобы медиа не грузились с localhost
 
 ### 2. Настройка Dokploy
 
@@ -71,6 +73,7 @@ VITE_API_URL=https://api.your-domain.com
 4. Контекст сборки: `frontend/`
 5. Build аргументы:
    - `VITE_API_URL=https://api.your-domain.com`
+   - `VITE_MEDIA_URL=https://minio.your-domain.com`
 6. Порт: `80`
 
 ## Настройка базы данных

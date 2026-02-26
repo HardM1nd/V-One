@@ -15,6 +15,7 @@ DB_PASSWORD=пароль_базы
 DB_HOST=хост_базы
 DB_PORT=5432
 VITE_API_URL=https://api.ваш-домен.com
+VITE_MEDIA_URL=https://minio.ваш-домен.com
 ```
 
 ## Шаг 2: Настройка в Dokploy
@@ -40,7 +41,7 @@ VITE_API_URL=https://api.ваш-домен.com
 - Тип: **Dockerfile**
 - Dockerfile: `frontend/Dockerfile.prod`
 - Контекст: `frontend/`
-- Build аргументы: `VITE_API_URL=https://api.ваш-домен.com`
+- Build аргументы: `VITE_API_URL=https://api.ваш-домен.com`, `VITE_MEDIA_URL=https://minio.ваш-домен.com`
 - Порт: `80`
 
 ## Шаг 3: Настройка доменов

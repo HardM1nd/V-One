@@ -347,7 +347,7 @@ const RouteDetail = () => {
                     {route.route_file && (
                         <div className="mb-4">
                             <a
-                                href={route.route_file}
+                                href={getMediaUrl(route.route_file)}
                                 download
                                 className="text-primary hover:underline"
                             >
