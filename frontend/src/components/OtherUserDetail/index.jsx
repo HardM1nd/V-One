@@ -185,7 +185,7 @@ const Profile = () => {
         </CardContent>
       </Card>
       <Card className="sticky top-0 z-10">
-        <CardContent className="mt-3 p-3 flex flex-wrap gap-2">
+        <CardContent className="justify-center mt-3 p-3 flex flex-wrap gap-2">
           {tabs.map((tab) => (
             <Button
               key={tab.value}

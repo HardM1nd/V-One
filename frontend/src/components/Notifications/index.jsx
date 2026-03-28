@@ -83,8 +83,15 @@ const Notifications = () => {
         }
     };
 
+    useEffect(() => {
+        document.title = "V-One | Уведомления";
+        return function () {
+            document.title = "V-One";
+        };
+    }, []);
+
     return (
-        <div className="w-[599px] max-w-[99%] mt-1 mx-auto px-2 sm:px-0">
+        <div className="w-full max-w-[599px] mt-4 mx-auto px-2 sm:px-0">
             <Card className="p-3 sm:p-4 overflow-hidden">
                 <CardHeader className="px-0 pt-0">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">

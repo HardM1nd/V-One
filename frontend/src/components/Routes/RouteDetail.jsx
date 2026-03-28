@@ -13,7 +13,7 @@ const RouteDetail = () => {
     const { routeId } = useParams();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const { axiosInstance, user, isDemoUser } = useUserContext();
+    const { axiosInstance, user, isDemoUser, isAdmin } = useUserContext();
     const [route, setRoute] = useState(null);
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
@@ -36,6 +36,13 @@ const RouteDetail = () => {
     }, [fetchRoute]);
 
     const currentUserId = user?.user_id ?? user?.id;
+    const isOwner =
+        !isDemoUser &&
+        currentUserId != null &&
+        route != null &&
+        Number(currentUserId) === Number(route.pilot?.id);
+    const canDeleteRoute = isOwner || isAdmin;
+
     useEffect(() => {
         if (route && !isDemoUser && searchParams.get("edit") === "1" && currentUserId != null && Number(route.pilot?.id) === Number(currentUserId)) {
             setEditing(true);
@@ -69,12 +76,17 @@ const RouteDetail = () => {
     };
 
     const handleDelete = async () => {
-        if (!window.confirm("Вы уверены, что хотите удалить этот маршрут?")) {
+        const ownerDelete = isOwner;
+        const confirmText =
+            isAdmin && !ownerDelete
+                ? "Удалить этот маршрут как администратор?"
+                : "Вы уверены, что хотите удалить этот маршрут?";
+        if (!window.confirm(confirmText)) {
             return;
         }
         try {
             await axiosInstance.delete(`post/routes/${routeId}/delete/`);
-            navigate("/routes/?tab=my");
+            navigate(ownerDelete ? "/routes/?tab=my" : "/routes/");
         } catch (error) {
             console.error("Error deleting route:", error);
             alert("Ошибка при удалении маршрута");
@@ -188,8 +200,6 @@ const RouteDetail = () => {
         return `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${routeParam}`;
     };
 
-    const isOwner = !isDemoUser && currentUserId != null && route && Number(currentUserId) === Number(route.pilot?.id);
-
     if (loading) {
         return (
             <div className="flex justify-center py-8">
@@ -245,24 +255,24 @@ const RouteDetail = () => {
                         </div>
                         <div className="flex gap-2 mt-5">
                             {isOwner && (
-                                <>
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        onClick={() => setEditing(true)}
-                                        title="Редактировать"
-                                    >
-                                        <iconify-icon icon="bi:pencil" />
-                                    </Button>
-                                    <Button
-                                        variant="destructive"
-                                        size="icon"
-                                        onClick={handleDelete}
-                                        title="Удалить"
-                                    >
-                                        <iconify-icon icon="bi:trash" />
-                                    </Button>
-                                </>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => setEditing(true)}
+                                    title="Редактировать"
+                                >
+                                    <iconify-icon icon="bi:pencil" />
+                                </Button>
+                            )}
+                            {canDeleteRoute && (
+                                <Button
+                                    variant="destructive"
+                                    size="icon"
+                                    onClick={handleDelete}
+                                    title={isAdmin && !isOwner ? "Удалить (администратор)" : "Удалить"}
+                                >
+                                    <iconify-icon icon="bi:trash" />
+                                </Button>
                             )}
                             <Button
                                 variant="ghost"

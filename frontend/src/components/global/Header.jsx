@@ -25,6 +25,13 @@ import { getMediaUrl } from "../../lib/utils";
             likes: "лайки",
             saved: "сохраненные",
             profile: "профиль",
+            post: "пост",
+            user: "пользователь",
+            route: "маршрут",
+            notification: "уведомление",
+            like: "лайк",
+            save: "сохранение",
+            comment: "комментарий",
         };
         const pageTitle = titleMap[cur] || cur;
         return (

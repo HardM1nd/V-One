@@ -20,7 +20,7 @@ const PostCommentCard = (props) => {
     const truncated = (post_content ?? "").length > 100;
     return (
         <Card className="mt-4">
-            <CardContent className="mt-3 p-4 grid grid-cols-1 gap-2">
+            <CardContent className="mt-4 p-4 grid grid-cols-1 gap-2">
                 <div className="flex gap-3 items-center">
                     <Avatar className="h-8 w-8">
                         <AvatarImage

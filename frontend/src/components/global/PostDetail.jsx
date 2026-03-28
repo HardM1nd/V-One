@@ -26,7 +26,7 @@ const PostDetail = () => {
     }, [axiosInstance, postId, setData]);
 
     return (
-        <div className="w-full flex justify-center mt-4 overflow-y-scroll">
+        <div className="w-full flex justify-center">
             <CardContainer />
         </div>
     );

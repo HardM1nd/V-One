@@ -32,6 +32,14 @@ const Saved = () => {
         if (!nextUrl) return;
         getNextItems(nextUrl, success);
     };
+
+    useEffect(() => {
+        document.title = "V-One | Сохраненные";
+        return function () {
+            document.title = "V-One";
+        };
+    }, []);
+
     return (
         <div className="flex flex-col items-center w-full" ref={container} id="demo">
             <CardContainer

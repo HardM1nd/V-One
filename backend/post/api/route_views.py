@@ -110,12 +110,14 @@ class FlightRouteUpdateAPIView(UpdateAPIView):
 
 
 class FlightRouteDeleteAPIView(DestroyAPIView):
-    """Удаление маршрута"""
+    """Удаление маршрута (свои; администраторы — любые)"""
     permission_classes = [IsAuthenticatedReadOnlyForDemo]
 
     def get_queryset(self):
-        # Только свои маршруты
-        return FlightRoute.objects.filter(pilot=self.request.user)
+        user = self.request.user
+        if getattr(user, "is_staff", False):
+            return FlightRoute.objects.all()
+        return FlightRoute.objects.filter(pilot=user)
 
 
 class FlightRouteLikeAPIView(APIView):

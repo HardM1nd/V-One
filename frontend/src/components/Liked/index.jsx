@@ -20,7 +20,7 @@ const Liked = () => {
     }, [getPosts, setData]);
 
     useEffect(() => {
-        document.title = "V-One | Лайкнутые посты";
+        document.title = "V-One | Лайки";
         return function () {
             document.title = "V-One";
         };

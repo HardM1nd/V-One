@@ -45,15 +45,24 @@ const Routes = () => {
         }
     };
 
+    useEffect(() => {
+        document.title = "V-One | Маршруты";
+        return function () {
+            document.title = "V-One";
+        };
+    }, []);
 
     return (
         <div className="w-full max-w-[599px] mt-4 mx-auto px-2 sm:px-0">
             <Card className="mb-4">
                 <CardContent className="space-y-3">
-                    <div className="mt-3 flex justify-between gap-4 flex-wrap">
+                    <div className="mt-4 flex justify-between gap-4 flex-wrap">
                         <h2 className="text-2xl font-bold">✈️ Маршруты</h2>
                         {user && (
-                            <Button onClick={() => setQueryParams({ tab: "create" })}>
+                            <Button
+                                className="h-8 px-2 text-xs sm:h-9 sm:px-4 sm:text-sm"
+                                onClick={() => setQueryParams({ tab: "create" })}
+                            >
                                 Создать маршрут
                             </Button>
                         )}

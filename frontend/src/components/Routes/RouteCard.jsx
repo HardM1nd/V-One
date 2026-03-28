@@ -8,7 +8,7 @@ import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { getMediaUrl } from "../../lib/utils";
 
-const RouteCardOptionsComponent = ({ onEdit, onDelete, onClose }) => {
+const RouteCardOptionsComponent = ({ onEdit, onDelete, onClose, showEdit }) => {
     useEffect(() => {
         window.addEventListener("click", onClose);
         return () => window.removeEventListener("click", onClose);
@@ -16,15 +16,19 @@ const RouteCardOptionsComponent = ({ onEdit, onDelete, onClose }) => {
 
     return (
         <div className="flex flex-col items-start rounded-md text-sm border bg-card shadow z-20">
-            <button
-                type="button"
-                className="flex gap-2 justify-between p-2 w-full hover:bg-accent"
-                onClick={onEdit}
-            >
-                <span>Редактировать</span>
-                <iconify-icon icon="material-symbols:edit" />
-            </button>
-            <div className="w-full h-px bg-border" />
+            {showEdit && (
+                <>
+                    <button
+                        type="button"
+                        className="flex gap-2 justify-between p-2 w-full hover:bg-accent"
+                        onClick={onEdit}
+                    >
+                        <span>Редактировать</span>
+                        <iconify-icon icon="material-symbols:edit" />
+                    </button>
+                    <div className="w-full h-px bg-border" />
+                </>
+            )}
             <button
                 type="button"
                 className="flex gap-2 justify-between p-2 w-full hover:bg-accent text-destructive"
@@ -38,13 +42,14 @@ const RouteCardOptionsComponent = ({ onEdit, onDelete, onClose }) => {
 };
 
 const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
-    const { axiosInstance, user } = useUserContext();
+    const { axiosInstance, user, isAdmin } = useUserContext();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [openOptions, setOpenOptions] = useState(false);
 
     const currentUserId = user?.user_id ?? user?.id;
     const isOwner = currentUserId != null && route && Number(currentUserId) === Number(route.pilot?.id);
+    const canManageMenu = isOwner || isAdmin;
 
     const handleLike = async (e) => {
         e.preventDefault();
@@ -78,18 +83,21 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
         e.preventDefault();
         e.stopPropagation();
 
-        if (!isOwner) {
+        if (!isOwner && !isAdmin) {
             alert("У вас нет прав на удаление этого маршрута");
             return;
         }
 
-        if (!window.confirm("Вы уверены, что хотите удалить этот маршрут?")) return;
+        const confirmText = isAdmin && !isOwner
+            ? "Удалить этот маршрут как администратор?"
+            : "Вы уверены, что хотите удалить этот маршрут?";
+        if (!window.confirm(confirmText)) return;
 
         try {
             setLoading(true);
             await axiosInstance.delete(`post/routes/${route.id}/delete/`);
             alert("Маршрут удалён");
-            navigate("/routes/?tab=my");
+            navigate(isOwner ? "/routes/?tab=my" : "/routes/");
         } catch (error) {
             console.error("Ошибка при удалении маршрута:", error);
             alert("Не удалось удалить маршрут");
@@ -220,7 +228,7 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                                         <iconify-icon icon="bi:link-45deg" />
                                     </Button>
 
-                                    {isOwner && (
+                                    {canManageMenu && (
                                         <>
                                             <Button
                                                 variant="ghost"
@@ -242,6 +250,7 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
                                                         onClose={() => setOpenOptions(false)}
                                                         onEdit={handleEdit}
                                                         onDelete={handleDelete}
+                                                        showEdit={isOwner}
                                                     />
                                                 </div>
                                             )}

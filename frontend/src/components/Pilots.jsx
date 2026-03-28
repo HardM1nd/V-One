@@ -84,6 +84,13 @@ const Pilots = () => {
         return username.substring(0, maxLength) + "...";
     };
 
+    useEffect(() => {
+        document.title = "V-One | Пилоты";
+        return function () {
+            document.title = "V-One";
+        };
+    }, []);
+
     return (
         <div className="w-full max-w-[599px] mt-4 mx-auto px-2 sm:px-0">
             <Card className="bg-card p-3 sm:p-4">
