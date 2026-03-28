@@ -12,20 +12,28 @@ const PostComments = () => {
     const { getNextItems } = usePageContext();
     const { axiosInstance } = useUserContext();
     useEffect(() => {
-        axiosInstance.get("/post/comments/all/").then((response) => {
-            setCommentsData({
-                next: response.data.next,
-                comments: response.data.results,
+        axiosInstance
+            .get("/post/comments/all/")
+            .then((response) => {
+                const raw = response.data?.results;
+                setCommentsData({
+                    next: response.data?.next ?? null,
+                    comments: Array.isArray(raw) ? raw : [],
+                });
+            })
+            .catch(() => {
+                setCommentsData({ next: null, comments: [] });
             });
-        });
     }, [axiosInstance]);
 
     const retrieveNextComments = () => {
         const success = (response) => {
+            const page = Array.isArray(response.data?.results) ? response.data.results : [];
             setCommentsData((prev) => {
+                const existing = Array.isArray(prev.comments) ? prev.comments : [];
                 return {
-                    next: response.data.next,
-                    comments: [...prev.comments, ...response.data.results],
+                    next: response.data?.next ?? null,
+                    comments: [...existing, ...page],
                 };
             });
         };
@@ -34,7 +42,7 @@ const PostComments = () => {
     };
     return (
         <div className="w-full ">
-            {comments.map((comment) => {
+            {(Array.isArray(comments) ? comments : []).map((comment) => {
                 return <PostCommentCard {...comment} key={comment.id}></PostCommentCard>;
             })}
             {next && (

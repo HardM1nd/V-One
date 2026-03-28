@@ -8,14 +8,16 @@ const PostCommentCard = (props) => {
     const {
         post_id,
         created,
-        post_content,
-        content,
+        post_content = "",
+        content = "",
         post_creator_profile,
-        post_creator,
+        post_creator = "",
         post_created,
         post_created_at,
         created_at,
     } = props;
+    const preview = (post_content ?? "").slice(0, 100);
+    const truncated = (post_content ?? "").length > 100;
     return (
         <Card className="mt-4">
             <CardContent className="mt-3 p-4 grid grid-cols-1 gap-2">
@@ -25,7 +27,9 @@ const PostCommentCard = (props) => {
                             src={post_creator_profile ? getMediaUrl(post_creator_profile) : ""}
                             alt={post_creator}
                         />
-                        <AvatarFallback>{post_creator.at(0).toUpperCase()}</AvatarFallback>
+                        <AvatarFallback>
+                            {String(post_creator || "?").charAt(0).toUpperCase()}
+                        </AvatarFallback>
                     </Avatar>
                     <div className="text-xs">
                         <div className="capitalize text-foreground">{post_creator}</div>
@@ -35,7 +39,8 @@ const PostCommentCard = (props) => {
                     </div>
                 </div>
                 <Link to={`/post/${post_id}`} className="text-sm text-muted-foreground hover:text-primary">
-                    {post_content.slice(0, 100)} {post_content > 100 && <span> ...</span>}
+                    {preview}
+                    {truncated && <span> ...</span>}
                     <span aria-hidden={true} className="text-sm">
                         <iconify-icon icon="bx:link-alt"></iconify-icon>
                     </span>

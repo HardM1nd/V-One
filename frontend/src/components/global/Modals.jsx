@@ -54,9 +54,10 @@ const CommentsModal = ({ id, open, close, onComment }) => {
         e.preventDefault();
         const success = (response) => {
             setComments((prev) => {
+                const existing = Array.isArray(prev.comments) ? prev.comments : [];
                 return {
                     ...prev,
-                    comments: [response.data, ...prev.comments],
+                    comments: [response.data, ...existing],
                 };
             });
             onComment && onComment(id);
@@ -75,20 +76,27 @@ const CommentsModal = ({ id, open, close, onComment }) => {
 
     useEffect(() => {
         const success = (response) => {
+            const raw = response.data?.results;
             setComments({
-                next: response.data.next,
-                comments: response.data.results,
+                next: response.data?.next ?? null,
+                comments: Array.isArray(raw) ? raw : [],
             });
         };
-        getComments(id, success, () => alert("Не удалось загрузить комментарии"));
+        const onFail = () => {
+            setComments({ next: null, comments: [] });
+            alert("Не удалось загрузить комментарии");
+        };
+        getComments(id, success, onFail);
     }, [id, setComments, getComments]);
 
     const retrieveNextComments = () => {
         const success = (response) => {
+            const page = Array.isArray(response.data?.results) ? response.data.results : [];
             setComments((prev) => {
+                const existing = Array.isArray(prev.comments) ? prev.comments : [];
                 return {
-                    next: response.data.next,
-                    comments: [...prev.comments, ...response.data.results],
+                    next: response.data?.next ?? null,
+                    comments: [...existing, ...page],
                 };
             });
         };
@@ -164,7 +172,7 @@ const CommentsModal = ({ id, open, close, onComment }) => {
                     </DialogHeader>
                     <CommentForm handleSubmit={handleSubmit} />
                     <div className="overflow-y-auto h-full pb-6 pr-1">
-                        {comments.map((comment) => {
+                        {(Array.isArray(comments) ? comments : []).map((comment) => {
                             const currentUserId = user?.user_id || profileData?.id;
                             const canEdit =
                                 currentUserId &&

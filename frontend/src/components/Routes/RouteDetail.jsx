@@ -215,7 +215,7 @@ const RouteDetail = () => {
     }
 
     return (
-        <div className="w-[599px] max-w-[99%] mt-1 mx-auto">
+        <div className="w-full max-w-[599px] mt-4 mx-auto px-2 sm:px-0">
             <Card>
                 <CardContent className="mt-1 p-6">
                     <div className="flex items-start justify-between mb-4">
@@ -243,7 +243,7 @@ const RouteDetail = () => {
                                 )}
                             </div>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 mt-5">
                             {isOwner && (
                                 <>
                                     <Button
@@ -343,68 +343,19 @@ const RouteDetail = () => {
                             </div>
                         )}
                     </div>
-
-                    {route.route_file && (
-                        <div className="mb-4">
-                            <a
-                                href={getMediaUrl(route.route_file)}
-                                download
-                                className="text-primary hover:underline"
-                            >
-                                📎 Скачать файл маршрута
-                            </a>
-                        </div>
-                    )}
                     <div className="mb-4 flex flex-wrap gap-3">
-                        <Button variant="outline" onClick={downloadGeoJson} type="button">
+                        {/* <Button variant="outline" onClick={downloadGeoJson} type="button">
                             🧭 Скачать GeoJSON
-                        </Button>
+                        </Button> */} {/* TODO: add map support */}
                         <Button variant="outline" onClick={copyRouteLink} type="button">
                             🔗 Скопировать ссылку
                         </Button>
-                        {buildOsmUrl() && (
-                            <Button asChild variant="outline">
-                                <a href={buildOsmUrl()} target="_blank" rel="noreferrer">
-                                    🗺️ Открыть в OSM
-                                </a>
-                            </Button>
-                        )}
                     </div>
 
-                    <div className="flex gap-4 text-sm text-muted-foreground mb-4">
+                    <div className="flex gap-4 text-sm text-muted-foreground">
                         <span>❤️ {route.likes_count || 0} лайков</span>
                         <span>🔖 {route.saves_count || 0} сохранений</span>
                     </div>
-
-                    {((route.departure_lat && route.departure_lng && route.destination_lat && route.destination_lng) || (route.waypoints && route.waypoints.length > 1)) && (
-                        <div className="mt-6">
-                            <h3 className="text-xl font-semibold mb-3">Карта маршрута</h3>
-                            <RouteMap
-                                departure={route.departure}
-                                destination={route.destination}
-                                departureLat={route.departure_lat}
-                                departureLng={route.departure_lng}
-                                destinationLat={route.destination_lat}
-                                destinationLng={route.destination_lng}
-                                waypoints={route.waypoints || []}
-                                interactive={false}
-                                height="500px"
-                            />
-                            {Array.isArray(route.waypoints) && route.waypoints.length > 0 && (
-                                <div className="mt-4 bg-muted p-3 rounded-lg">
-                                    <div className="text-sm font-semibold mb-2">Точки маршрута</div>
-                                    <div className="space-y-1 text-sm text-muted-foreground">
-                                        {route.waypoints.map((point, index) => (
-                                            <div key={`wp-${index}`}>
-                                                {index + 1}. {parseFloat(point.lat).toFixed(5)},{" "}
-                                                {parseFloat(point.lng).toFixed(5)}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
                 </CardContent>
             </Card>
         </div>

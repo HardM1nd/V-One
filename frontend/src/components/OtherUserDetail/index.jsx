@@ -67,8 +67,12 @@ const Profile = () => {
 
   const handleFollowUnfollow = () => {
     const success = (response) => {
-      const { followers } = response.data;
-      setProfileData((prev) => ({ ...prev, followers: followers }));
+      const { followers, followed } = response.data;
+      setProfileData((prev) => ({
+        ...prev,
+        followers,
+        is_following: followed,
+      }));
     };
     const failure = () => {
       alert("Не удалось выполнить действие. Проверьте соединение.");

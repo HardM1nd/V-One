@@ -32,7 +32,7 @@ function getMediaBaseUrl() {
 function getBackendBaseUrl() {
     const env = import.meta.env.VITE_API_URL || "";
     if (env) return normalizeBaseUrl(env.replace(/\/api\/?$/, "")) || env;
-    if (typeof window !== "undefined") return `${window.location.protocol}//${window.location.hostname}:8000`;
+    if (typeof window !== "undefined") return window.location.origin;
     return "";
 }
 

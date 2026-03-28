@@ -9,12 +9,20 @@ const PostDetail = () => {
     const { setData } = usePageContext();
     const { axiosInstance } = useUserContext();
     useEffect(() => {
-        axiosInstance.get(`/post/${postId}/`).then((response) => {
-            setData({
-                next: null,
-                posts: [response.data],
-            });
-        });
+        axiosInstance
+            .get(`/post/${postId}/`)
+            .then((response) => {
+                if (response?.data) {
+                    setData({
+                        next: null,
+                        posts: [response.data],
+                    });
+                } else {
+                    setData({ next: null, posts: [] });
+                }
+            })
+            .catch(() => setData({ next: null, posts: [] }));
+        return () => setData({ next: null, posts: [] });
     }, [axiosInstance, postId, setData]);
 
     return (

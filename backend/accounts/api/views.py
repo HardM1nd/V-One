@@ -135,7 +135,8 @@ class FollowUnfollowUserAPIView(APIView):
                 )
         data = SignupSerializer(user).data
         data["followed"] = followed
-        data["followers"] = user_following.count()
+        # Число подписчиков у пользователя, на чей профиль смотрят (для обновления карточки)
+        data["followers"] = other_user.followers.count()
         return Response(data)
 
 

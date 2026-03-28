@@ -47,7 +47,7 @@ const Routes = () => {
 
 
     return (
-        <div className="w-[599px] max-w-[95%] mt-3 mx-auto">
+        <div className="w-full max-w-[599px] mt-4 mx-auto px-2 sm:px-0">
             <Card className="mb-4">
                 <CardContent className="space-y-3">
                     <div className="mt-3 flex justify-between gap-4 flex-wrap">

@@ -20,6 +20,15 @@ const defaultProfileData = {
     follower: "",
 };
 
+/** Пустой env → /api на том же хосте (nginx). Иначе …/api без дублирования суффикса. */
+function resolveApiBase(envRaw) {
+    const trimmed = (envRaw && String(envRaw).trim()) || "";
+    if (!trimmed) return "/api";
+    let base = trimmed.replace(/\/+$/, "");
+    if (base.endsWith("/api")) return base;
+    return `${base}/api`;
+}
+
 function UserContextProvider({ children }) {
     const userTokensFromStorage = (() => {
         try {
@@ -45,12 +54,7 @@ function UserContextProvider({ children }) {
         }
     });
 
-    const envApiUrl = import.meta.env.VITE_API_URL || "";
-    const SERVERURL = envApiUrl
-        ? envApiUrl.endsWith("/")
-            ? envApiUrl
-            : envApiUrl + "/"
-        : "";
+    const apiBase = resolveApiBase(import.meta.env.VITE_API_URL);
 
     const [profileData, setProfileData] = useState(defaultProfileData);
     const [tokens, setTokens] = useState(() => {
@@ -80,9 +84,9 @@ function UserContextProvider({ children }) {
 
     const axiosInstance = useMemo(() => {
         return axios.create({
-            baseURL: SERVERURL + "api",
+            baseURL: apiBase,
         });
-    }, [SERVERURL]);
+    }, [apiBase]);
 
     const refreshToken = useCallback(async () => {
         const currentTokens = tokensRef.current;
@@ -91,7 +95,7 @@ function UserContextProvider({ children }) {
             return null;
         }
         try {
-            const response = await axios.post(SERVERURL + "api/accounts/token/refresh/", {
+            const response = await axios.post(`${apiBase}/accounts/token/refresh/`, {
                 refresh: currentTokens.refresh,
             });
             const newTokens = {
@@ -109,7 +113,7 @@ function UserContextProvider({ children }) {
             logout();
             return null;
         }
-    }, [SERVERURL, logout]);
+    }, [apiBase, logout]);
 
     useEffect(() => {
         const requestId = axiosInstance.interceptors.request.use(
