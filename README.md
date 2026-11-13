@@ -196,4 +196,4 @@ frontend/
 
 ### Система профилей
 
-<img width="622" height="611" alt="image" src="https://github.com/user-attachments/assets/dffd0aa5-9548-4b82-b2ea-d5f97b341025" />
+<img width="622" height="611" alt="image" src="https://github.com/user-attachments/assets/dffd0aa5-9548-4b82-b82e-d5f97b341025" />
