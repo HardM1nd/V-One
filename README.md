@@ -54,6 +54,24 @@ docker compose up --build
    - MinIO Console: `http://localhost:9001` (логин/пароль из MINIO_ROOT_USER/MINIO_ROOT_PASSWORD)
    - MinIO API: `http://localhost:9000`
 
+## Production deployment
+
+Production-конфигурация использует PostgreSQL, MinIO и Caddy с автоматическим
+HTTPS. Укажите домен, который направлен на IP сервера, и настройте в `.env`
+уникальные секреты для Django, PostgreSQL и MinIO. Не публикуйте `.env`.
+
+```bash
+cp .env.example .env
+# Замените секреты в .env перед запуском
+docker compose -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.prod.yml logs -f
+```
+
+Откройте TCP-порты 80 и 443 на сервере и у провайдера. Приложение доступно
+через указанный в `DOMAIN` адрес; Caddy запросит и будет автоматически
+обновлять TLS-сертификат. PostgreSQL и MinIO доступны только во внутренней
+Docker-сети.
+
 ## Установка и запуск без Docker
 
 ### Backend
@@ -137,7 +155,7 @@ bun run dev
 ```
 backend/
 ├── accounts/      # Приложение для управления пользователями
-├── post/          # Приложение для управления постами
+├── post/          # Приложение для публикации постов
 ├── core/          # Основные настройки Django
 └── manage.py      # Django management script
 ```
