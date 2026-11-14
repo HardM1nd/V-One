@@ -46,7 +46,7 @@ const Home = () => {
 
     return (
         <div className="flex flex-col items-center w-full">
-            <TweetForm />
+            {user && <TweetForm />}
             <CardContainer
                 emptyMessage="Пока нет постов в ленте."
                 emptyHint="Опубликуйте первый пост, чтобы начать."
