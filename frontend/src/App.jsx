@@ -17,13 +17,6 @@ import Pilots from "./components/Pilots";
 import Routes from "./components/Routes";
 import RouteDetail from "./components/Routes/RouteDetail";
 import Notifications from "./components/Notifications";
-import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
-import AdminLayout from "./components/admin/layouts/AdminLayout";
-import AdminDashboardPage from "./components/admin/pages/AdminDashboardPage";
-import AdminComplaintsPage from "./components/admin/pages/AdminComplaintsPage";
-import AdminActivityPage from "./components/admin/pages/AdminActivityPage";
-import AdminSettingsPage from "./components/admin/pages/AdminSettingsPage";
-import AdminLoginPage from "./components/admin/pages/AdminLoginPage";
 
 const App = createBrowserRouter(
     createRoutesFromElements(
@@ -51,17 +44,6 @@ const App = createBrowserRouter(
             <Route path="signin/" element={<SignIn />} />
             <Route path="signup/" element={<SignUp />} />
 
-            {/* Админская часть */}
-            <Route path="/admin/login" element={<AdminLoginPage />} />
-            <Route path="/admin" element={<AdminProtectedRoute />}>
-                <Route element={<AdminLayout />}>
-                    <Route index element={<Navigate to="/admin/dashboard" replace />} />
-                    <Route path="dashboard" element={<AdminDashboardPage />} />
-                    <Route path="complaints" element={<AdminComplaintsPage />} />
-                    <Route path="activity" element={<AdminActivityPage />} />
-                    <Route path="settings" element={<AdminSettingsPage />} />
-                </Route>
-            </Route>
         </>
     )
 );

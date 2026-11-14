@@ -80,7 +80,7 @@ export default function SignUp() {
         <main className="w-screen h-screen flex items-center justify-center bg-background">
             <Card className="w-[90vw] max-w-lg">
                 <CardContent className="p-6 space-y-4">
-                    <div className="space-y-1">
+                    <div className="mt-4 space-y-1">
                         <h1 className="text-2xl font-semibold">Создать аккаунт</h1>
                         <p className="text-sm text-muted-foreground">
                             Зарегистрируйтесь, чтобы публиковать посты и маршруты.
