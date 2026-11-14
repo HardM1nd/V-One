@@ -65,12 +65,6 @@ class User(AbstractUser):
         help_text='Типы самолетов через запятую (например: Cessna 172, Boeing 737)',
         verbose_name='Типы самолетов'
     )
-    license_number = models.CharField(
-        max_length=50, 
-        blank=True, 
-        null=True,
-        verbose_name='Номер лицензии'
-    )
     bio = models.TextField(
         blank=True, 
         null=True,

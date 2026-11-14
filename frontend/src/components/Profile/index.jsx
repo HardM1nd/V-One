@@ -30,7 +30,6 @@ const Profile = () => {
     pilot_type_display,
     flight_hours,
     aircraft_types_list,
-    license_number,
     bio,
   } = profileData;
   const currentTab = queryParams.get("tab") || "posts";
@@ -96,9 +95,6 @@ const Profile = () => {
             <div className="text-sm text-muted-foreground">
               Самолеты: {aircraft_types_list.join(", ")}
             </div>
-          )}
-          {license_number && (
-            <div className="text-sm text-muted-foreground">Лицензия: {license_number}</div>
           )}
           {bio && <div className="text-sm text-foreground mt-1">{bio}</div>}
           <div className="text-muted-foreground text-sm flex gap-2">

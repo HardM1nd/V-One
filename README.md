@@ -1,200 +1,228 @@
 # V-One
 
-Учебный проект - социальная сеть с постами, лайками и подписками.
+V-One — социальная сеть и платформа для обмена публикациями, маршрутами и профилями пользователей. Проект объединяет Django REST API на бэкенде и React + Vite на фронтенде, а также готовую Docker-конфигурацию для локальной разработки и деплоя.
 
-## Структура проекта
+## Что реализовано
 
-Проект состоит из двух частей:
-- **Backend** - Django REST API (Python)
-- **Frontend** - React приложение (JavaScript)
+- Регистрация, логин и JWT-аутентификация
+- Профили пользователей с аватаром, обложкой и настройками
+- Подписки и подписчики
+- Лента постов, комментарии, лайки, сохранения
+- Оповещения и счетчик непрочитанных уведомлений
+- Создание, просмотр и оценка маршрутов/путевых заметок
+- Административная панель и метрики активности
+- Сохранение медиа в MinIO/S3 и статических файлов через Django/WhiteNoise
+
+## Архитектура проекта
+
+- Backend: Django 5 + Django REST Framework + PostgreSQL/SQLite
+- Frontend: React 18 + Vite + Tailwind CSS + Radix UI
+- Дополнительно: MinIO для медиа, Caddy для HTTPS в продакшене
+
+## Структура репозитория
+
+```text
+.
+├── backend/                 # Django API
+│   ├── accounts/            # Пользователи, профили, подписки, уведомления
+│   ├── admin_api/           # Админские API и метрики
+│   ├── core/                # Настройки проекта и URL-конфиг
+│   ├── post/                # Посты, комментарии, лайки, маршруты
+│   ├── manage.py            # Django CLI
+│   ├── requirements.txt      # Python зависимости
+│   └── scripts/             # Скрипты окружения и инициализации
+├── frontend/                # React-приложение
+│   ├── src/                 # Исходный код UI
+│   ├── public/              # Статика
+│   ├── package.json         # Скрипты и зависимости фронта
+│   └── vite.config.mjs     # Конфигурация Vite
+├── minio/                   # Образ MinIO для продакшена
+├── .env.example             # Пример переменных окружения
+├── docker-compose.yml       # Локальный стек для разработки
+├── docker-compose.prod.yml  # Продакшн стек
+├── Caddyfile                # Конфиг Caddy для HTTPS
+├── README.md                # Документация проекта
+└── .gitignore
+```
 
 ## Требования
 
-### Backend
-- Python >= 3.10
-- pip или uv для управления зависимостями
+### Для локального запуска через Docker
 
-### Frontend
-- Bun >= 1.0.0
+- Docker
+- Docker Compose
 
-## Быстрый запуск с Docker
+### Для запуска без Docker
 
-1. Создайте файл `.env` в **корне проекта** (рядом с `docker-compose.yml`):
+- Python 3.10+
+- Bun 1.x или Node.js 18+
+- pip / uv
+
+## Быстрый старт с Docker
+
+1. Скопируйте пример `.env`:
+
 ```bash
 cp .env.example .env
 ```
 
-2. Отредактируйте `.env` и заполните данные для подключения к удаленной БД:
-   - `DB_NAME` - имя базы данных
-   - `DB_USER` - пользователь БД
-   - `DB_PASSWORD` - пароль БД
-   - `DB_HOST` - хост удаленного сервера с БД
-   - `DB_PORT` - порт (обычно 5432)
-   - `DJANGO_SECRET_KEY` - секретный ключ Django
-   - `USE_S3` - использовать MinIO для хранения медиа (по умолчанию: `True`)
-   - `MINIO_ROOT_USER` - пользователь MinIO (по умолчанию: `minioadmin`)
-   - `MINIO_ROOT_PASSWORD` - пароль MinIO (по умолчанию: `minioadmin`)
-   - `MINIO_BUCKET_NAME` - имя bucket для медиа файлов (по умолчанию: `media`)
-   - `MINIO_PUBLIC_URL` - публичный URL MinIO (по умолчанию: `http://localhost:9000`)
+2. Проверьте и при необходимости заполните переменные окружения:
 
-2. Инициализируйте MinIO bucket (опционально, выполняется автоматически):
-```bash
-docker compose --profile init up minio-init
-```
+- `DJANGO_SECRET_KEY`
+- `DEBUG`
+- `ALLOWED_HOSTS`
+- `CORS_ALLOWED_ORIGINS`
+- `USE_SQLITE` (`True` для SQLite, `False` для PostgreSQL)
+- `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`
+- `USE_S3`
+- `MINIO_ROOT_USER`, `MINIO_ROOT_PASSWORD`, `MINIO_BUCKET_NAME`
+- `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_S3_ENDPOINT_URL`
+- `VITE_API_URL`
 
 3. Запустите проект:
+
 ```bash
 docker compose up --build
 ```
 
-4. Проект будет доступен:
-   - Frontend: `http://localhost:3000`
-   - Backend: `http://localhost:8000`
-   - Admin панель: `http://localhost:8000/admin`
-   - MinIO Console: `http://localhost:9001` (логин/пароль из MINIO_ROOT_USER/MINIO_ROOT_PASSWORD)
-   - MinIO API: `http://localhost:9000`
+4. Доступные сервисы:
 
-## Production deployment
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:8000`
+- Django admin: `http://localhost:8000/admin`
+- MinIO console: `http://localhost:9001`
+- MinIO API: `http://localhost:9000`
 
-Production-конфигурация использует PostgreSQL, MinIO и Caddy с автоматическим
-HTTPS. Укажите домен, который направлен на IP сервера, и настройте в `.env`
-уникальные секреты для Django, PostgreSQL и MinIO. Не публикуйте `.env`.
+> Примечание: для локальной разработки в `docker-compose.yml` используется сервис `backend` и `frontend` с live reload. Бэкенд автоматически выполняет миграции и собирает статику.
+
+## Продакшн деплой
+
+В продакшене используется `docker-compose.prod.yml` с:
+
+- PostgreSQL
+- MinIO/S3
+- Django через Gunicorn
+- React через Nginx
+- Caddy для автоматического HTTPS
+
+Подготовка:
 
 ```bash
 cp .env.example .env
-# Замените секреты в .env перед запуском
+# заполните .env корректными секретами и доменом
+
 docker compose -f docker-compose.prod.yml up -d --build
-docker compose -f docker-compose.prod.yml logs -f
 ```
 
-Откройте TCP-порты 80, 443 и 8000 на сервере и у провайдера. Приложение доступно
-через указанный в `DOMAIN` адрес; Caddy запросит и будет автоматически
-обновлять TLS-сертификат. PostgreSQL и MinIO доступны только во внутренней
-Docker-сети.
-Админ-панель Django также доступна по HTTPS на `https://<DOMAIN>:8000/admin/`.
+Для корректной работы укажите `DOMAIN` в `.env` и откройте порты `80`, `443`, `8000` на сервере. Caddy автоматически запросит и обновит TLS-сертификат для указанного домена.
 
-## Установка и запуск без Docker
+## Запуск без Docker
 
 ### Backend
 
-1. Перейдите в директорию backend:
 ```bash
 cd backend
-```
-
-2. Создайте виртуальное окружение:
-```bash
-python3 -m venv venv
-source venv/bin/activate  # Linux/Mac
-# или
-venv\Scripts\activate  # Windows
-```
-
-3. Установите зависимости:
-```bash
+python3 -m venv .venv
+source .venv/bin/activate  # Linux/macOS
+# или .venv\Scripts\activate  # Windows
 pip install -r requirements.txt
-```
-
-4. Создайте файл `.env` в папке `backend/` и заполните данные для подключения к БД:
-```bash
-cd backend
-cp .env.example .env
-# Отредактируйте .env
-```
-
-5. Примените миграции:
-```bash
 python manage.py migrate
-```
-
-6. Запустите сервер:
-```bash
-python manage.py runserver
+python manage.py runserver 0.0.0.0:8000
 ```
 
 ### Frontend
 
-1. Перейдите в директорию frontend:
 ```bash
 cd frontend
-```
-
-2. Установите зависимости:
-```bash
 bun install
-```
-
-3. Запустите сервер:
-```bash
 bun run dev
 ```
 
-## API Endpoints
+или через npm, если Bun недоступен:
 
-- `/api/accounts/` - управление аккаунтами
-- `/api/post/` - управление постами
-- `/admin/` - административная панель Django
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-## Технологии
+## Основные API-эндпоинты
+
+- `POST /api/accounts/signup/` — регистрация
+- `POST /api/accounts/token/` — получение JWT
+- `POST /api/accounts/token/refresh/` — обновление JWT
+- `GET /api/accounts/info/` — информация о текущем пользователе
+- `GET /api/accounts/<id>/following/` — подписки пользователя
+- `GET /api/accounts/<id>/followers/` — подписчики пользователя
+- `POST /api/accounts/follow_unfollow/<id>/` — подписка/отписка
+- `GET /api/post/all/` — лента постов
+- `POST /api/post/create/` — создание поста
+- `GET /api/post/<id>/comments/` — комментарии к посту
+- `POST /api/post/<id>/like/` — лайк/анлайк поста
+- `POST /api/post/<id>/save/` — сохранение/отмена сохранения
+- `GET /api/post/routes/` — список маршрутов
+- `POST /api/post/routes/create/` — создание маршрута
+- `GET /api/admin/` — административный API
+
+## Технологический стек
 
 ### Backend
+
 - Django 5.x
 - Django REST Framework
-- JWT аутентификация
-- PostgreSQL (опционально) / SQLite (по умолчанию)
+- SimpleJWT
+- PostgreSQL / SQLite
+- django-cors-headers
+- django-cleanup
+- Pillow
+- MinIO/S3 storage via `django-storages`
 
 ### Frontend
-- React 18.x
+
+- React 18
+- Vite
 - React Router
-- Axios
-- Radix UI
 - Tailwind CSS
+- Radix UI
+- Axios
+- Leaflet (карты/маршруты)
 
-## Разработка
+## Разработка и отладка
 
-### Структура Backend
-```
-backend/
-├── accounts/      # Приложение для управления пользователями
-├── post/          # Приложение для публикации постов
-├── core/          # Основные настройки Django
-└── manage.py      # Django management script
-```
+- Для продакшена используйте сильные секреты и уберите `DEBUG=True`
+- Для разработки удобно оставлять `USE_SQLITE=True`
+- Для S3/MinIO проверьте `AWS_S3_ENDPOINT_URL`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
+- Если нужен рабочий MinIO bucket, можно запустить:
 
-### Структура Frontend
-```
-frontend/
-├── src/
-│   ├── components/    # React компоненты
-│   ├── contexts/      # React контексты
-│   └── App.js         # Главный компонент
-└── public/            # Статические файлы
+```bash
+docker compose --profile init up minio-init
 ```
 
-## Примечания
-
-- Для продакшена обязательно установите `DJANGO_SECRET_KEY` в переменных окружения
-- `DEBUG=True` используется только для разработки
-- По умолчанию используется SQLite, для продакшена рекомендуется PostgreSQL
-
-## Демонстрация функционала
+## Скриншоты и демонстрация
 
 ### Регистрация
 
-<img width="557" height="364" alt="Screenshot 2026-01-30 201036" src="https://github.com/user-attachments/assets/5eb54462-b869-4ac6-a2a3-b4a013eb8fe8" />
+![Регистрация](https://github.com/user-attachments/assets/5eb54462-b869-4ac6-a2a3-b4a013eb8fe8)
 
 ### Публикация постов
 
-<img width="623" height="654" alt="Screenshot 2026-01-30 201940" src="https://github.com/user-attachments/assets/24e05480-d098-48ef-9e6c-6566099476ca" />
+![Посты](https://github.com/user-attachments/assets/24e05480-d098-48ef-9e6c-6566099476ca)
 
 ### Система уведомлений
 
-<img width="613" height="311" alt="image" src="https://github.com/user-attachments/assets/d5756a06-0cf5-4179-b503-ab3a51a02914" />
+![Уведомления](https://github.com/user-attachments/assets/d5756a06-0cf5-4179-b503-ab3a51a02914)
 
 ### Пользовательские маршруты
 
-<img width="619" height="370" alt="image" src="https://github.com/user-attachments/assets/f232b16e-3077-49eb-b967-66e2ffdb9d69" />
+![Маршруты](https://github.com/user-attachments/assets/f232b16e-3077-49eb-b967-66e2ffdb9d69)
 
 ### Система профилей
 
-<img width="622" height="611" alt="image" src="https://github.com/user-attachments/assets/dffd0aa5-9548-4b82-b82e-d5f97b341025" />
+![Профили](https://github.com/user-attachments/assets/dffd0aa5-9548-4b82-b82e-d5f97b341025)
+
+## Полезные ссылки
+
+- Документация Django: https://docs.djangoproject.com/
+- React: https://react.dev/
+- Vite: https://vite.dev/
+- Tailwind CSS: https://tailwindcss.com/

@@ -67,7 +67,6 @@ class UserSerializer(serializers.ModelSerializer):
             "flight_hours",
             "aircraft_types",
             "aircraft_types_list",
-            "license_number",
             "bio",
             "is_following",
             "is_active",

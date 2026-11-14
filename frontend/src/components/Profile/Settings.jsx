@@ -31,7 +31,6 @@ const Settings = () => {
         pilot_type = 'virtual',
         flight_hours = 0,
         aircraft_types = '',
-        license_number = '',
         bio = ''
     } = profileData;
     const defaultFileValues = {
@@ -46,7 +45,6 @@ const Settings = () => {
         pilot_type: pilot_type,
         flight_hours: flight_hours,
         aircraft_types: aircraft_types,
-        license_number: license_number,
         bio: bio,
         ...defaultFileValues,
     });
@@ -446,22 +444,6 @@ const Settings = () => {
                         id="aircraftTypes"
                         placeholder="Cessna 172, Boeing 737"
                         value={formValues.aircraft_types}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className="flex gap-1 flex-col justify-center relative">
-                    <label
-                        htmlFor="licenseNumber"
-                        className="dark:text-gray-200 font-medium tracking-wide"
-                    >
-                        Номер лицензии
-                    </label>
-                    <Input
-                        type="text"
-                        name="license_number"
-                        id="licenseNumber"
-                        placeholder="PPL-12345"
-                        value={formValues.license_number}
                         onChange={handleChange}
                     />
                 </div>

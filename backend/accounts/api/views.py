@@ -184,7 +184,6 @@ class PilotListAPIView(ListAPIView):
                 models.Q(username__icontains=query)
                 | models.Q(bio__icontains=query)
                 | models.Q(aircraft_types__icontains=query)
-                | models.Q(license_number__icontains=query)
             )
         
         # Сортировка по часам налета (по убыванию)
