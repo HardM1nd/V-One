@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams, Link, Navigate } from "react-router-dom";
 import useUserContext from "../../contexts/UserContext";
 import RouteForm from "./RouteForm";
 import RouteMap from "./RouteMap";
@@ -8,12 +8,14 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { getMediaUrl } from "../../lib/utils";
+import useRequireAuth from "../../lib/useRequireAuth";
 
 const RouteDetail = () => {
     const { routeId } = useParams();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const { axiosInstance, user, isDemoUser, isAdmin } = useUserContext();
+    const { axiosInstance, user, isAdmin } = useUserContext();
+    const requireAuth = useRequireAuth();
     const [route, setRoute] = useState(null);
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
@@ -37,19 +39,19 @@ const RouteDetail = () => {
 
     const currentUserId = user?.user_id ?? user?.id;
     const isOwner =
-        !isDemoUser &&
         currentUserId != null &&
         route != null &&
         Number(currentUserId) === Number(route.pilot?.id);
     const canDeleteRoute = isOwner || isAdmin;
 
     useEffect(() => {
-        if (route && !isDemoUser && searchParams.get("edit") === "1" && currentUserId != null && Number(route.pilot?.id) === Number(currentUserId)) {
+        if (route && searchParams.get("edit") === "1" && currentUserId != null && Number(route.pilot?.id) === Number(currentUserId)) {
             setEditing(true);
         }
-    }, [route, searchParams, currentUserId, isDemoUser]);
+    }, [route, searchParams, currentUserId]);
 
-    const handleLike = async () => {
+    const handleLike = async (event) => {
+        if (!requireAuth(event)) return;
         try {
             const response = await axiosInstance.post(`post/routes/${routeId}/like/`);
             setRoute(prev => ({
@@ -62,7 +64,8 @@ const RouteDetail = () => {
         }
     };
 
-    const handleSave = async () => {
+    const handleSave = async (event) => {
+        if (!requireAuth(event)) return;
         try {
             const response = await axiosInstance.post(`post/routes/${routeId}/save/`);
             setRoute(prev => ({
@@ -192,6 +195,10 @@ const RouteDetail = () => {
             alert("Не удалось скопировать ссылку");
         }
     };
+
+    if (!user && searchParams.get("edit") === "1") {
+        return <Navigate to="/signup/" replace />;
+    }
 
     const buildOsmUrl = () => {
         const points = getRoutePoints();

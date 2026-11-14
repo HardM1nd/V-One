@@ -146,8 +146,8 @@ function UserContextProvider({ children }) {
                         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
                         return axiosInstance(originalRequest);
                     }
-                    if (window.location.pathname !== "/signin/") {
-                        window.location.href = "/signin/";
+                    if (window.location.pathname !== "/signup/") {
+                        window.location.href = "/signup/";
                     }
                 }
 
@@ -174,65 +174,87 @@ function UserContextProvider({ children }) {
         }
     }, [axiosInstance]);
 
-    const login = (data, onfailure) => {
-        axiosInstance
-            .post("/accounts/token/", {
-                username: data.username,
-                password: data.password,
-            })
-            .then((response) => {
-                if (response.status === 200) {
-                    const tokensData = response.data;
-                    setUser(jwtDecode(tokensData.access));
-                    setTokens(tokensData);
-                    tokensRef.current = tokensData;
-                    localStorage.setItem("userTokens", JSON.stringify(tokensData));
-                }
-            })
-            .catch(() => {
-                onfailure();
-            });
-    };
+    const login = useCallback(
+        (data, onfailure) => {
+            axiosInstance
+                .post("/accounts/token/", {
+                    username: data.username,
+                    password: data.password,
+                })
+                .then((response) => {
+                    if (response.status === 200) {
+                        const tokensData = response.data;
+                        setUser(jwtDecode(tokensData.access));
+                        setTokens(tokensData);
+                        tokensRef.current = tokensData;
+                        localStorage.setItem("userTokens", JSON.stringify(tokensData));
+                    }
+                })
+                .catch(() => {
+                    onfailure();
+                });
+        },
+        [axiosInstance]
+    );
 
-    const signup = (validatedData, onFailure) => {
-        axiosInstance
-            .post("/accounts/signup/", validatedData)
-            .then((response) => {
-                if (response.status < 400 && response.status >= 200) {
-                    const { tokens: tokensData } = response.data;
-                    setUser(jwtDecode(tokensData.access));
-                    setTokens(tokensData);
-                    tokensRef.current = tokensData;
-                    localStorage.setItem("userTokens", JSON.stringify(tokensData));
-                }
-            })
-            .catch((error) => onFailure(error));
-    };
+    const signup = useCallback(
+        (validatedData, onFailure) => {
+            axiosInstance
+                .post("/accounts/signup/", validatedData)
+                .then((response) => {
+                    if (response.status < 400 && response.status >= 200) {
+                        const { tokens: tokensData } = response.data;
+                        setUser(jwtDecode(tokensData.access));
+                        setTokens(tokensData);
+                        tokensRef.current = tokensData;
+                        localStorage.setItem("userTokens", JSON.stringify(tokensData));
+                    }
+                })
+                .catch((error) => onFailure(error));
+        },
+        [axiosInstance]
+    );
 
-    const updateInfo = async (formData, onSuccess, onFailure) => {
-        axiosInstance
-            .patch("accounts/profile/update/", formData)
-            .then((response) => {
-                onSuccess(response);
-            })
-            .catch((e) => {
-                onFailure(e);
-            });
-    };
+    const updateInfo = useCallback(
+        async (formData, onSuccess, onFailure) => {
+            axiosInstance
+                .patch("accounts/profile/update/", formData)
+                .then((response) => {
+                    onSuccess(response);
+                })
+                .catch((e) => {
+                    onFailure(e);
+                });
+        },
+        [axiosInstance]
+    );
 
-    const authcontext = {
-        user,
-        login,
-        axiosInstance,
-        logout,
-        updateInfo,
-        signup,
-        profileData,
-        setProfileData,
-        isDemoUser: profileData?.is_read_only === true || profileData?.username === "DemoUser",
-        isAdmin: user?.is_staff === true,
-        fetchUserData,
-    };
+    const isAdmin = user?.is_staff === true;
+    const authcontext = useMemo(
+        () => ({
+            user,
+            login,
+            axiosInstance,
+            logout,
+            updateInfo,
+            signup,
+            profileData,
+            setProfileData,
+            isAdmin,
+            fetchUserData,
+        }),
+        [
+            user,
+            login,
+            axiosInstance,
+            logout,
+            updateInfo,
+            signup,
+            profileData,
+            isAdmin,
+            fetchUserData,
+        ]
+    );
 
     useEffect(() => {
         if (tokens && tokens.access) {

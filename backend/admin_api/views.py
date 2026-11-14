@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.api.serializers import UserSerializer
+from accounts.api.querysets import with_user_summary
 from accounts.models import Notification
 from post.models import Comment, Post
 
@@ -250,7 +251,10 @@ class AdminListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [IsAdmin]
 
     def get_queryset(self):
-        return User.objects.filter(is_staff=True)
+        return with_user_summary(
+            User.objects.filter(is_staff=True),
+            self.request.user,
+        )
 
     def create(self, request, *args, **kwargs):
         """

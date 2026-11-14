@@ -7,6 +7,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { getMediaUrl } from "../../lib/utils";
+import useRequireAuth from "../../lib/useRequireAuth";
 
 const RouteCardOptionsComponent = ({ onEdit, onDelete, onClose, showEdit }) => {
     useEffect(() => {
@@ -44,6 +45,7 @@ const RouteCardOptionsComponent = ({ onEdit, onDelete, onClose, showEdit }) => {
 const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
     const { axiosInstance, user, isAdmin } = useUserContext();
     const navigate = useNavigate();
+    const requireAuth = useRequireAuth();
     const [loading, setLoading] = useState(false);
     const [openOptions, setOpenOptions] = useState(false);
 
@@ -54,6 +56,7 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
     const handleLike = async (e) => {
         e.preventDefault();
         e.stopPropagation();
+        if (!requireAuth(e)) return;
         if (onLike) {
             await onLike(route.id);
         } else {
@@ -68,6 +71,7 @@ const RouteCard = ({ route, onLike, onSave, showActions = true }) => {
     const handleSave = async (e) => {
         e.preventDefault();
         e.stopPropagation();
+        if (!requireAuth(e)) return;
         if (onSave) {
             await onSave(route.id);
         } else {

@@ -1,9 +1,9 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import useUserContext from "../../contexts/UserContext";
 
-function LoginRequiredRoute() {
+function LoginRequiredRoute({ children }) {
     const { user } = useUserContext();
-    return <>{user ? <Outlet /> : <Navigate to="/signin"></Navigate>}</>;
+    return user ? children : <Navigate to="/signup/" replace />;
 }
 
 export default LoginRequiredRoute;

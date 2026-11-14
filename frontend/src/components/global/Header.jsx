@@ -109,6 +109,16 @@ import { getMediaUrl } from "../../lib/utils";
                                 </svg>
                             )}
                         </Button>
+                        {!user && (
+                            <div className="flex items-center gap-1">
+                                <Link to="/signin/">
+                                    <Button variant="ghost" size="sm">Войти</Button>
+                                </Link>
+                                <Link to="/signup/">
+                                    <Button size="sm">Регистрация</Button>
+                                </Link>
+                            </div>
+                        )}
                         {user && (
                             <>
                                 <Link to="/profile/" className="cursor-pointer flex-shrink-0">

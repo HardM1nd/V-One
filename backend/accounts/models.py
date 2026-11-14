@@ -77,12 +77,6 @@ class User(AbstractUser):
         max_length=500,
         verbose_name='Биография'
     )
-    is_read_only = models.BooleanField(
-        default=False,
-        verbose_name='Только чтение (демо)',
-        help_text='Запрет постов, комментариев, редактирования профиля и т.п.',
-    )
-
     def media_posts(self):
         """Возвращает посты пользователя с изображениями"""
         from django.db.models import Q
@@ -149,6 +143,10 @@ class Notification(models.Model):
 
     class Meta:
         ordering = ["-created"]
+        indexes = [
+            models.Index(fields=["user", "created"], name="notif_user_created_idx"),
+            models.Index(fields=["user", "is_read"], name="notif_user_read_idx"),
+        ]
         verbose_name = _("Уведомление")
         verbose_name_plural = _("Уведомления")
 

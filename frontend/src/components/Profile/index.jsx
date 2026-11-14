@@ -15,7 +15,7 @@ import { getMediaUrl } from "../../lib/utils";
 import { Pencil } from "lucide-react";
 
 const Profile = () => {
-  const { profileData, isDemoUser } = useUserContext();
+  const { profileData } = useUserContext();
   const [queryParams, setQueryParams] = useSearchParams();
   const handleChange = (value) => {
     setQueryParams({ tab: value });
@@ -34,14 +34,14 @@ const Profile = () => {
     bio,
   } = profileData;
   const currentTab = queryParams.get("tab") || "posts";
-  const effectiveTab = isDemoUser && currentTab === "update" ? "posts" : currentTab;
+  const effectiveTab = currentTab;
   const tabs = [
     { value: "posts", label: "Посты" },
     { value: "comments", label: "Комментарии" },
     { value: "media", label: "Медиа" },
     { value: "following", label: "Подписки" },
     { value: "routes", label: "Маршруты" },
-    ...(!isDemoUser ? [{ value: "update", label: <Pencil className="h-4 w-4" />, iconOnly: true }] : []),
+    { value: "update", label: <Pencil className="h-4 w-4" />, iconOnly: true },
   ];
 
   useEffect(() => {
@@ -51,12 +51,6 @@ const Profile = () => {
       document.title = "V-One";
     };
   }, [username]);
-
-  useEffect(() => {
-    if (isDemoUser && currentTab === "update") {
-      setQueryParams({ tab: "posts" }, { replace: true });
-    }
-  }, [isDemoUser, currentTab]);
 
   const showCover = Boolean(cover_pic) && !cover_pic.includes("coverphoto.jpg");
 

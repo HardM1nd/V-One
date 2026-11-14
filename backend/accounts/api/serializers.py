@@ -71,7 +71,6 @@ class UserSerializer(serializers.ModelSerializer):
             "bio",
             "is_following",
             "is_active",
-            "is_read_only",
         ]
         extra_kwargs = {
             "date_joined": {
@@ -111,9 +110,13 @@ class UserSerializer(serializers.ModelSerializer):
         return representation
 
     def get_followers(self, user):
+        if hasattr(user, "_followers_count"):
+            return user._followers_count
         return user.followers.count()
 
     def get_following(self, user):
+        if hasattr(user, "_following_count"):
+            return user._following_count
         return user.following.count()
 
     def get_date_joined(self, user):
@@ -128,6 +131,8 @@ class UserSerializer(serializers.ModelSerializer):
             return False
         if request.user.id == user.id:
             return False
+        if hasattr(user, "_is_following"):
+            return user._is_following
         return request.user.following.filter(id=user.id).exists()
 
     def update(self, instance, validated_data):

@@ -7,6 +7,7 @@ import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { Textarea } from "../ui/textarea";
 import { getMediaUrl } from "../../lib/utils";
+import useRequireAuth from "../../lib/useRequireAuth";
 
 const ImagePreview = ({ file, removeImage, index }) => {
     return (
@@ -42,10 +43,11 @@ const TweetForm = () => {
     const [files, setFiles] = useState([]);
     const {
         profileData: { username, profile_pic },
-        isDemoUser,
     } = useUserContext();
+    const requireAuth = useRequireAuth();
     const chooseImageFile = (e) => {
         e.preventDefault();
+        if (!requireAuth(e)) return;
         document.querySelector("#post-image-field").click();
     };
 
@@ -88,6 +90,7 @@ const TweetForm = () => {
 
     const submitForm = (e) => {
         e.preventDefault();
+        if (!requireAuth(e)) return;
         
         // Проверка размера файлов
         const oversizedFiles = files.filter((f) => f.sizeKb > maxFileSizeKb);
@@ -117,12 +120,7 @@ const TweetForm = () => {
         createPost(
             formData,
             success,
-            (err) =>
-                alert(
-                    isDemoUser && err?.response?.status === 403
-                        ? "Демо-аккаунт: публикация недоступна."
-                        : "Не удалось отправить пост"
-                )
+            () => alert("Не удалось отправить пост")
         );
     };
 

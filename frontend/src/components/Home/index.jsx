@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import CardContainer from "../global/CardContainer";
 import TweetForm from "../global/TweetForm";
 import usePostActionContext from "../../contexts/PostActionContext";
@@ -12,8 +12,6 @@ const Home = () => {
     const { getPosts } = usePostActionContext();
     const { setData, getNextItems, getNextUrl } = usePageContext();
     const { user } = useUserContext();
-    const container = useRef();
-
     useEffect(() => {
         const success = (r) => {
             const raw = r.data?.results;
@@ -47,7 +45,7 @@ const Home = () => {
     };
 
     return (
-        <div className="flex flex-col items-center w-full" ref={container} id="demo">
+        <div className="flex flex-col items-center w-full">
             <TweetForm />
             <CardContainer
                 emptyMessage="Пока нет постов в ленте."

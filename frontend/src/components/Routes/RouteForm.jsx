@@ -7,7 +7,7 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 
 const RouteForm = ({ route = null, onSuccess }) => {
-    const { axiosInstance, isDemoUser } = useUserContext();
+    const { axiosInstance } = useUserContext();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -69,11 +69,7 @@ const RouteForm = ({ route = null, onSuccess }) => {
             }
         } catch (error) {
             console.error("Error saving route:", error);
-            if (isDemoUser && error?.response?.status === 403) {
-                alert("Демо-аккаунт: публикация недоступна.");
-            } else {
-                alert("Ошибка при сохранении маршрута. Проверьте данные.");
-            }
+            alert("Ошибка при сохранении маршрута. Проверьте данные.");
         } finally {
             setLoading(false);
         }

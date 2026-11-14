@@ -22,7 +22,7 @@ function validateUsername(username) {
 }
 
 const Settings = () => {
-    const { profileData, updateInfo, fetchUserData, isDemoUser } = useUserContext();
+    const { profileData, updateInfo, fetchUserData } = useUserContext();
     const { maxFileSizeKb } = usePageContext();
     const { 
         profile_pic, 
@@ -355,10 +355,6 @@ const Settings = () => {
                             size="sm"
                             variant="outline"
                             onClick={() => {
-                                if (isDemoUser) {
-                                    alert("Нельзя изменить имя у демо-аккаунта");
-                                    return;
-                                }
                                 setEditUsername((prev) => !prev);
                             }}
                         >
@@ -393,10 +389,6 @@ const Settings = () => {
                             size="sm"
                             variant="outline"
                             onClick={() => {
-                                if (isDemoUser) {
-                                    alert("Нельзя менять пароль у демо-аккаунта");
-                                    return;
-                                }
                                 setupdatePassword(true);
                             }}
                         >

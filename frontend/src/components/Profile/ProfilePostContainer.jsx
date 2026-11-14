@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import usePageContext from "../../contexts/pageContext";
 import usePostActionContext from "../../contexts/PostActionContext";
 import CardContainer from "../global/CardContainer";
@@ -7,7 +7,6 @@ import { Button } from "../ui/button";
 const ProfilePostContainer = () => {
     const { setData, getNextItems, getNextUrl } = usePageContext();
     const { getPosts } = usePostActionContext();
-    const container = useRef();
     useEffect(() => {
         const success = (response) => {
             const raw = response.data?.results;
@@ -32,7 +31,7 @@ const ProfilePostContainer = () => {
     };
 
     return (
-        <div ref={container} className="flex flex-col items-center w-full">
+        <div className="flex flex-col items-center w-full">
             <CardContainer
                 emptyMessage="У вас пока нет постов."
                 emptyHint="Создайте первый пост в ленте."

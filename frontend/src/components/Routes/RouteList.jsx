@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import RouteCard from "./RouteCard";
 import useUserContext from "../../contexts/UserContext";
 import { Button } from "../ui/button";
@@ -17,7 +17,14 @@ const RouteList = ({ endpoint, pilotId = null, showFilters = true }) => {
         distance_max: "",
         order_by: "-created",
     });
+    const [debouncedFilters, setDebouncedFilters] = useState(filters);
     const [filtersOpen, setFiltersOpen] = useState(false);
+    const requestController = useRef(null);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setDebouncedFilters(filters), 300);
+        return () => clearTimeout(timer);
+    }, [filters]);
 
     const resetFilters = () => {
         setFilters({
@@ -31,6 +38,9 @@ const RouteList = ({ endpoint, pilotId = null, showFilters = true }) => {
 
     const fetchRoutes = useCallback(
         async (url = null) => {
+            requestController.current?.abort();
+            const controller = new AbortController();
+            requestController.current = controller;
             try {
                 setLoading(true);
                 const requestUrl = url || endpoint;
@@ -39,23 +49,26 @@ const RouteList = ({ endpoint, pilotId = null, showFilters = true }) => {
                 if (pilotId) {
                     params.pilot = pilotId;
                 }
-                if (filters.aircraft_type) {
-                    params.aircraft_type = filters.aircraft_type;
+                if (debouncedFilters.aircraft_type) {
+                    params.aircraft_type = debouncedFilters.aircraft_type;
                 }
-                if (filters.order_by) {
-                    params.order_by = filters.order_by;
+                if (debouncedFilters.order_by) {
+                    params.order_by = debouncedFilters.order_by;
                 }
-                if (filters.q) {
-                    params.q = filters.q;
+                if (debouncedFilters.q) {
+                    params.q = debouncedFilters.q;
                 }
-                if (filters.distance_min) {
-                    params.distance_min = filters.distance_min;
+                if (debouncedFilters.distance_min) {
+                    params.distance_min = debouncedFilters.distance_min;
                 }
-                if (filters.distance_max) {
-                    params.distance_max = filters.distance_max;
+                if (debouncedFilters.distance_max) {
+                    params.distance_max = debouncedFilters.distance_max;
                 }
 
-                const response = await axiosInstance.get(requestUrl, { params });
+                const response = await axiosInstance.get(requestUrl, {
+                    params,
+                    signal: controller.signal,
+                });
                 const rawData = response.data.results ?? response.data;
                 const data = Array.isArray(rawData) ? rawData : [];
 
@@ -66,21 +79,30 @@ const RouteList = ({ endpoint, pilotId = null, showFilters = true }) => {
                 }
                 setNextUrl(response.data.next || null);
             } catch (error) {
-                if (error.response?.status === 401) {
+                if (controller.signal.aborted) {
+                    return;
+                } else if (error.response?.status === 401) {
                     setRoutes([]);
                     setNextUrl(null);
                 } else {
                     console.error("Error fetching routes:", error);
                 }
             } finally {
-                setLoading(false);
+                if (requestController.current === controller) {
+                    requestController.current = null;
+                    setLoading(false);
+                }
             }
         },
-        [axiosInstance, endpoint, pilotId, filters]
+        [axiosInstance, endpoint, pilotId, debouncedFilters]
     );
 
     useEffect(() => {
         fetchRoutes();
+        return () => {
+            requestController.current?.abort();
+            requestController.current = null;
+        };
     }, [fetchRoutes]);
 
     const handleLike = async (routeId) => {

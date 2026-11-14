@@ -51,21 +51,29 @@ class FlightRouteSerializer(serializers.ModelSerializer):
         read_only_fields = ['pilot', 'created', 'updated']
 
     def get_is_liked(self, route):
+        if hasattr(route, "_is_liked"):
+            return route._is_liked
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return route.likes.filter(id=request.user.id).exists()
         return False
 
     def get_is_saved(self, route):
+        if hasattr(route, "_is_saved"):
+            return route._is_saved
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return route.saves.filter(id=request.user.id).exists()
         return False
 
     def get_likes_count(self, route):
+        if hasattr(route, "_likes_count"):
+            return route._likes_count
         return route.likes.count()
 
     def get_saves_count(self, route):
+        if hasattr(route, "_saves_count"):
+            return route._saves_count
         return route.saves.count()
 
     def get_created_display(self, route):

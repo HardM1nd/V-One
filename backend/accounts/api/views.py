@@ -14,11 +14,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.permissions import AllowAny, IsAdminUser
-from accounts.permissions import IsAuthenticatedReadOnlyForDemo
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from post.models import Post, Comment
 
 from .serializers import MyTokenObtainPairSerializer, SignupSerializer, UserSerializer, NotificationSerializer
+from .querysets import with_user_summary
 
 
 def get_tokens_for_user(user):
@@ -92,7 +92,7 @@ class FollowingListAPIView(ListAPIView):
     def get_queryset(self):
         user_id = self.kwargs.get("id")
         user = User.objects.get(id=user_id)
-        return user.following.all()
+        return with_user_summary(user.following.all(), self.request.user)
 
 
 class FollowerListAPIView(ListAPIView):
@@ -101,11 +101,11 @@ class FollowerListAPIView(ListAPIView):
     def get_queryset(self):
         user_id = self.kwargs.get("id")
         user = User.objects.get(id=user_id)
-        return user.followers.all()
+        return with_user_summary(user.followers.all(), self.request.user)
 
 
 class FollowUnfollowUserAPIView(APIView):
-    allow_read_only_user = True
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
         user = request.user
@@ -167,7 +167,7 @@ class PilotListAPIView(ListAPIView):
     authentication_classes = []
     
     def get_queryset(self):
-        queryset = User.objects.all()
+        queryset = with_user_summary(User.objects.all(), self.request.user)
         pilot_type = self.request.query_params.get('pilot_type', None)
         query = self.request.query_params.get('q', None)
         
@@ -197,10 +197,14 @@ class PilotListAPIView(ListAPIView):
 
 class NotificationListAPIView(ListAPIView):
     serializer_class = NotificationSerializer
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        queryset = Notification.objects.filter(user=self.request.user).order_by("-created")
+        queryset = (
+            Notification.objects.filter(user=self.request.user)
+            .select_related("actor")
+            .order_by("-created")
+        )
         unread_only = self.request.query_params.get("unread")
         if unread_only in {"1", "true", "True"}:
             queryset = queryset.filter(is_read=False)
@@ -208,8 +212,7 @@ class NotificationListAPIView(ListAPIView):
 
 
 class NotificationReadAPIView(APIView):
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
-    allow_read_only_user = True
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
         notification = get_object_or_404(Notification, pk=pk, user=request.user)
@@ -219,8 +222,7 @@ class NotificationReadAPIView(APIView):
 
 
 class NotificationReadAllAPIView(APIView):
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
-    allow_read_only_user = True
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
@@ -228,7 +230,7 @@ class NotificationReadAllAPIView(APIView):
 
 
 class NotificationUnreadCountAPIView(APIView):
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         count = Notification.objects.filter(user=request.user, is_read=False).count()
@@ -237,7 +239,7 @@ class NotificationUnreadCountAPIView(APIView):
 
 class BanUnbanUserAPIView(APIView):
     """API endpoint для администраторов для бана/разбана пользователей"""
-    permission_classes = [IsAuthenticatedReadOnlyForDemo, IsAdminUser]
+    permission_classes = [IsAdminUser]
 
     def _delete_user_messages(self, user, delete_period):
         """

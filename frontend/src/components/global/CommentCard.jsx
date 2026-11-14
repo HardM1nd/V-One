@@ -5,9 +5,8 @@ import { Card, CardContent } from "../ui/card";
 import { formatDateTime, getMediaUrl } from "../../lib/utils";
 
 const CommentCard = (props) => {
-    const {
-        user: { user_id },
-    } = useUserContext();
+    const { user } = useUserContext();
+    const user_id = user?.user_id;
     const { content, creator_name, creator_profile_pic, creator_id, created } = props;
     return (
         <Card className="my-2">

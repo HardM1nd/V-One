@@ -5,11 +5,6 @@ import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { Input } from "../ui/input";
 
-const demoUser = {
-    username: "DemoUser",
-    password: "randompassword",
-};
-
 export default function SignIn() {
     const { login, user } = useUserContext();
     const [formData, setFormData] = useState({
@@ -34,13 +29,6 @@ export default function SignIn() {
             ...prev,
             [e.target.name]: e.target.value,
         }));
-    };
-
-    const loginInHasDemo = (e) => {
-        e.preventDefault();
-        setFormData(demoUser);
-        // Using a setTimeOut to wait a bit so the passwords are revealed to the user before submitting the form
-        setTimeout(() => login(demoUser, () => alert("Неверный логин или пароль")), 100);
     };
 
     if (user) return <Navigate to="/" />;
@@ -89,9 +77,6 @@ export default function SignIn() {
                         </p>
                         <div className="flex justify-end items-center gap-2">
                             <Button type="submit">Войти</Button>
-                            <Button type="button" variant="outline" onClick={loginInHasDemo}>
-                                Войти как Demo
-                            </Button>
                         </div>
                     </form>
                 </CardContent>

@@ -150,27 +150,37 @@ class PostSerializer(serializers.ModelSerializer):
         return naturaltime(post.created)
 
     def get_is_liked(self, post):
+        if hasattr(post, "_is_liked"):
+            return post._is_liked
         user = self.context.get("request").user
         if not user or not user.is_authenticated:
             return False
         return post.likes.filter(id=user.id).exists()
 
     def get_is_saved(self, post):
+        if hasattr(post, "_is_saved"):
+            return post._is_saved
         user = self.context.get("request").user
         if not user or not user.is_authenticated:
             return False
         return post.saves.filter(id=user.id).exists()
 
     def get_is_commented(self, post):
+        if hasattr(post, "_is_commented"):
+            return post._is_commented
         user = self.context.get("request").user
         if not user or not user.is_authenticated:
             return False
         return post.comments.filter(creator=user).exists()
 
     def get_likes(self, post):
+        if hasattr(post, "_likes_count"):
+            return post._likes_count
         return post.likes.count()
 
     def get_is_following_user(self, post):
+        if hasattr(post, "_is_following_user"):
+            return post._is_following_user
         creator = post.creator
         user = self.context.get("request").user
         if not user or not user.is_authenticated:
@@ -178,6 +188,8 @@ class PostSerializer(serializers.ModelSerializer):
         return user.following.filter(id=creator.id).exists()
 
     def get_is_followed_by_user(self, post):
+        if hasattr(post, "_is_followed_by_user"):
+            return post._is_followed_by_user
         creator = post.creator
         user = self.context.get("request").user
         if not user or not user.is_authenticated:
@@ -185,9 +197,13 @@ class PostSerializer(serializers.ModelSerializer):
         return creator.following.filter(id=user.id).exists()
 
     def get_comments(self, post):
+        if hasattr(post, "_comments_count"):
+            return post._comments_count
         return post.comments.count()
 
     def get_saves(self, post):
+        if hasattr(post, "_saves_count"):
+            return post._saves_count
         return post.saves.count()
 
     def create(self, validated_data):

@@ -1,26 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import RouteList from "./RouteList";
 import RouteForm from "./RouteForm";
 import useUserContext from "../../contexts/UserContext";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
+import useRequireAuth from "../../lib/useRequireAuth";
 
 const Routes = () => {
     const [queryParams, setQueryParams] = useSearchParams();
     const { user, profileData } = useUserContext();
+    const requireAuth = useRequireAuth();
     const currentTab = queryParams.get("tab") || "all";
     const [refreshKey, setRefreshKey] = useState(0);
 
     // Use verified session (profile loaded) for auth-only tabs to avoid 401 with stale/invalid token
     const sessionVerified = Boolean(user && profileData?.username);
 
-    // Switch to "all" when session not verified but URL has auth-only tab
+    // Keep stale sessions away from endpoints that require a loaded profile.
     useEffect(() => {
-        if (!sessionVerified && (currentTab === "following" || currentTab === "saved")) {
+        if (user && !sessionVerified && (currentTab === "following" || currentTab === "saved")) {
             setQueryParams({ tab: "all" });
         }
-    }, [sessionVerified, currentTab, setQueryParams]);
+    }, [user, sessionVerified, currentTab, setQueryParams]);
 
     const handleTabChange = (newValue) => {
         setQueryParams({ tab: newValue });
@@ -52,20 +54,24 @@ const Routes = () => {
         };
     }, []);
 
+    if (!user && ["create", "following", "saved", "my"].includes(currentTab)) {
+        return <Navigate to="/signup/" replace />;
+    }
+
     return (
         <div className="w-full max-w-[599px] mt-4 mx-auto px-2 sm:px-0">
             <Card className="mb-4">
                 <CardContent className="space-y-3">
                     <div className="mt-4 flex justify-between gap-4 flex-wrap">
                         <h2 className="text-2xl font-bold">✈️ Маршруты</h2>
-                        {user && (
-                            <Button
-                                className="h-8 px-2 text-xs sm:h-9 sm:px-4 sm:text-sm"
-                                onClick={() => setQueryParams({ tab: "create" })}
-                            >
-                                Создать маршрут
-                            </Button>
-                        )}
+                        <Button
+                            className="h-8 px-2 text-xs sm:h-9 sm:px-4 sm:text-sm"
+                            onClick={(event) => {
+                                if (requireAuth(event)) setQueryParams({ tab: "create" });
+                            }}
+                        >
+                            Создать маршрут
+                        </Button>
                     </div>
                     <div className="mt-3 flex justify-center gap-4 flex-wrap">
                         {[

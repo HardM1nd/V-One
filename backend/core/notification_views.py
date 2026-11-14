@@ -1,12 +1,12 @@
 from rest_framework.decorators import api_view, permission_classes
-from accounts.permissions import IsAuthenticatedReadOnlyForDemo
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 from accounts.models import Notification
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticatedReadOnlyForDemo])
+@permission_classes([IsAuthenticated])
 def unread_notifications_count(request):
     """
     Возвращает количество непрочитанных уведомлений.

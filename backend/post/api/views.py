@@ -12,10 +12,11 @@ from .serializers import PostSerializer, CommentSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import AllowAny, IsAdminUser
-from accounts.permissions import IsAuthenticatedReadOnlyForDemo
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from accounts.models import User
 from typing import Any
+from django.db.models import F
+from .querysets import with_post_list_data
 
 
 class PostListAPIView(ListAPIView):
@@ -23,30 +24,32 @@ class PostListAPIView(ListAPIView):
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-        filter = self.request.query_params.get('filter', None)
+        filter_name = self.request.query_params.get('filter', None)
         user = self.request.user
         if not user.is_authenticated:
-            if filter in {"saved", "liked", "user", "media"}:
-                return Post.objects.none()
-            if filter == "explore":
-                def _(post):
-                    return post.likes.count() + post.saves.count() + post.comments.count()
-                return sorted(Post.objects.all().order_by("-created"), key=_, reverse=True)
-            return Post.objects.all().order_by("-created")
-        if filter == 'saved':
-            return user.saved_post.all().order_by("-created")
-        elif filter == "liked":
-            return user.liked_post.all().order_by("-created")
-        elif filter == 'user':
-            return user.posts.all().order_by("-created")
-        elif filter == 'media':
-            return user.media_posts().order_by("-created")
-        elif filter == "explore":
-            def _(post):
-                return post.likes.count() + post.saves.count() + post.comments.count()
-            return sorted(Post.objects.all().order_by("-created"), key=_, reverse=True)
+            if filter_name in {"saved", "liked", "user", "media"}:
+                queryset = Post.objects.none()
+            else:
+                queryset = Post.objects.all()
+        elif filter_name == 'saved':
+            queryset = user.saved_post.all()
+        elif filter_name == "liked":
+            queryset = user.liked_post.all()
+        elif filter_name == 'user':
+            queryset = user.posts.all()
+        elif filter_name == 'media':
+            queryset = user.media_posts()
         else:
-            return Post.objects.user_post(user).order_by("-created")
+            queryset = Post.objects.user_post(user)
+
+        queryset = with_post_list_data(queryset, user)
+        if filter_name == "explore":
+            queryset = queryset.annotate(
+                _engagement=F("_likes_count") + F("_saves_count") + F("_comments_count")
+            ).order_by("-_engagement", "-created")
+        else:
+            queryset = queryset.order_by("-created")
+        return queryset
 
 
 class UserPostListAPIView(ListAPIView):
@@ -55,24 +58,26 @@ class UserPostListAPIView(ListAPIView):
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-        filter = self.request.query_params.get('filter', None)
+        filter_name = self.request.query_params.get('filter', None)
         pk = self.kwargs.get("id")
         user: User = get_object_or_404(User, id=pk)
-        if filter == 'media':
-            return user.media_posts().order_by("-created")
-        return user.posts.all().order_by("-created")
+        if filter_name == 'media':
+            queryset = user.media_posts()
+        else:
+            queryset = user.posts.all()
+        return with_post_list_data(queryset, self.request.user).order_by("-created")
 
 
 class PostCreateAPIView(CreateAPIView):
     model = Post
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    permission_classes = [IsAuthenticated]
 
 
 class PostUpdateAPIView(RetrieveUpdateAPIView):
     model = Post
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -83,14 +88,16 @@ class PostUpdateAPIView(RetrieveUpdateAPIView):
 class PostRetrieveAPIView(RetrieveAPIView):
     model = Post
     serializer_class = PostSerializer
-    queryset = Post.objects.all()
     permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return with_post_list_data(Post.objects.all(), self.request.user)
 
 
 class PostDeleteAPIView(RetrieveDestroyAPIView):
     model = Post
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -102,7 +109,7 @@ class AdminPostDeleteAPIView(RetrieveDestroyAPIView):
     """API endpoint для администраторов для удаления любых постов"""
     model = Post
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticatedReadOnlyForDemo, IsAdminUser]
+    permission_classes = [IsAdminUser]
     queryset = Post.objects.all()
 
 
@@ -157,22 +164,30 @@ class PostCommentsListAPIView(ListAPIView):
 
     def get_queryset(self):
         post_id = self.kwargs.get('pk')
-        return Comment.objects.filter(post__id=post_id).order_by("-created")
+        return (
+            Comment.objects.filter(post__id=post_id)
+            .select_related("creator", "post", "post__creator")
+            .order_by("-created")
+        )
 
 
 class CommentsListAPIView(ListAPIView):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        return Comment.objects.filter(creator=user.id).order_by("-created")
+        return (
+            Comment.objects.filter(creator=user.id)
+            .select_related("creator", "post", "post__creator")
+            .order_by("-created")
+        )
 
 
 class CommentCreateApiView(CreateAPIView):
     model = Comment
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
@@ -183,7 +198,7 @@ class CommentCreateApiView(CreateAPIView):
 class CommentDestroyApiView(RetrieveDestroyAPIView):
     model = Comment
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return self.model.objects.filter(creator=self.request.user)
@@ -192,7 +207,7 @@ class CommentDestroyApiView(RetrieveDestroyAPIView):
 class CommentUpdateApiView(RetrieveUpdateAPIView):
     model = Comment
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return self.model.objects.filter(creator=self.request.user)
@@ -201,15 +216,14 @@ class CommentUpdateApiView(RetrieveUpdateAPIView):
 class CommentRetrieveAPIView(RetrieveAPIView):
     model = Comment
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return self.model.objects.filter(creator=self.request.user)
 
 
 class LikeUnlikePostAPIView(APIView):
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
-    allow_read_only_user = True
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
@@ -232,8 +246,7 @@ class LikeUnlikePostAPIView(APIView):
 
 
 class SaveUnsavePostAPIView(APIView):
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
-    allow_read_only_user = True
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
         post = get_object_or_404(Post, pk=pk)

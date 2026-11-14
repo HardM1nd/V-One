@@ -83,6 +83,10 @@ class UserActionLog(models.Model):
 
     class Meta:
         ordering = ["-created"]
+        indexes = [
+            models.Index(fields=["created"], name="action_created_idx"),
+            models.Index(fields=["user", "created"], name="action_user_created_idx"),
+        ]
         verbose_name = "Лог действия пользователя"
         verbose_name_plural = "Логи действий пользователей"
 

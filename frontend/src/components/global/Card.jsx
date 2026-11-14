@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Card as UiCard, CardContent } from "../ui/card";
 import { formatDateTime, getMediaUrl } from "../../lib/utils";
+import useRequireAuth from "../../lib/useRequireAuth";
 
 const CardOptionsComponent = ({ deletePost, edit, onClose }) => {
     useEffect(() => {
@@ -43,6 +44,7 @@ const Card = (props) => {
         axiosInstance,
     } = useUserContext();
     const user_id = authUser?.user_id;
+    const requireAuth = useRequireAuth();
     const [showEditPostModal, setShowEditPostModal] = useState(false);
 
     const {
@@ -142,6 +144,7 @@ const Card = (props) => {
 
     const handleReport = (e) => {
         e.stopPropagation();
+        if (!requireAuth(e)) return;
         const ok = window.confirm("Отправить жалобу администратору?");
         if (!ok) return;
 
@@ -171,6 +174,9 @@ const Card = (props) => {
                             <Link
                                 className="text-foreground font-medium hover:text-primary"
                                 to={user_id && creator_id && Number(user_id) === Number(creator_id) ? "/profile" : `/user/${creator_id}/`}
+                                onClick={(event) => {
+                                    if (!requireAuth(event)) return;
+                                }}
                             >
                                 {user_id && creator_id && Number(user_id) === Number(creator_id) ? "Вы" : user}
                             </Link>
@@ -428,7 +434,9 @@ const Card = (props) => {
                         <Button
                             variant="ghost"
                             className={is_commented ? "text-blue-500" : "text-muted-foreground"}
-                            onClick={() => setViewComment(true)}
+                            onClick={(event) => {
+                                if (requireAuth(event)) setViewComment(true);
+                            }}
                         >
                             {is_commented ? (
                                 <iconify-icon icon="bi:chat-fill">Комментарии</iconify-icon>
@@ -448,7 +456,9 @@ const Card = (props) => {
                         <Button
                             variant="ghost"
                             className={liked ? "text-red-500" : "text-muted-foreground"}
-                            onClick={() => likePost(id, onLike)}
+                            onClick={(event) => {
+                                if (requireAuth(event)) likePost(id, onLike);
+                            }}
                         >
                             {liked ? (
                                 <iconify-icon icon="flat-color-icons:like">Лайк</iconify-icon>
@@ -460,7 +470,9 @@ const Card = (props) => {
                         <Button
                             variant="ghost"
                             className={is_saved ? "text-blue-500" : "text-muted-foreground"}
-                            onClick={() => savePost(id, onSave)}
+                            onClick={(event) => {
+                                if (requireAuth(event)) savePost(id, onSave);
+                            }}
                         >
                             <iconify-icon icon="bi:save">Сохранить</iconify-icon>
                             <span>{saves}</span>

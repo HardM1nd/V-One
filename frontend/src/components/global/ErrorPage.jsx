@@ -1,13 +1,8 @@
 import React from "react";
-import { Link, Navigate } from "react-router-dom";
-import useUserContext from "../../contexts/UserContext";
+import { Link } from "react-router-dom";
 import Header from "./Header";
 
 const ErrorPage = () => {
-    const { user } = useUserContext();
-    if (!user) {
-        return <Navigate to="signin" />;
-    }
     return (
         <div className="bg-background">
             <Header isError={true} />

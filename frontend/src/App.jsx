@@ -29,24 +29,22 @@ const App = createBrowserRouter(
     createRoutesFromElements(
         <>
             <Route path="/" element={<Base />} errorElement={<ErrorPage />}>
-                <Route path="/" element={<LoginRequiredRoute />}>
-                    <Route path="" element={<Home />} />
-                    <Route path="likes/" element={<Liked />} />
-                    <Route path="saved/" element={<Saved />} />
-                    <Route path="explore/" element={<Explore />} />
-                    <Route path="pilots" element={<Pilots />} />
-                    <Route path="pilots/" element={<Pilots />} />
-                    <Route path="routes/" element={<Routes />} />
-                    <Route path="routes/create" element={<Navigate to="/routes/?tab=create" replace />} />
-                    <Route path="routes/create/" element={<Navigate to="/routes/?tab=create" replace />} />
-                    <Route path="routes/:routeId" element={<RouteDetail />} />
-                    <Route path="notifications/" element={<Notifications />} />
-                    <Route path="route/:routeId" element={<RouteDetail />} />
-                    <Route path="profile/" element={<Profile />} />
-                    <Route path="logout/" element={<Logout />} />
-                    <Route path="post/:postId" element={<PostDetail />} />
-                    <Route path="user/:userId" element={<OtherUserDetail />} />
-                </Route>
+                <Route path="" element={<Home />} />
+                <Route path="explore/" element={<Explore />} />
+                <Route path="pilots" element={<Pilots />} />
+                <Route path="pilots/" element={<Pilots />} />
+                <Route path="routes/" element={<Routes />} />
+                <Route path="routes/create" element={<Navigate to="/routes/?tab=create" replace />} />
+                <Route path="routes/create/" element={<Navigate to="/routes/?tab=create" replace />} />
+                <Route path="routes/:routeId" element={<RouteDetail />} />
+                <Route path="route/:routeId" element={<RouteDetail />} />
+                <Route path="post/:postId" element={<PostDetail />} />
+                <Route path="likes/" element={<LoginRequiredRoute><Liked /></LoginRequiredRoute>} />
+                <Route path="saved/" element={<LoginRequiredRoute><Saved /></LoginRequiredRoute>} />
+                <Route path="notifications/" element={<LoginRequiredRoute><Notifications /></LoginRequiredRoute>} />
+                <Route path="profile/" element={<LoginRequiredRoute><Profile /></LoginRequiredRoute>} />
+                <Route path="logout/" element={<LoginRequiredRoute><Logout /></LoginRequiredRoute>} />
+                <Route path="user/:userId" element={<LoginRequiredRoute><OtherUserDetail /></LoginRequiredRoute>} />
             </Route>
 
             {/* Публичные страницы аутентификации */}

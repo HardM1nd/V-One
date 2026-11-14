@@ -41,6 +41,12 @@ class Comment(models.Model):
         "Post", related_name='comments', on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["post", "created"], name="comment_post_created_idx"),
+            models.Index(fields=["creator", "created"], name="comment_creator_created_idx"),
+        ]
+
     def __str__(self):
         return f'{self.creator.username} at {self.created}'
 
@@ -55,6 +61,12 @@ class Post(models.Model):
     saves = models.ManyToManyField(User, related_name="saved_post", blank=True)
     isEdited = models.BooleanField(default=False)
     objects = PostManager()
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["created"], name="post_created_idx"),
+            models.Index(fields=["creator", "created"], name="post_creator_created_idx"),
+        ]
 
     def __str__(self):
         return f'{self.creator.username} at {self.created}'
@@ -167,6 +179,12 @@ class FlightRoute(models.Model):
 
     class Meta:
         ordering = ['-created']
+        indexes = [
+            models.Index(fields=["created"], name="route_created_idx"),
+            models.Index(fields=["pilot", "created"], name="route_pilot_created_idx"),
+            models.Index(fields=["flight_date"], name="route_flight_date_idx"),
+            models.Index(fields=["distance"], name="route_distance_idx"),
+        ]
         verbose_name = 'Маршрут полета'
         verbose_name_plural = 'Маршруты полетов'
 

@@ -67,10 +67,11 @@ docker compose -f docker-compose.prod.yml up -d --build
 docker compose -f docker-compose.prod.yml logs -f
 ```
 
-Откройте TCP-порты 80 и 443 на сервере и у провайдера. Приложение доступно
+Откройте TCP-порты 80, 443 и 8000 на сервере и у провайдера. Приложение доступно
 через указанный в `DOMAIN` адрес; Caddy запросит и будет автоматически
 обновлять TLS-сертификат. PostgreSQL и MinIO доступны только во внутренней
 Docker-сети.
+Админ-панель Django также доступна по HTTPS на `https://<DOMAIN>:8000/admin/`.
 
 ## Установка и запуск без Docker
 
@@ -143,10 +144,10 @@ bun run dev
 - PostgreSQL (опционально) / SQLite (по умолчанию)
 
 ### Frontend
-- React 19.x
-- Material-UI
+- React 18.x
 - React Router
 - Axios
+- Radix UI
 - Tailwind CSS
 
 ## Разработка

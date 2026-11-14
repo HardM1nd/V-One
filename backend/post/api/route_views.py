@@ -8,13 +8,15 @@ from rest_framework.generics import (
 )
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
-from accounts.permissions import IsAuthenticatedReadOnlyForDemo
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.shortcuts import get_object_or_404
 from django.db import models
+from django.db.models import Exists, OuterRef, Prefetch, Value, BooleanField
 from post.models import FlightRoute
-from accounts.models import Notification
+from accounts.models import Notification, User
+from accounts.api.querysets import with_user_summary
 from .route_serializers import FlightRouteSerializer
+from .querysets import count_many_to_many
 
 
 def apply_route_filters(queryset, request):
@@ -71,6 +73,26 @@ def apply_visibility_filter(queryset, user):
     )
 
 
+def with_route_list_data(queryset, user):
+    queryset = queryset.annotate(
+        _likes_count=count_many_to_many(FlightRoute, "likes"),
+        _saves_count=count_many_to_many(FlightRoute, "saves"),
+    )
+    if user and user.is_authenticated:
+        queryset = queryset.annotate(
+            _is_liked=Exists(user.liked_routes.filter(pk=OuterRef("pk"))),
+            _is_saved=Exists(user.saved_routes.filter(pk=OuterRef("pk"))),
+        )
+    else:
+        queryset = queryset.annotate(
+            _is_liked=Value(False, output_field=BooleanField()),
+            _is_saved=Value(False, output_field=BooleanField()),
+        )
+
+    pilot_queryset = with_user_summary(User.objects.all(), user)
+    return queryset.prefetch_related(Prefetch("pilot", queryset=pilot_queryset))
+
+
 class FlightRouteListAPIView(ListAPIView):
     """Список маршрутов полетов"""
     serializer_class = FlightRouteSerializer
@@ -79,13 +101,14 @@ class FlightRouteListAPIView(ListAPIView):
 
     def get_queryset(self):
         queryset = apply_visibility_filter(FlightRoute.objects.all(), self.request.user)
-        return apply_route_filters(queryset, self.request)
+        queryset = apply_route_filters(queryset, self.request)
+        return with_route_list_data(queryset, self.request.user)
 
 
 class FlightRouteCreateAPIView(CreateAPIView):
     """Создание маршрута полета"""
     serializer_class = FlightRouteSerializer
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    permission_classes = [IsAuthenticated]
 
 
 class FlightRouteRetrieveAPIView(RetrieveAPIView):
@@ -96,13 +119,14 @@ class FlightRouteRetrieveAPIView(RetrieveAPIView):
     authentication_classes = []
 
     def get_queryset(self):
-        return apply_visibility_filter(FlightRoute.objects.all(), self.request.user)
+        queryset = apply_visibility_filter(FlightRoute.objects.all(), self.request.user)
+        return with_route_list_data(queryset, self.request.user)
 
 
 class FlightRouteUpdateAPIView(UpdateAPIView):
     """Обновление маршрута"""
     serializer_class = FlightRouteSerializer
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         # Только свои маршруты
@@ -111,7 +135,7 @@ class FlightRouteUpdateAPIView(UpdateAPIView):
 
 class FlightRouteDeleteAPIView(DestroyAPIView):
     """Удаление маршрута (свои; администраторы — любые)"""
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -122,8 +146,7 @@ class FlightRouteDeleteAPIView(DestroyAPIView):
 
 class FlightRouteLikeAPIView(APIView):
     """Лайк/анлайк маршрута"""
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
-    allow_read_only_user = True
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
         queryset = apply_visibility_filter(FlightRoute.objects.all(), request.user)
@@ -154,8 +177,7 @@ class FlightRouteLikeAPIView(APIView):
 
 class FlightRouteSaveAPIView(APIView):
     """Сохранение/удаление из сохраненных маршрутов"""
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
-    allow_read_only_user = True
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
         queryset = apply_visibility_filter(FlightRoute.objects.all(), request.user)
@@ -187,27 +209,29 @@ class FlightRouteSaveAPIView(APIView):
 class MyFlightRoutesAPIView(ListAPIView):
     """Мои маршруты (включая приватные)"""
     serializer_class = FlightRouteSerializer
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = FlightRoute.objects.filter(pilot=self.request.user)
-        return apply_route_filters(queryset, self.request)
+        queryset = apply_route_filters(queryset, self.request)
+        return with_route_list_data(queryset, self.request.user)
 
 
 class SavedFlightRoutesAPIView(ListAPIView):
     """Сохраненные маршруты"""
     serializer_class = FlightRouteSerializer
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = apply_visibility_filter(self.request.user.saved_routes.all(), self.request.user)
-        return apply_route_filters(queryset, self.request)
+        queryset = apply_route_filters(queryset, self.request)
+        return with_route_list_data(queryset, self.request.user)
 
 
 class FollowingFlightRoutesAPIView(ListAPIView):
     """Маршруты пилотов, на которых подписан пользователь"""
     serializer_class = FlightRouteSerializer
-    permission_classes = [IsAuthenticatedReadOnlyForDemo]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         following_ids = self.request.user.following.values_list("id", flat=True)
@@ -215,4 +239,5 @@ class FollowingFlightRoutesAPIView(ListAPIView):
             models.Q(pilot_id__in=following_ids) | models.Q(pilot=self.request.user),
         )
         queryset = apply_visibility_filter(queryset, self.request.user)
-        return apply_route_filters(queryset, self.request)
+        queryset = apply_route_filters(queryset, self.request)
+        return with_route_list_data(queryset, self.request.user)

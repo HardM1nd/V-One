@@ -7,10 +7,12 @@ import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
 import { getMediaUrl } from "../lib/utils";
+import useRequireAuth from "../lib/useRequireAuth";
 
 const Pilots = () => {
     const { axiosInstance, user } = useUserContext();
     const navigate = useNavigate();
+    const requireAuth = useRequireAuth();
     const [pilots, setPilots] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState("all");
@@ -56,8 +58,7 @@ const Pilots = () => {
     };
 
     const handleFollowToggle = async (pilotId) => {
-        if (!user) {
-            navigate("/signin/");
+        if (!requireAuth()) {
             return;
         }
         try {
@@ -182,7 +183,7 @@ const Pilots = () => {
                                                         {pilot.username}
                                                     </h3>
                                                 </div>
-                                                {user && user.id !== pilot.id && (
+                                                {(user?.user_id ?? user?.id) !== pilot.id && (
                                                     <Button
                                                         size="sm"
                                                         variant={pilot.is_following ? "outline" : "default"}

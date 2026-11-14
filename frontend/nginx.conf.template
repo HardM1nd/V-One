@@ -47,6 +47,10 @@ server {
         proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
     }
 
+    location = /index.html {
+        add_header Cache-Control "no-cache, no-store, must-revalidate" always;
+    }
+
     # Serve static files
     location / {
         try_files $uri $uri/ /index.html;

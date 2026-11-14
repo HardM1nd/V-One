@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import CardContainer from "../global/CardContainer";
 import usePostActionContext from "../../contexts/PostActionContext";
 import usePageContext from "../../contexts/pageContext";
@@ -7,7 +7,6 @@ import { Button } from "../ui/button";
 const Saved = () => {
     const { getPosts } = usePostActionContext();
     const { setData, getNextItems, getNextUrl } = usePageContext();
-    const container = useRef();
     useEffect(() => {
         const success = (r) => {
             const raw = r.data?.results;
@@ -41,7 +40,7 @@ const Saved = () => {
     }, []);
 
     return (
-        <div className="flex flex-col items-center w-full" ref={container} id="demo">
+        <div className="flex flex-col items-center w-full">
             <CardContainer
                 emptyMessage="Нет сохраненных постов."
                 emptyHint="Сохраняйте посты, чтобы вернуться к ним позже."
