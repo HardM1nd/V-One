@@ -36,6 +36,7 @@ class Migration(migrations.Migration):
                 ('pilot_type', models.CharField(choices=[('virtual', 'Виртуальный пилот'), ('real', 'Реальный пилот'), ('both', 'Виртуальный и реальный')], default='virtual', max_length=10, verbose_name='Тип пилота')),
                 ('flight_hours', models.DecimalField(decimal_places=2, default=0.0, max_digits=10, verbose_name='Часы налета')),
                 ('aircraft_types', models.TextField(blank=True, help_text='Типы самолетов через запятую (например: Cessna 172, Boeing 737)', null=True, verbose_name='Типы самолетов')),
+                ('license_number', models.CharField(blank=True, max_length=50, null=True, verbose_name='Номер лицензии')),
                 ('bio', models.TextField(blank=True, max_length=500, null=True, verbose_name='Биография')),
                 ('followers', models.ManyToManyField(blank=True, related_name='user_following', to=settings.AUTH_USER_MODEL)),
                 ('following', models.ManyToManyField(blank=True, related_name='user_followers', to=settings.AUTH_USER_MODEL)),
